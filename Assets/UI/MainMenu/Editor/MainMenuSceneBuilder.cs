@@ -15,7 +15,9 @@ public static class MainMenuSceneBuilder
     private const string MainMenuScenePath = "Assets/Scenes/MainMenuScene.unity";
     private const string BecoScenePath = "Assets/Scenes/beco.unity";
     private const string GeneratedPath = "Assets/UI/MainMenu/Generated/";
-    private const string AudioPath = "Assets/Audio/UI/";
+    private const string AudioPath = "Assets/Audio/UI_Medieval-Free/";
+    private const string MusicPath = "Assets/Audio/ImportedFromZip/Audio/";
+    private const bool CreateDecorationsByDefault = false;
 
     [MenuItem("Tools/The Last Sip/Build Main Menu Scene")]
     public static void BuildMainMenuScene()
@@ -37,8 +39,10 @@ public static class MainMenuSceneBuilder
         Sprite bottle = LoadSprite("decor_wine_bottle.png");
         Sprite glass = LoadSprite("decor_wine_glass.png");
         Sprite newspaper = LoadSprite("decor_newspaper.png");
-        AudioClip ambientMusicClip = LoadAudioClip("menu_background.mp3");
-        AudioClip clickClip = LoadAudioClip("button_click.flac");
+        AudioClip menuAmbientMusicClip = LoadMusicClip("MenuPrincipal.mp3");
+        AudioClip creditsAmbientMusicClip = LoadMusicClip("Creditos.mp3");
+        AudioClip hoverClip = LoadAudioClip("UIClick_UIBton ButtonHover _Tonefirst_Medieval UI-Free.wav");
+        AudioClip clickClip = LoadAudioClip("UIClick_UIBton ButtonClick _Tonefirst_Medieval UI-Free.wav");
 
         TMP_FontAsset tmpFont = ResolveTmpFont();
         if (tmpFont == null)
@@ -67,7 +71,8 @@ public static class MainMenuSceneBuilder
         MenuAudioManager audioManager = canvasGo.AddComponent<MenuAudioManager>();
         SetObjectField(audioManager, "ambientMusicSource", musicSource);
         SetObjectField(audioManager, "uiSfxSource", sfxSource);
-        SetObjectField(audioManager, "ambientMusicClip", ambientMusicClip);
+        SetObjectField(audioManager, "ambientMusicClip", menuAmbientMusicClip);
+        SetObjectField(audioManager, "hoverClip", hoverClip);
         SetObjectField(audioManager, "clickClip", clickClip);
 
         GameObject mainMenuPanel = CreateUIObject("MainMenuPanel", canvasGo.transform);
@@ -107,6 +112,7 @@ public static class MainMenuSceneBuilder
         SetObjectField(fadeController, "canvasGroup", fadeCanvasGroup);
 
         LoadingScreenController loadingController = canvasGo.AddComponent<LoadingScreenController>();
+        SetObjectField(loadingController, "menuAudioManager", audioManager);
         SetObjectField(loadingController, "loadingPanel", loadingPanel);
         SetObjectField(loadingController, "mainMenuPanel", mainMenuPanel);
         SetObjectField(loadingController, "creditsPanel", creditsPanel.GetComponent<MenuPanelController>());
@@ -121,8 +127,12 @@ public static class MainMenuSceneBuilder
         SetStringField(controller, "defaultGameSceneName", "Beco");
         SetObjectField(controller, "sceneFadeController", fadeController);
         SetObjectField(controller, "loadingScreenController", loadingController);
+        SetObjectField(controller, "menuAudioManager", audioManager);
+        SetObjectField(controller, "menuAmbientClip", menuAmbientMusicClip);
+        SetObjectField(controller, "creditsAmbientClip", creditsAmbientMusicClip);
         SetObjectField(controller, "mainMenuPanel", mainMenuPanel);
         SetObjectField(controller, "optionsPanel", optionsPanel.GetComponent<MenuPanelController>());
+        SetObjectField(controller, "optionsPanelView", optionsPanel.GetComponent<OptionsPanelView>());
         SetObjectField(controller, "creditsPanel", creditsPanel.GetComponent<MenuPanelController>());
         SetObjectField(controller, "fullscreenToggle", FindInChildren<Toggle>(optionsPanel.transform, "FullscreenToggle"));
         SetObjectField(controller, "mainMenuCanvasGroup", mainMenuCanvasGroup);
@@ -209,12 +219,12 @@ public static class MainMenuSceneBuilder
         fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
         newGameButton = CreateMenuButton(buttonContainerGo.transform, "NewGameButton", "NOVO JOGO", iconNew, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
-        continueButton = CreateMenuButton(buttonContainerGo.transform, "ContinueButton", "CONTINUAR JOGO", iconNew, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
-        optionsButton = CreateMenuButton(buttonContainerGo.transform, "OptionsButton", "OPCOES", iconOptions, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
+        continueButton = CreateMenuButton(buttonContainerGo.transform, "ContinueButton", "CONTINUAR", iconNew, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
+        optionsButton = CreateMenuButton(buttonContainerGo.transform, "OptionsButton", "OPÇÕES", iconOptions, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
         creditsButton = CreateMenuButton(buttonContainerGo.transform, "CreditsButton", "CREDITOS", iconCredits, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
         exitButton = CreateMenuButton(buttonContainerGo.transform, "ExitButton", "SAIR", iconExit, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
 
-        if (!hasBakedScreen)
+        if (!hasBakedScreen && CreateDecorationsByDefault)
         {
             GameObject decorationGo = CreateUIObject("DecorationContainer", parent);
             StretchFull(RectOf(decorationGo));
@@ -275,27 +285,30 @@ public static class MainMenuSceneBuilder
         StretchFull(RectOf(vignetteGo));
         AddImage(vignetteGo, vignette, Color.white, false).raycastTarget = false;
 
-        GameObject propsGo = CreateUIObject("ForegroundProps", parent);
-        StretchFull(RectOf(propsGo));
+        if (CreateDecorationsByDefault)
+        {
+            GameObject propsGo = CreateUIObject("ForegroundProps", parent);
+            StretchFull(RectOf(propsGo));
 
-        GameObject leftBottleGo = CreateUIObject("LeftBottle", propsGo.transform);
-        SetRect(RectOf(leftBottleGo), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(90f, 8f), new Vector2(176f, 388f));
-        AddImage(leftBottleGo, bottle, new Color(1f, 1f, 1f, 0.26f), true).raycastTarget = false;
+            GameObject leftBottleGo = CreateUIObject("LeftBottle", propsGo.transform);
+            SetRect(RectOf(leftBottleGo), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(90f, 8f), new Vector2(176f, 388f));
+            AddImage(leftBottleGo, bottle, new Color(1f, 1f, 1f, 0.26f), true).raycastTarget = false;
 
-        GameObject rightBottleGo = CreateUIObject("RightBottle", propsGo.transform);
-        SetRect(RectOf(rightBottleGo), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-112f, 18f), new Vector2(190f, 410f));
-        AddImage(rightBottleGo, bottle, new Color(1f, 1f, 1f, 0.5f), true).raycastTarget = false;
-        RectOf(rightBottleGo).localRotation = Quaternion.Euler(0f, 0f, -2f);
+            GameObject rightBottleGo = CreateUIObject("RightBottle", propsGo.transform);
+            SetRect(RectOf(rightBottleGo), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-112f, 18f), new Vector2(190f, 410f));
+            AddImage(rightBottleGo, bottle, new Color(1f, 1f, 1f, 0.5f), true).raycastTarget = false;
+            RectOf(rightBottleGo).localRotation = Quaternion.Euler(0f, 0f, -2f);
 
-        GameObject glassGo = CreateUIObject("WineGlass", propsGo.transform);
-        SetRect(RectOf(glassGo), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-182f, 134f), new Vector2(148f, 240f));
-        AddImage(glassGo, glass, new Color(1f, 1f, 1f, 0.68f), true).raycastTarget = false;
-        RectOf(glassGo).localRotation = Quaternion.Euler(0f, 0f, -3f);
+            GameObject glassGo = CreateUIObject("WineGlass", propsGo.transform);
+            SetRect(RectOf(glassGo), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-182f, 134f), new Vector2(148f, 240f));
+            AddImage(glassGo, glass, new Color(1f, 1f, 1f, 0.68f), true).raycastTarget = false;
+            RectOf(glassGo).localRotation = Quaternion.Euler(0f, 0f, -3f);
 
-        GameObject paperGo = CreateUIObject("Newspaper", propsGo.transform);
-        SetRect(RectOf(paperGo), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-150f, 42f), new Vector2(182f, 118f));
-        AddImage(paperGo, newspaper, new Color(1f, 1f, 1f, 0.16f), true).raycastTarget = false;
-        RectOf(paperGo).localRotation = Quaternion.Euler(0f, 0f, -7f);
+            GameObject paperGo = CreateUIObject("Newspaper", propsGo.transform);
+            SetRect(RectOf(paperGo), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-150f, 42f), new Vector2(182f, 118f));
+            AddImage(paperGo, newspaper, new Color(1f, 1f, 1f, 0.16f), true).raycastTarget = false;
+            RectOf(paperGo).localRotation = Quaternion.Euler(0f, 0f, -7f);
+        }
 
         GameObject particlesGo = CreateUIObject("FloatingParticles", parent);
         StretchFull(RectOf(particlesGo));
@@ -479,11 +492,11 @@ public static class MainMenuSceneBuilder
         CreateSelectorRow(languageSection.transform, "LanguageRow", "IDIOMA", "PORTUGUÊS", 0, tmpFont, out Button languageButton, out TMP_Text languageValueText);
 
         GameObject bottomButtons = CreateUIObject("BottomButtonsArea", frameGo.transform);
-        SetRect(RectOf(bottomButtons), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(40f, 44f), new Vector2(-40f, 110f));
+        SetRect(RectOf(bottomButtons), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(54f, 34f), new Vector2(-54f, 96f));
 
-        AnimatedMenuButton resetButton = CreateMenuButton(bottomButtons.transform, "ResetDefaultsButton", "R  REDEFINIR PADROES", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 270f, 52f);
-        SetRect(RectOf(resetButton.gameObject), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 4f), new Vector2(270f, 52f));
-        ConfigureMenuButtonLabel(resetButton, 14f, 19f);
+        AnimatedMenuButton resetButton = CreateMenuButton(bottomButtons.transform, "ResetDefaultsButton", "R  REDEFINIR PADROES", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 300f, 52f);
+        SetRect(RectOf(resetButton.gameObject), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 4f), new Vector2(300f, 52f));
+        ConfigureMenuButtonLabel(resetButton, 10f, 18f);
 
         AnimatedMenuButton applyButton = CreateMenuButton(bottomButtons.transform, "ApplyButton", "APLICAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 180f, 52f);
         SetRect(RectOf(applyButton.gameObject), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 4f), new Vector2(180f, 52f));
@@ -491,7 +504,7 @@ public static class MainMenuSceneBuilder
 
         AnimatedMenuButton backButton = CreateMenuButton(bottomButtons.transform, "BackButton", "ESC  VOLTAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 190f, 52f);
         SetRect(RectOf(backButton.gameObject), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0f, 4f), new Vector2(190f, 52f));
-        ConfigureMenuButtonLabel(backButton, 15f, 20f);
+        ConfigureMenuButtonLabel(backButton, 12f, 20f);
 
         OptionsPanelView view = root.AddComponent<OptionsPanelView>();
         SetObjectField(view, "menuAudioManager", audioManager);
@@ -552,15 +565,15 @@ public static class MainMenuSceneBuilder
         AddShadow(frame, new Color(0f, 0f, 0f, 0.52f), new Vector2(0f, -16f));
 
         GameObject titleGo = CreateUIObject("Title", frame.transform);
-        SetRect(RectOf(titleGo), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -46f), new Vector2(-80f, 54f));
+        SetRect(RectOf(titleGo), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -28f), new Vector2(-140f, 40f));
         TMP_Text titleText = AddText(titleGo, "ESCOLHER SLOT", tmpFont, 30, FontStyles.SmallCaps | FontStyles.Bold, TextAlignmentOptions.Center, new Color32(241, 226, 194, 255));
-        ConfigureSingleLineText(titleText, 22f, 30f, TextOverflowModes.Ellipsis);
+        ConfigureSingleLineText(titleText, 18f, 30f, TextOverflowModes.Ellipsis);
 
         GameObject slotArea = CreateUIObject("SlotArea", frame.transform);
-        SetRect(RectOf(slotArea), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(40f, 120f), new Vector2(-40f, -140f));
+        SetRect(RectOf(slotArea), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -78f), new Vector2(-56f, 500f));
         HorizontalLayoutGroup slotsLayout = slotArea.AddComponent<HorizontalLayoutGroup>();
         slotsLayout.spacing = 20f;
-        slotsLayout.childAlignment = TextAnchor.MiddleCenter;
+        slotsLayout.childAlignment = TextAnchor.UpperCenter;
         slotsLayout.childControlWidth = false;
         slotsLayout.childControlHeight = false;
         slotsLayout.childForceExpandWidth = false;
@@ -571,8 +584,8 @@ public static class MainMenuSceneBuilder
         SaveSlotButton slot3 = CreateSlotCard(slotArea.transform, tmpFont, buttonNormal, 3);
 
         AnimatedMenuButton backButton = CreateMenuButton(frame.transform, "BackButton", "VOLTAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 220f, 58f);
-        SetRect(RectOf(backButton.gameObject), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 40f), new Vector2(220f, 58f));
-        ConfigureMenuButtonLabel(backButton, 16f, 22f);
+        SetRect(RectOf(backButton.gameObject), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 34f), new Vector2(220f, 58f));
+        ConfigureMenuButtonLabel(backButton, 14f, 22f);
 
         SlotSelectionController controller = root.AddComponent<SlotSelectionController>();
         SetObjectField(controller, "panel", panel);
@@ -588,10 +601,10 @@ public static class MainMenuSceneBuilder
     {
         GameObject card = CreateUIObject($"Slot{slotIndex}", parent);
         RectTransform cardRect = RectOf(card);
-        cardRect.sizeDelta = new Vector2(360f, 440f);
+        cardRect.sizeDelta = new Vector2(350f, 420f);
         LayoutElement layout = card.AddComponent<LayoutElement>();
-        layout.preferredWidth = 360f;
-        layout.preferredHeight = 440f;
+        layout.preferredWidth = 350f;
+        layout.preferredHeight = 420f;
 
         Image bg = AddImage(card, cardSprite, new Color(0.2f, 0.1f, 0.1f, 0.9f), false);
         bg.type = Image.Type.Sliced;
@@ -599,24 +612,34 @@ public static class MainMenuSceneBuilder
         button.transition = Selectable.Transition.ColorTint;
 
         GameObject title = CreateUIObject("Title", card.transform);
-        SetRect(RectOf(title), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -26f), new Vector2(-26f, 44f));
+        SetRect(RectOf(title), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -22f), new Vector2(-22f, 40f));
         TMP_Text titleText = AddText(title, $"SLOT {slotIndex}", tmpFont, 28, FontStyles.SmallCaps | FontStyles.Bold, TextAlignmentOptions.Center, new Color32(238, 223, 194, 255));
         ConfigureSingleLineText(titleText, 18f, 28f, TextOverflowModes.Ellipsis);
 
         GameObject status = CreateUIObject("Status", card.transform);
-        SetRect(RectOf(status), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -88f), new Vector2(-26f, 34f));
+        SetRect(RectOf(status), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -76f), new Vector2(-22f, 32f));
         TMP_Text statusText = AddText(status, "Slot vazio", tmpFont, 22, FontStyles.Bold, TextAlignmentOptions.Center, new Color32(220, 205, 178, 255));
         ConfigureSingleLineText(statusText, 14f, 22f, TextOverflowModes.Ellipsis);
 
         GameObject details = CreateUIObject("Details", card.transform);
-        SetRect(RectOf(details), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -210f), new Vector2(-32f, 180f));
+        SetRect(RectOf(details), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -160f), new Vector2(-26f, 64f));
         TMP_Text detailsText = AddText(details, "Novo Jogo", tmpFont, 20, FontStyles.Normal, TextAlignmentOptions.Top, new Color32(204, 188, 161, 255));
         detailsText.alignment = TextAlignmentOptions.TopLeft;
         detailsText.textWrappingMode = TextWrappingModes.Normal;
         detailsText.margin = new Vector4(8f, 0f, 8f, 0f);
 
+        GameObject infoDivider = CreateUIObject("InfoDivider", card.transform);
+        SetRect(RectOf(infoDivider), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -228f), new Vector2(-34f, 2f));
+        AddImage(infoDivider, null, new Color(0.72f, 0.57f, 0.43f, 0.30f), false).raycastTarget = false;
+
+        GameObject preview = CreateUIObject("Preview", card.transform);
+        SetRect(RectOf(preview), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -268f), new Vector2(-26f, 138f));
+        Image previewImage = AddImage(preview, null, new Color(1f, 1f, 1f, 0.08f), false);
+        previewImage.raycastTarget = false;
+        details.transform.SetAsLastSibling();
+
         GameObject footer = CreateUIObject("Footer", card.transform);
-        SetRect(RectOf(footer), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 26f), new Vector2(-26f, 34f));
+        SetRect(RectOf(footer), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 20f), new Vector2(-22f, 30f));
         TMP_Text footerText = AddText(footer, "Novo Jogo", tmpFont, 20, FontStyles.SmallCaps, TextAlignmentOptions.Center, new Color32(233, 217, 190, 255));
         ConfigureSingleLineText(footerText, 14f, 20f, TextOverflowModes.Ellipsis);
 
@@ -633,6 +656,7 @@ public static class MainMenuSceneBuilder
         SetObjectField(slot, "statusText", statusText);
         SetObjectField(slot, "detailsText", detailsText);
         SetObjectField(slot, "footerText", footerText);
+        SetObjectField(slot, "previewImage", previewImage);
         SetObjectField(slot, "disabledOverlay", disabledOverlay);
         return slot;
     }
@@ -647,7 +671,7 @@ public static class MainMenuSceneBuilder
         AddImage(shade, null, new Color(0f, 0f, 0f, 0.6f), false).raycastTarget = true;
 
         GameObject panelRoot = CreateUIObject("Panel", root.transform);
-        SetRect(RectOf(panelRoot), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(80f, -8f), new Vector2(780f, 320f));
+        SetRect(RectOf(panelRoot), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(80f, -8f), new Vector2(860f, 340f));
         Image panelImage = AddImage(panelRoot, panelWood, new Color(1f, 1f, 1f, 0.97f), false);
         panelImage.type = Image.Type.Sliced;
 
@@ -658,17 +682,20 @@ public static class MainMenuSceneBuilder
         SetVector2Field(menuPanel, "hiddenOffset", new Vector2(0f, -14f));
 
         GameObject msg = CreateUIObject("Message", panelRoot.transform);
-        SetRect(RectOf(msg), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -36f), new Vector2(-50f, 170f));
+        SetRect(RectOf(msg), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -34f), new Vector2(-70f, 172f));
         TMP_Text msgText = AddText(msg, "Este slot ja tem um jogo guardado. Queres apagar este progresso e comecar um novo jogo?", tmpFont, 24, FontStyles.Normal, TextAlignmentOptions.Center, new Color32(233, 218, 191, 255));
+        msgText.enableAutoSizing = true;
+        msgText.fontSizeMin = 16f;
+        msgText.fontSizeMax = 24f;
         msgText.textWrappingMode = TextWrappingModes.Normal;
 
-        AnimatedMenuButton confirm = CreateMenuButton(panelRoot.transform, "ConfirmButton", "SIM, APAGAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 240f, 58f);
-        SetRect(RectOf(confirm.gameObject), new Vector2(0.35f, 0f), new Vector2(0.35f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 34f), new Vector2(240f, 58f));
-        ConfigureMenuButtonLabel(confirm, 14f, 20f);
+        AnimatedMenuButton confirm = CreateMenuButton(panelRoot.transform, "ConfirmButton", "SIM, APAGAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 260f, 58f);
+        SetRect(RectOf(confirm.gameObject), new Vector2(0.34f, 0f), new Vector2(0.34f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 30f), new Vector2(260f, 58f));
+        ConfigureMenuButtonLabel(confirm, 12f, 20f);
 
         AnimatedMenuButton cancel = CreateMenuButton(panelRoot.transform, "CancelButton", "CANCELAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 220f, 58f);
-        SetRect(RectOf(cancel.gameObject), new Vector2(0.65f, 0f), new Vector2(0.65f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 34f), new Vector2(220f, 58f));
-        ConfigureMenuButtonLabel(cancel, 14f, 20f);
+        SetRect(RectOf(cancel.gameObject), new Vector2(0.66f, 0f), new Vector2(0.66f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 30f), new Vector2(220f, 58f));
+        ConfigureMenuButtonLabel(cancel, 12f, 20f);
 
         ConfirmOverwritePanel controller = root.AddComponent<ConfirmOverwritePanel>();
         SetObjectField(controller, "panel", menuPanel);
@@ -730,6 +757,11 @@ public static class MainMenuSceneBuilder
 
     private static void BuildCreditsBackdrop(Transform root, Sprite bottle, Sprite glass, Sprite newspaper)
     {
+        if (!CreateDecorationsByDefault)
+        {
+            return;
+        }
+
         GameObject decorationRoot = CreateUIObject("CreditsDecorations", root);
         StretchFull(RectOf(decorationRoot));
         decorationRoot.transform.SetSiblingIndex(3);
@@ -1103,11 +1135,7 @@ public static class MainMenuSceneBuilder
         }
         else
         {
-            MenuPanelController optionsPanel = panelRoot.GetComponent<MenuPanelController>();
-            if (optionsPanel != null)
-            {
-                UnityEventTools.AddPersistentListener(backButton.onClick, optionsPanel.Hide);
-            }
+            UnityEventTools.AddPersistentListener(backButton.onClick, controller.RequestCloseOptionsPanel);
         }
     }
 
@@ -1200,6 +1228,18 @@ public static class MainMenuSceneBuilder
         if (clip == null)
         {
             throw new FileNotFoundException("Missing audio clip at " + path);
+        }
+
+        return clip;
+    }
+
+    private static AudioClip LoadMusicClip(string fileName)
+    {
+        string path = MusicPath + fileName;
+        AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+        if (clip == null)
+        {
+            throw new FileNotFoundException("Missing music clip at " + path);
         }
 
         return clip;

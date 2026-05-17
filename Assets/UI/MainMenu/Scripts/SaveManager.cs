@@ -6,6 +6,8 @@ public static class SaveManager
 {
     private const int SlotCount = 3;
     private const string ActiveSlotKey = "ActiveSaveSlot";
+    private const string SessionSlotKey = "SaveSessionSlot";
+    private const string SessionStartUtcTicksKey = "SaveSessionStartUtcTicks";
 
     public static bool HasSave(int slotIndex)
     {
@@ -54,6 +56,11 @@ public static class SaveManager
                 data.currentScene = "Beco";
             }
 
+            if (data.screenshotPath == null)
+            {
+                data.screenshotPath = string.Empty;
+            }
+
             return data;
         }
         catch (Exception ex)
@@ -97,7 +104,8 @@ public static class SaveManager
             currentScene = "Beco",
             lastPlayedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm"),
             playTime = 0f,
-            displayName = "Novo Jogo"
+            displayName = "Novo Jogo",
+            screenshotPath = string.Empty
         };
 
         SaveSlot(data);
@@ -105,7 +113,10 @@ public static class SaveManager
 
     public static void SetActiveSlot(int slotIndex)
     {
-        PlayerPrefs.SetInt(ActiveSlotKey, ClampSlot(slotIndex));
+        int clamped = ClampSlot(slotIndex);
+        PlayerPrefs.SetInt(ActiveSlotKey, clamped);
+        PlayerPrefs.SetInt(SessionSlotKey, clamped);
+        PlayerPrefs.SetString(SessionStartUtcTicksKey, DateTime.UtcNow.Ticks.ToString());
         PlayerPrefs.Save();
     }
 
@@ -123,6 +134,63 @@ public static class SaveManager
         }
 
         return data.currentScene;
+    }
+
+    public static string GetSlotScreenshotPath(int slotIndex)
+    {
+        int clamped = ClampSlot(slotIndex);
+        return Path.Combine(Application.persistentDataPath, $"save_slot_{clamped}_preview.png");
+    }
+
+    public static void SaveActiveSlotFromCurrentScene(string currentScene, string screenshotPath = "")
+    {
+        int slotIndex = GetActiveSlot();
+        SaveSlotData data = LoadSlot(slotIndex);
+        if (!data.hasSave)
+        {
+            data.hasSave = true;
+            data.displayName = "Jogo guardado";
+        }
+
+        data.slotIndex = slotIndex;
+        data.currentScene = string.IsNullOrWhiteSpace(currentScene) ? "Beco" : currentScene;
+        data.lastPlayedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+        data.playTime = Mathf.Max(0f, data.playTime + ConsumeSessionElapsedSeconds(slotIndex));
+        data.displayName = "Jogo guardado";
+        data.screenshotPath = screenshotPath ?? string.Empty;
+        SaveSlot(data);
+    }
+
+    public static float GetLivePlayTimeForSlot(int slotIndex)
+    {
+        int clamped = ClampSlot(slotIndex);
+        SaveSlotData data = LoadSlot(clamped);
+        float value = Mathf.Max(0f, data.playTime);
+
+        int sessionSlot = PlayerPrefs.GetInt(SessionSlotKey, clamped);
+        if (sessionSlot != clamped)
+        {
+            return value;
+        }
+
+        string ticksRaw = PlayerPrefs.GetString(SessionStartUtcTicksKey, string.Empty);
+        if (!long.TryParse(ticksRaw, out long ticks))
+        {
+            return value;
+        }
+
+        DateTime startUtc;
+        try
+        {
+            startUtc = new DateTime(ticks, DateTimeKind.Utc);
+        }
+        catch
+        {
+            return value;
+        }
+
+        float elapsed = Mathf.Max(0f, (float)(DateTime.UtcNow - startUtc).TotalSeconds);
+        return value + elapsed;
     }
 
     private static int ClampSlot(int slotIndex)
@@ -144,8 +212,43 @@ public static class SaveManager
             currentScene = string.Empty,
             lastPlayedDate = string.Empty,
             playTime = 0f,
-            displayName = "Slot Vazio"
+            displayName = "Slot Vazio",
+            screenshotPath = string.Empty
         };
     }
-}
 
+    private static float ConsumeSessionElapsedSeconds(int slotIndex)
+    {
+        int sessionSlot = PlayerPrefs.GetInt(SessionSlotKey, slotIndex);
+        if (sessionSlot != slotIndex)
+        {
+            PlayerPrefs.SetInt(SessionSlotKey, slotIndex);
+            PlayerPrefs.SetString(SessionStartUtcTicksKey, DateTime.UtcNow.Ticks.ToString());
+            PlayerPrefs.Save();
+            return 0f;
+        }
+
+        string ticksRaw = PlayerPrefs.GetString(SessionStartUtcTicksKey, string.Empty);
+        if (!long.TryParse(ticksRaw, out long ticks))
+        {
+            PlayerPrefs.SetString(SessionStartUtcTicksKey, DateTime.UtcNow.Ticks.ToString());
+            PlayerPrefs.Save();
+            return 0f;
+        }
+
+        float elapsed;
+        try
+        {
+            DateTime startUtc = new DateTime(ticks, DateTimeKind.Utc);
+            elapsed = Mathf.Max(0f, (float)(DateTime.UtcNow - startUtc).TotalSeconds);
+        }
+        catch
+        {
+            elapsed = 0f;
+        }
+
+        PlayerPrefs.SetString(SessionStartUtcTicksKey, DateTime.UtcNow.Ticks.ToString());
+        PlayerPrefs.Save();
+        return elapsed;
+    }
+}

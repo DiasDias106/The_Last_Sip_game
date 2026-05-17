@@ -7,6 +7,9 @@ using UnityEngine.UI;
 
 public sealed class LoadingScreenController : MonoBehaviour
 {
+    [Header("Audio")]
+    [SerializeField] private MenuAudioManager menuAudioManager;
+
     [Header("Panel References")]
     [SerializeField] private GameObject loadingPanel;
     [SerializeField] private GameObject mainMenuPanel;
@@ -193,6 +196,8 @@ public sealed class LoadingScreenController : MonoBehaviour
 
     private IEnumerator PlayLoadingIntro()
     {
+        menuAudioManager?.EnsureAmbientMusicIsPlaying();
+
         if (sceneFadeController != null)
         {
             yield return sceneFadeController.FadeToAlpha(1f, shortFadeDuration);

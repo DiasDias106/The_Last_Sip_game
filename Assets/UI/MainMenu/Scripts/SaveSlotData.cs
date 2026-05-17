@@ -9,5 +9,5 @@ public sealed class SaveSlotData
     public string lastPlayedDate;
     public float playTime;
     public string displayName;
+    public string screenshotPath;
 }
-

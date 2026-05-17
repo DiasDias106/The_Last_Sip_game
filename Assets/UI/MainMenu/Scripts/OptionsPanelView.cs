@@ -1,10 +1,21 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 [DisallowMultipleComponent]
 public sealed class OptionsPanelView : MonoBehaviour
 {
+    private struct SettingsSnapshot
+    {
+        public float master;
+        public float music;
+        public float sfx;
+        public int audioMode;
+        public int subtitles;
+        public int language;
+    }
+
     private const string AudioModeKey = "MainMenu.AudioMode";
     private const string SubtitlesKey = "MainMenu.Subtitles";
     private const string LanguageKey = "MainMenu.Language";
@@ -48,14 +59,19 @@ public sealed class OptionsPanelView : MonoBehaviour
     private readonly string[] languageModes = { "PORTUGUÊS", "ENGLISH" };
 
     private readonly Color activeTabColor = new(0.3f, 0.08f, 0.08f, 0.95f);
+    private readonly Color hoverTabColor = new(0.2f, 0.11f, 0.1f, 0.94f);
     private readonly Color inactiveTabColor = new(0.11f, 0.085f, 0.08f, 0.92f);
     private readonly Color activeLabelColor = new(0.95f, 0.89f, 0.76f, 1f);
+    private readonly Color hoverLabelColor = new(0.88f, 0.8f, 0.67f, 1f);
     private readonly Color inactiveLabelColor = new(0.66f, 0.61f, 0.51f, 1f);
 
     private int audioModeIndex;
     private int subtitlesIndex;
     private int languageIndex;
     private int selectedSectionIndex = 2;
+    private int hoveredTabIndex = -1;
+    private bool hoverEventsBound;
+    private SettingsSnapshot appliedSnapshot;
 
     private void Awake()
     {
@@ -82,6 +98,7 @@ public sealed class OptionsPanelView : MonoBehaviour
         PlayerPrefs.SetInt(SubtitlesKey, subtitlesIndex);
         PlayerPrefs.SetInt(LanguageKey, languageIndex);
         PlayerPrefs.Save();
+        appliedSnapshot = CaptureCurrentSnapshot();
     }
 
     public void ResetDefaults()
@@ -106,6 +123,23 @@ public sealed class OptionsPanelView : MonoBehaviour
         RefreshAllLabels();
     }
 
+    public bool HasUnsavedChanges()
+    {
+        SettingsSnapshot current = CaptureCurrentSnapshot();
+        return
+            Mathf.Abs(current.master - appliedSnapshot.master) > 0.0001f ||
+            Mathf.Abs(current.music - appliedSnapshot.music) > 0.0001f ||
+            Mathf.Abs(current.sfx - appliedSnapshot.sfx) > 0.0001f ||
+            current.audioMode != appliedSnapshot.audioMode ||
+            current.subtitles != appliedSnapshot.subtitles ||
+            current.language != appliedSnapshot.language;
+    }
+
+    public void RevertToAppliedSettings()
+    {
+        ApplySnapshot(appliedSnapshot, true);
+    }
+
     private void Bind()
     {
         for (int i = 0; i < tabButtons.Length; i++)
@@ -113,9 +147,15 @@ public sealed class OptionsPanelView : MonoBehaviour
             int index = i;
             if (tabButtons[i] != null)
             {
+                tabButtons[i].transition = Selectable.Transition.None;
                 tabButtons[i].onClick.AddListener(() => SelectSection(index));
+                if (!hoverEventsBound)
+                {
+                    EnsureTabHoverEvents(tabButtons[i], index);
+                }
             }
         }
+        hoverEventsBound = true;
 
         if (masterSlider != null)
         {
@@ -222,6 +262,7 @@ public sealed class OptionsPanelView : MonoBehaviour
         subtitlesIndex = Mathf.Clamp(PlayerPrefs.GetInt(SubtitlesKey, 0), 0, subtitlesModes.Length - 1);
         languageIndex = Mathf.Clamp(PlayerPrefs.GetInt(LanguageKey, 0), 0, languageModes.Length - 1);
         RefreshAllLabels();
+        appliedSnapshot = CaptureCurrentSnapshot();
     }
 
     private void HandleMasterChanged(float value)
@@ -263,6 +304,7 @@ public sealed class OptionsPanelView : MonoBehaviour
     private void SelectSection(int index)
     {
         selectedSectionIndex = Mathf.Clamp(index, 0, sections.Length - 1);
+        ApplyTabVisuals();
 
         for (int i = 0; i < sections.Length; i++)
         {
@@ -272,18 +314,36 @@ public sealed class OptionsPanelView : MonoBehaviour
             {
                 sections[i].SetActive(active);
             }
+        }
+
+        if (sectionTitleText != null && selectedSectionIndex < sectionTitles.Length)
+        {
+            sectionTitleText.text = sectionTitles[selectedSectionIndex];
+        }
+    }
+
+    private void ApplyTabVisuals()
+    {
+        int count = Mathf.Max(
+            tabButtons != null ? tabButtons.Length : 0,
+            tabBackgrounds != null ? tabBackgrounds.Length : 0,
+            tabLabels != null ? tabLabels.Length : 0,
+            selectedMarkers != null ? selectedMarkers.Length : 0);
+
+        for (int i = 0; i < count; i++)
+        {
+            bool active = i == selectedSectionIndex;
+            bool hovered = i == hoveredTabIndex && !active;
 
             if (i < tabBackgrounds.Length && tabBackgrounds[i] != null)
             {
-                tabBackgrounds[i].sprite = active
-                    ? activeTabSprite
-                    : inactiveTabSprite;
-                tabBackgrounds[i].color = active ? activeTabColor : inactiveTabColor;
+                tabBackgrounds[i].sprite = active ? activeTabSprite : inactiveTabSprite;
+                tabBackgrounds[i].color = active ? activeTabColor : hovered ? hoverTabColor : inactiveTabColor;
             }
 
             if (i < tabLabels.Length && tabLabels[i] != null)
             {
-                tabLabels[i].color = active ? activeLabelColor : inactiveLabelColor;
+                tabLabels[i].color = active ? activeLabelColor : hovered ? hoverLabelColor : inactiveLabelColor;
             }
 
             if (i < selectedMarkers.Length && selectedMarkers[i] != null)
@@ -291,11 +351,39 @@ public sealed class OptionsPanelView : MonoBehaviour
                 selectedMarkers[i].SetActive(active);
             }
         }
+    }
 
-        if (sectionTitleText != null && selectedSectionIndex < sectionTitles.Length)
+    private void EnsureTabHoverEvents(Button button, int index)
+    {
+        EventTrigger trigger = button.GetComponent<EventTrigger>();
+        if (trigger == null)
         {
-            sectionTitleText.text = sectionTitles[selectedSectionIndex];
+            trigger = button.gameObject.AddComponent<EventTrigger>();
         }
+
+        if (trigger.triggers == null)
+        {
+            trigger.triggers = new System.Collections.Generic.List<EventTrigger.Entry>();
+        }
+
+        EventTrigger.Entry enter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
+        enter.callback.AddListener(_ =>
+        {
+            hoveredTabIndex = index;
+            ApplyTabVisuals();
+        });
+        trigger.triggers.Add(enter);
+
+        EventTrigger.Entry exit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
+        exit.callback.AddListener(_ =>
+        {
+            if (hoveredTabIndex == index)
+            {
+                hoveredTabIndex = -1;
+                ApplyTabVisuals();
+            }
+        });
+        trigger.triggers.Add(exit);
     }
 
     private void RefreshAllLabels()
@@ -343,5 +431,37 @@ public sealed class OptionsPanelView : MonoBehaviour
         {
             slider.SetValueWithoutNotify(Mathf.Clamp01(value));
         }
+    }
+
+    private SettingsSnapshot CaptureCurrentSnapshot()
+    {
+        return new SettingsSnapshot
+        {
+            master = masterSlider != null ? masterSlider.value : 0f,
+            music = musicSlider != null ? musicSlider.value : 0f,
+            sfx = sfxSlider != null ? sfxSlider.value : 0f,
+            audioMode = audioModeIndex,
+            subtitles = subtitlesIndex,
+            language = languageIndex
+        };
+    }
+
+    private void ApplySnapshot(SettingsSnapshot snapshot, bool applyToAudioManager)
+    {
+        SetSliderWithoutNotify(masterSlider, snapshot.master);
+        SetSliderWithoutNotify(musicSlider, snapshot.music);
+        SetSliderWithoutNotify(sfxSlider, snapshot.sfx);
+
+        if (applyToAudioManager && menuAudioManager != null)
+        {
+            menuAudioManager.SetMasterVolume(snapshot.master);
+            menuAudioManager.SetMusicVolume(snapshot.music);
+            menuAudioManager.SetSFXVolume(snapshot.sfx);
+        }
+
+        audioModeIndex = Mathf.Clamp(snapshot.audioMode, 0, audioModes.Length - 1);
+        subtitlesIndex = Mathf.Clamp(snapshot.subtitles, 0, subtitlesModes.Length - 1);
+        languageIndex = Mathf.Clamp(snapshot.language, 0, languageModes.Length - 1);
+        RefreshAllLabels();
     }
 }

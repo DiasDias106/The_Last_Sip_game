@@ -1,4 +1,5 @@
 using System.Collections;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,6 +21,9 @@ public sealed class PauseMenuController : MonoBehaviour
     [Header("Panels")]
     [SerializeField] private MenuPanelController pausePanel;
     [SerializeField] private MenuPanelController settingsPanel;
+    [SerializeField] private OptionsPanelView optionsPanelView;
+    [SerializeField] private ConfirmOverwritePanel confirmLeaveSettingsPanel;
+    [SerializeField] private SaveSuccessPanel saveSuccessPanel;
 
     [Header("Buttons")]
     [SerializeField] private AnimatedMenuButton continueButton;
@@ -30,6 +34,8 @@ public sealed class PauseMenuController : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private Toggle fullscreenToggle;
+    [SerializeField] private MenuAudioManager menuAudioManager;
+    [SerializeField] [Range(0.5f, 1f)] private float pauseMusicMultiplier = 0.5f;
 
     [Header("Feedback")]
     [SerializeField] private TMP_Text saveFeedbackText;
@@ -38,9 +44,19 @@ public sealed class PauseMenuController : MonoBehaviour
     private Coroutine feedbackRoutine;
     private bool isPaused;
     private bool isTransitioning;
+    private bool isSaving;
 
     private void Awake()
     {
+        if (menuAudioManager == null)
+        {
+            menuAudioManager = GetComponent<MenuAudioManager>();
+            if (menuAudioManager == null)
+            {
+                menuAudioManager = FindFirstObjectByType<MenuAudioManager>(FindObjectsInactive.Include);
+            }
+        }
+
         Time.timeScale = 1f;
         SetOverlayVisible(false);
 
@@ -53,6 +69,14 @@ public sealed class PauseMenuController : MonoBehaviour
         {
             settingsPanel.HideImmediate();
         }
+
+        if (optionsPanelView == null && settingsPanel != null)
+        {
+            optionsPanelView = settingsPanel.GetComponent<OptionsPanelView>();
+        }
+
+        confirmLeaveSettingsPanel?.HideImmediate();
+        saveSuccessPanel?.HideImmediate();
 
         if (saveFeedbackText != null)
         {
@@ -129,6 +153,7 @@ public sealed class PauseMenuController : MonoBehaviour
         isPaused = true;
         isTransitioning = true;
         Time.timeScale = 0f;
+        menuAudioManager?.SetRuntimeMusicMultiplier(pauseMusicMultiplier);
         SetOverlayVisible(true);
         pausePanel?.Show();
         settingsPanel?.HideImmediate();
@@ -164,19 +189,37 @@ public sealed class PauseMenuController : MonoBehaviour
             return;
         }
 
+        if (confirmLeaveSettingsPanel != null && confirmLeaveSettingsPanel.IsVisible)
+        {
+            return;
+        }
+
+        if (optionsPanelView != null && optionsPanelView.HasUnsavedChanges())
+        {
+            confirmLeaveSettingsPanel?.Show(
+                "Existem alteracoes por guardar. Deseja sair sem guardar as alteracoes?",
+                () =>
+                {
+                    optionsPanelView.RevertToAppliedSettings();
+                    settingsPanel?.HideImmediate();
+                    pausePanel?.Show();
+                },
+                () => { });
+            return;
+        }
+
         settingsPanel?.HideImmediate();
         pausePanel?.Show();
     }
 
     public void SaveGame()
     {
-        if (!isPaused)
+        if (!isPaused || isSaving)
         {
             return;
         }
 
-        Debug.Log("Save Game requested. Save system not connected yet.");
-        ShowSaveFeedback("JOGO GUARDADO EM BREVE");
+        StartCoroutine(SaveGameRoutine());
     }
 
     public void ExitToMainMenu()
@@ -186,6 +229,7 @@ public sealed class PauseMenuController : MonoBehaviour
             return;
         }
 
+        menuAudioManager?.SetRuntimeMusicMultiplier(1f);
         Time.timeScale = 1f;
         SceneManager.LoadScene(mainMenuSceneName);
     }
@@ -200,6 +244,7 @@ public sealed class PauseMenuController : MonoBehaviour
     private IEnumerator ResumeRoutine()
     {
         isTransitioning = true;
+        confirmLeaveSettingsPanel?.HideImmediate();
         pausePanel?.Hide();
         settingsPanel?.HideImmediate();
 
@@ -213,6 +258,7 @@ public sealed class PauseMenuController : MonoBehaviour
 
         SetOverlayVisible(false);
         SetCursorState(false);
+        menuAudioManager?.SetRuntimeMusicMultiplier(1f);
         Time.timeScale = 1f;
         isPaused = false;
         isTransitioning = false;
@@ -282,6 +328,95 @@ public sealed class PauseMenuController : MonoBehaviour
 
         saveFeedbackText.alpha = 0f;
         feedbackRoutine = null;
+    }
+
+    private IEnumerator SaveGameRoutine()
+    {
+        isSaving = true;
+
+        bool settingsWasVisible = settingsPanel != null && settingsPanel.IsVisible;
+        bool pauseWasVisible = pausePanel != null && pausePanel.IsVisible;
+
+        confirmLeaveSettingsPanel?.HideImmediate();
+        settingsPanel?.HideImmediate();
+        pausePanel?.HideImmediate();
+        SetOverlayVisible(false);
+        yield return null;
+        yield return new WaitForEndOfFrame();
+
+        int activeSlot = SaveManager.GetActiveSlot();
+        string screenshotPath = SaveManager.GetSlotScreenshotPath(activeSlot);
+
+        if (!TryCaptureScreenshot(screenshotPath))
+        {
+            screenshotPath = string.Empty;
+        }
+
+        SaveManager.SaveActiveSlotFromCurrentScene(SceneManager.GetActiveScene().name, screenshotPath);
+
+        SetOverlayVisible(true);
+        if (settingsWasVisible)
+        {
+            settingsPanel?.Show();
+        }
+        else if (pauseWasVisible)
+        {
+            pausePanel?.Show();
+        }
+
+        if (saveSuccessPanel != null)
+        {
+            saveSuccessPanel.Show("JOGO GUARDADO COM SUCESSO.");
+        }
+        else
+        {
+            ShowSaveFeedback("JOGO GUARDADO");
+        }
+        isSaving = false;
+    }
+
+    private bool TryCaptureScreenshot(string screenshotPath)
+    {
+        if (string.IsNullOrWhiteSpace(screenshotPath))
+        {
+            return false;
+        }
+
+        string directory = Path.GetDirectoryName(screenshotPath);
+        if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        Texture2D shot = null;
+        try
+        {
+            shot = ScreenCapture.CaptureScreenshotAsTexture();
+            if (shot == null)
+            {
+                return false;
+            }
+
+            byte[] png = shot.EncodeToPNG();
+            if (png == null || png.Length == 0)
+            {
+                return false;
+            }
+
+            File.WriteAllBytes(screenshotPath, png);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+        finally
+        {
+            if (shot != null)
+            {
+                Destroy(shot);
+            }
+        }
     }
 
     private static bool IsEscapePressedThisFrame()

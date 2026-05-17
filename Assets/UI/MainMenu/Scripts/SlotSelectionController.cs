@@ -65,7 +65,7 @@ public sealed class SlotSelectionController : MonoBehaviour
         CurrentMode = mode;
         if (titleText != null)
         {
-            titleText.text = mode == SlotSelectionMode.NewGame ? "NOVO JOGO - ESCOLHER SLOT" : "CONTINUAR JOGO - ESCOLHER SLOT";
+            titleText.text = mode == SlotSelectionMode.NewGame ? "NOVO JOGO" : "CONTINUAR JOGO";
         }
 
         Refresh();
@@ -111,4 +111,3 @@ public sealed class SlotSelectionController : MonoBehaviour
         BackRequested?.Invoke();
     }
 }
-

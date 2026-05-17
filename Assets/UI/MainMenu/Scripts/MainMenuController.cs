@@ -7,6 +7,11 @@ using UnityEngine.InputSystem;
 
 public sealed class MainMenuController : MonoBehaviour
 {
+    [Header("Audio")]
+    [SerializeField] private MenuAudioManager menuAudioManager;
+    [SerializeField] private AudioClip menuAmbientClip;
+    [SerializeField] private AudioClip creditsAmbientClip;
+
     [Header("Scene Flow")]
     [SerializeField] private string defaultGameSceneName = "Beco";
     [SerializeField] private SceneFadeController sceneFadeController;
@@ -15,6 +20,7 @@ public sealed class MainMenuController : MonoBehaviour
     [Header("Panels")]
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private MenuPanelController optionsPanel;
+    [SerializeField] private OptionsPanelView optionsPanelView;
     [SerializeField] private MenuPanelController creditsPanel;
     [SerializeField] private SlotSelectionController slotSelectionController;
     [SerializeField] private ConfirmOverwritePanel confirmOverwritePanel;
@@ -41,6 +47,21 @@ public sealed class MainMenuController : MonoBehaviour
 
     private void Awake()
     {
+        if (menuAudioManager == null)
+        {
+            menuAudioManager = GetComponent<MenuAudioManager>();
+        }
+
+        if (optionsPanelView == null && optionsPanel != null)
+        {
+            optionsPanelView = optionsPanel.GetComponent<OptionsPanelView>();
+        }
+
+        if (menuAudioManager != null && menuAmbientClip != null)
+        {
+            menuAudioManager.SetAmbientMusicClip(menuAmbientClip);
+        }
+
         if (versionText != null)
         {
             string resolvedVersion = useApplicationVersion && !string.IsNullOrWhiteSpace(Application.version)
@@ -149,6 +170,12 @@ public sealed class MainMenuController : MonoBehaviour
             return;
         }
 
+        if (activePanel == optionsPanel)
+        {
+            RequestCloseOptionsPanel();
+            return;
+        }
+
         if (activePanel != null)
         {
             activePanel.Hide();
@@ -232,6 +259,29 @@ public sealed class MainMenuController : MonoBehaviour
         UpdateMainMenuPresentation();
     }
 
+    public void RequestCloseOptionsPanel()
+    {
+        if (isTransitioning || optionsPanel == null || !optionsPanel.IsVisible)
+        {
+            return;
+        }
+
+        if (optionsPanelView != null && optionsPanelView.HasUnsavedChanges())
+        {
+            confirmOverwritePanel?.Show(
+                "Existem alterações por guardar. Deseja sair sem guardar as alterações?",
+                () =>
+                {
+                    optionsPanelView.RevertToAppliedSettings();
+                    optionsPanel.Hide();
+                },
+                () => { });
+            return;
+        }
+
+        optionsPanel.Hide();
+    }
+
     public void SetFullscreen(bool isFullscreen)
     {
         Screen.fullScreen = isFullscreen;
@@ -265,6 +315,10 @@ public sealed class MainMenuController : MonoBehaviour
         creditsPanel.HideImmediate();
         activePanel = null;
         mainMenuPanel?.SetActive(true);
+        if (menuAudioManager != null && menuAmbientClip != null)
+        {
+            menuAudioManager.SetAmbientMusicClip(menuAmbientClip);
+        }
         UpdateMainMenuPresentation();
 
         if (sceneFadeController != null)
@@ -280,6 +334,11 @@ public sealed class MainMenuController : MonoBehaviour
     {
         isTransitioning = true;
         SetMainMenuInputBlocked(true);
+
+        if (menuAudioManager != null && creditsAmbientClip != null)
+        {
+            menuAudioManager.SetAmbientMusicClip(creditsAmbientClip);
+        }
 
         optionsPanel?.HideImmediate();
         slotSelectionController?.HideImmediate();
@@ -297,7 +356,7 @@ public sealed class MainMenuController : MonoBehaviour
         }
 
         loadingScreenController.SequenceFinished -= HandleFinished;
-        activePanel = creditsPanel != null && creditsPanel.IsVisible ? creditsPanel : null;
+        activePanel = creditsPanel;
         SetMainMenuInputBlocked(false);
         isTransitioning = false;
         UpdateMainMenuPresentation();

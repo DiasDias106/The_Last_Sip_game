@@ -10,7 +10,9 @@ using UnityEngine.UI;
 public static class PauseMenuBuilder
 {
     private const string GeneratedPath = "Assets/UI/MainMenu/Generated/";
-    private const string AudioPath = "Assets/Audio/UI/";
+    private const string AudioPath = "Assets/Audio/UI_Medieval-Free/";
+    private const string MusicPath = "Assets/Audio/ImportedFromZip/Audio/";
+    private const string PauseMenuPrefabPath = "Assets/UI/PauseMenu/Prefabs/PauseMenuCanvas.prefab";
 
     [MenuItem("Tools/The Last Sip/Build Pause Menu")]
     public static void BuildPauseMenu()
@@ -35,8 +37,9 @@ public static class PauseMenuBuilder
         Sprite iconSettings = LoadSprite("icon_options_gear.png");
         Sprite iconSave = LoadSprite("icon_credits_document.png");
         Sprite iconExit = LoadSprite("icon_exit_door.png");
-        AudioClip ambientMusicClip = LoadAudioClip("menu_background.mp3");
-        AudioClip clickClip = LoadAudioClip("button_click.flac");
+        AudioClip ambientMusicClip = LoadMusicClip("becoManha.mp3");
+        AudioClip hoverClip = LoadAudioClip("UIClick_UIBton ButtonHover _Tonefirst_Medieval UI-Free.wav");
+        AudioClip clickClip = LoadAudioClip("UIClick_UIBton ButtonClick _Tonefirst_Medieval UI-Free.wav");
         TMP_FontAsset tmpFont = ResolveTmpFont();
 
         EnsureEventSystem();
@@ -69,6 +72,7 @@ public static class PauseMenuBuilder
         SetObjectField(audioManager, "ambientMusicSource", musicSource);
         SetObjectField(audioManager, "uiSfxSource", sfxSource);
         SetObjectField(audioManager, "ambientMusicClip", ambientMusicClip);
+        SetObjectField(audioManager, "hoverClip", hoverClip);
         SetObjectField(audioManager, "clickClip", clickClip);
 
         GameObject overlayGo = CreateUIObject("PauseOverlay", canvasGo.transform);
@@ -117,12 +121,17 @@ public static class PauseMenuBuilder
 
         GameObject settingsPanel = CreateFullSettingsPanel("SettingsPanel", overlayGo.transform, panelWood, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, out Toggle fullscreenToggle, out AnimatedMenuButton backButton);
         SetRect(RectOf(settingsPanel), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -8f), new Vector2(1240f, 740f));
+        ConfirmOverwritePanel confirmLeaveSettingsPanel = CreateConfirmLeaveSettingsPanel(overlayGo.transform, tmpFont, panelWood, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
+        SaveSuccessPanel saveSuccessPanel = CreateSaveSuccessPanel(overlayGo.transform, tmpFont, panelWood, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
 
         PauseMenuController controller = canvasGo.AddComponent<PauseMenuController>();
         SetObjectField(controller, "pauseOverlayRoot", overlayGo);
         SetObjectField(controller, "overlayCanvasGroup", canvasGroup);
         SetObjectField(controller, "pausePanel", pausePanel.GetComponent<MenuPanelController>());
         SetObjectField(controller, "settingsPanel", settingsPanel.GetComponent<MenuPanelController>());
+        SetObjectField(controller, "optionsPanelView", settingsPanel.GetComponent<OptionsPanelView>());
+        SetObjectField(controller, "confirmLeaveSettingsPanel", confirmLeaveSettingsPanel);
+        SetObjectField(controller, "saveSuccessPanel", saveSuccessPanel);
         SetObjectField(controller, "continueButton", continueButton);
         SetObjectField(controller, "saveButton", saveButton);
         SetObjectField(controller, "settingsButton", settingsButton);
@@ -132,11 +141,83 @@ public static class PauseMenuBuilder
         SetObjectField(controller, "saveFeedbackText", saveFeedback);
         SetStringField(controller, "mainMenuSceneName", "MainMenuScene");
 
+        SaveOrUpdatePauseMenuPrefab(canvasGo);
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         EditorSceneManager.SaveOpenScenes();
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         Debug.Log($"Pause menu built in scene: {EditorSceneManager.GetActiveScene().name}");
+    }
+
+    [MenuItem("Tools/The Last Sip/Update Pause Menu Prefab (Current Scene)")]
+    public static void UpdatePauseMenuPrefabCurrentScene()
+    {
+        GameObject canvasGo = GameObject.Find("PauseMenuCanvas");
+        if (canvasGo == null)
+        {
+            Debug.LogWarning("PauseMenuCanvas nao encontrado na cena ativa.");
+            return;
+        }
+
+        SaveOrUpdatePauseMenuPrefab(canvasGo);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("Pause menu prefab atualizado.");
+    }
+
+    [MenuItem("Tools/The Last Sip/Apply Pause Menu Prefab To All Scenes")]
+    public static void ApplyPauseMenuPrefabToAllScenes()
+    {
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PauseMenuPrefabPath);
+        if (prefab == null)
+        {
+            Debug.LogWarning("Prefab do pause menu nao encontrado. Corre primeiro: Build Pause Menu.");
+            return;
+        }
+
+        string[] sceneGuids = AssetDatabase.FindAssets("t:Scene", new[] { "Assets/Scenes" });
+        foreach (string sceneGuid in sceneGuids)
+        {
+            string scenePath = AssetDatabase.GUIDToAssetPath(sceneGuid);
+            if (string.IsNullOrEmpty(scenePath))
+            {
+                continue;
+            }
+
+            if (scenePath.EndsWith("/MainMenuScene.unity"))
+            {
+                continue;
+            }
+
+            var scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+
+            GameObject existing = GameObject.Find("PauseMenuCanvas");
+            if (existing != null)
+            {
+                Object.DestroyImmediate(existing);
+            }
+
+            GameObject instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
+            if (instance == null)
+            {
+                continue;
+            }
+
+            instance.name = "PauseMenuCanvas";
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+        }
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("Pause menu prefab aplicado a todas as scenes (exceto MainMenuScene).");
+    }
+
+    private static void SaveOrUpdatePauseMenuPrefab(GameObject pauseMenuCanvas)
+    {
+        EnsureFolder("Assets/UI/PauseMenu");
+        EnsureFolder("Assets/UI/PauseMenu/Prefabs");
+        PrefabUtility.SaveAsPrefabAssetAndConnect(pauseMenuCanvas, PauseMenuPrefabPath, InteractionMode.AutomatedAction);
     }
 
     private static GameObject CreatePanel(string name, Transform parent, Sprite panelWood, TMP_FontAsset tmpFont, string heading, out GameObject bodyGo)
@@ -169,6 +250,90 @@ public static class PauseMenuBuilder
         bodyGo = CreateUIObject("Body", panelGo.transform);
         SetRect(RectOf(bodyGo), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -130f), new Vector2(420f, 300f));
         return panelGo;
+    }
+
+    private static ConfirmOverwritePanel CreateConfirmLeaveSettingsPanel(Transform parent, TMP_FontAsset tmpFont, Sprite panelWood, Sprite buttonNormal, Sprite buttonHover, Sprite buttonPressed, Sprite buttonGlow, MenuAudioManager audioManager)
+    {
+        GameObject root = CreateUIObject("ConfirmLeaveSettingsPanel", parent);
+        StretchFull(RectOf(root));
+
+        GameObject blocker = CreateUIObject("Blocker", root.transform);
+        StretchFull(RectOf(blocker));
+        AddImage(blocker, null, new Color(0f, 0f, 0f, 0.66f), false).raycastTarget = true;
+
+        GameObject frame = CreateUIObject("Frame", root.transform);
+        SetRect(RectOf(frame), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), new Vector2(920f, 360f));
+        Image frameImage = AddImage(frame, panelWood, new Color(1f, 1f, 1f, 0.98f), false);
+        frameImage.type = Image.Type.Sliced;
+        AddShadow(frame, new Color(0f, 0f, 0f, 0.5f), new Vector2(0f, -16f));
+
+        CanvasGroup canvasGroup = root.AddComponent<CanvasGroup>();
+        MenuPanelController panel = root.AddComponent<MenuPanelController>();
+        SetObjectField(panel, "canvasGroup", canvasGroup);
+        SetObjectField(panel, "panelTransform", RectOf(frame));
+        SetVector2Field(panel, "hiddenOffset", new Vector2(0f, -20f));
+
+        GameObject messageGo = CreateUIObject("MessageText", frame.transform);
+        SetRect(RectOf(messageGo), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -98f), new Vector2(820f, 128f));
+        TMP_Text message = AddText(messageGo, "Existem alteracoes por guardar. Deseja sair sem guardar as alteracoes?", tmpFont, 26, FontStyles.SmallCaps, TextAlignmentOptions.Center, new Color32(235, 220, 194, 255));
+        message.textWrappingMode = TextWrappingModes.Normal;
+        message.enableAutoSizing = true;
+        message.fontSizeMin = 16f;
+        message.fontSizeMax = 26f;
+
+        AnimatedMenuButton confirmButton = CreateMenuButton(frame.transform, "ConfirmButton", "SAIR SEM GUARDAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 300f, 56f);
+        SetRect(RectOf(confirmButton.gameObject), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(1f, 0f), new Vector2(-20f, 30f), new Vector2(300f, 56f));
+        ConfigureMenuButtonLabel(confirmButton, 11f, 19f);
+
+        AnimatedMenuButton cancelButton = CreateMenuButton(frame.transform, "CancelButton", "CANCELAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 210f, 56f);
+        SetRect(RectOf(cancelButton.gameObject), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 0f), new Vector2(20f, 30f), new Vector2(210f, 56f));
+        ConfigureMenuButtonLabel(cancelButton, 11f, 19f);
+
+        ConfirmOverwritePanel controller = root.AddComponent<ConfirmOverwritePanel>();
+        SetObjectField(controller, "panel", panel);
+        SetObjectField(controller, "messageText", message);
+        SetObjectField(controller, "confirmButton", confirmButton);
+        SetObjectField(controller, "cancelButton", cancelButton);
+        controller.HideImmediate();
+        return controller;
+    }
+
+    private static SaveSuccessPanel CreateSaveSuccessPanel(Transform parent, TMP_FontAsset tmpFont, Sprite panelWood, Sprite buttonNormal, Sprite buttonHover, Sprite buttonPressed, Sprite buttonGlow, MenuAudioManager audioManager)
+    {
+        GameObject root = CreateUIObject("SaveSuccessPanel", parent);
+        StretchFull(RectOf(root));
+
+        GameObject blocker = CreateUIObject("Blocker", root.transform);
+        StretchFull(RectOf(blocker));
+        AddImage(blocker, null, new Color(0f, 0f, 0f, 0.6f), false).raycastTarget = true;
+
+        GameObject frame = CreateUIObject("Frame", root.transform);
+        SetRect(RectOf(frame), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(660f, 260f));
+        Image frameImage = AddImage(frame, panelWood, new Color(1f, 1f, 1f, 0.98f), false);
+        frameImage.type = Image.Type.Sliced;
+        AddShadow(frame, new Color(0f, 0f, 0f, 0.5f), new Vector2(0f, -14f));
+
+        CanvasGroup canvasGroup = root.AddComponent<CanvasGroup>();
+        MenuPanelController panel = root.AddComponent<MenuPanelController>();
+        SetObjectField(panel, "canvasGroup", canvasGroup);
+        SetObjectField(panel, "panelTransform", RectOf(frame));
+        SetVector2Field(panel, "hiddenOffset", new Vector2(0f, -16f));
+
+        GameObject messageGo = CreateUIObject("MessageText", frame.transform);
+        SetRect(RectOf(messageGo), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -84f), new Vector2(560f, 76f));
+        TMP_Text message = AddText(messageGo, "JOGO GUARDADO COM SUCESSO.", tmpFont, 28, FontStyles.SmallCaps | FontStyles.Bold, TextAlignmentOptions.Center, new Color32(236, 220, 191, 255));
+        ConfigureSingleLineText(message, 18f, 28f);
+
+        AnimatedMenuButton backButton = CreateMenuButton(frame.transform, "BackButton", "VOLTAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 190f, 56f);
+        SetRect(RectOf(backButton.gameObject), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 30f), new Vector2(190f, 56f));
+        ConfigureMenuButtonLabel(backButton, 12f, 20f);
+
+        SaveSuccessPanel controller = root.AddComponent<SaveSuccessPanel>();
+        SetObjectField(controller, "panel", panel);
+        SetObjectField(controller, "messageText", message);
+        SetObjectField(controller, "backButton", backButton);
+        controller.HideImmediate();
+        return controller;
     }
 
     private static GameObject CreateFullSettingsPanel(string name, Transform parent, Sprite panelWood, TMP_FontAsset tmpFont, Sprite buttonNormal, Sprite buttonHover, Sprite buttonPressed, Sprite buttonGlow, MenuAudioManager audioManager, out Toggle fullscreenToggle, out AnimatedMenuButton backButton)
@@ -245,11 +410,11 @@ public static class PauseMenuBuilder
         CreateSelectorRow(languageSection.transform, "LanguageRow", "IDIOMA", "PORTUGUES", 0, tmpFont, out Button languageButton, out TMP_Text languageValueText);
 
         GameObject bottomButtons = CreateUIObject("BottomButtonsArea", root.transform);
-        SetRect(RectOf(bottomButtons), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(40f, 44f), new Vector2(-40f, 110f));
+        SetRect(RectOf(bottomButtons), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(54f, 34f), new Vector2(-54f, 96f));
 
-        AnimatedMenuButton resetButton = CreateMenuButton(bottomButtons.transform, "ResetDefaultsButton", "R  REDEFINIR PADROES", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 270f, 52f);
-        SetRect(RectOf(resetButton.gameObject), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 4f), new Vector2(270f, 52f));
-        ConfigureMenuButtonLabel(resetButton, 14f, 19f);
+        AnimatedMenuButton resetButton = CreateMenuButton(bottomButtons.transform, "ResetDefaultsButton", "R  REDEFINIR PADROES", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 300f, 52f);
+        SetRect(RectOf(resetButton.gameObject), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 4f), new Vector2(300f, 52f));
+        ConfigureMenuButtonLabel(resetButton, 10f, 18f);
 
         AnimatedMenuButton applyButton = CreateMenuButton(bottomButtons.transform, "ApplyButton", "APLICAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 180f, 52f);
         SetRect(RectOf(applyButton.gameObject), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 4f), new Vector2(180f, 52f));
@@ -257,7 +422,7 @@ public static class PauseMenuBuilder
 
         backButton = CreateMenuButton(bottomButtons.transform, "BackButton", "ESC  VOLTAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 190f, 52f);
         SetRect(RectOf(backButton.gameObject), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0f, 4f), new Vector2(190f, 52f));
-        ConfigureMenuButtonLabel(backButton, 15f, 20f);
+        ConfigureMenuButtonLabel(backButton, 12f, 20f);
 
         GameObject fullscreenToggleGo = CreateToggle("FullscreenToggle", root.transform, tmpFont, "Ecra Inteiro", new Vector2(40f, 26f));
         fullscreenToggle = fullscreenToggleGo.GetComponent<Toggle>();
@@ -667,6 +832,18 @@ public static class PauseMenuBuilder
         return clip;
     }
 
+    private static AudioClip LoadMusicClip(string fileName)
+    {
+        string path = MusicPath + fileName;
+        AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+        if (clip == null)
+        {
+            throw new FileNotFoundException("Missing music clip at " + path);
+        }
+
+        return clip;
+    }
+
     private static GameObject CreateUIObject(string name, Transform parent)
     {
         GameObject go = new(name, typeof(RectTransform));
@@ -767,6 +944,25 @@ public static class PauseMenuBuilder
         System.Reflection.FieldInfo field = target.GetType().GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         field?.SetValue(target, value);
         EditorUtility.SetDirty(target);
+    }
+
+    private static void EnsureFolder(string assetPath)
+    {
+        if (AssetDatabase.IsValidFolder(assetPath))
+        {
+            return;
+        }
+
+        int slash = assetPath.LastIndexOf('/');
+        if (slash <= 0)
+        {
+            return;
+        }
+
+        string parent = assetPath.Substring(0, slash);
+        string name = assetPath.Substring(slash + 1);
+        EnsureFolder(parent);
+        AssetDatabase.CreateFolder(parent, name);
     }
 
     private static void SetStringArrayField(Object target, string fieldName, string[] values)

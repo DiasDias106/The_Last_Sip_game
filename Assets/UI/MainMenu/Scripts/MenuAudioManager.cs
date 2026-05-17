@@ -30,6 +30,7 @@ public sealed class MenuAudioManager : MonoBehaviour
     private float masterVolume;
     private float musicVolume;
     private float sfxVolume;
+    private float runtimeMusicMultiplier = 1f;
 
     public float MasterVolume => masterVolume;
     public float MusicVolume => musicVolume;
@@ -65,6 +66,50 @@ public sealed class MenuAudioManager : MonoBehaviour
     public void PlayClick()
     {
         PlaySfxClip(clickClip);
+    }
+
+    public void SetAmbientMusicClip(AudioClip clip, bool restartIfPlaying = true)
+    {
+        ambientMusicClip = clip;
+        if (ambientMusicSource == null)
+        {
+            return;
+        }
+
+        if (ambientMusicSource.clip == clip && ambientMusicSource.isPlaying)
+        {
+            return;
+        }
+
+        ambientMusicSource.clip = clip;
+        if (clip == null)
+        {
+            ambientMusicSource.Stop();
+            return;
+        }
+
+        if (restartIfPlaying || !ambientMusicSource.isPlaying)
+        {
+            ambientMusicSource.Play();
+        }
+    }
+
+    public void EnsureAmbientMusicIsPlaying()
+    {
+        if (ambientMusicSource == null)
+        {
+            return;
+        }
+
+        if (ambientMusicSource.clip == null)
+        {
+            ambientMusicSource.clip = ambientMusicClip;
+        }
+
+        if (ambientMusicSource.clip != null && !ambientMusicSource.isPlaying)
+        {
+            ambientMusicSource.Play();
+        }
     }
 
     public void SetMasterVolume(float value)
@@ -113,6 +158,12 @@ public sealed class MenuAudioManager : MonoBehaviour
         {
             SaveCurrentVolumes();
         }
+    }
+
+    public void SetRuntimeMusicMultiplier(float multiplier)
+    {
+        runtimeMusicMultiplier = Mathf.Clamp(multiplier, 0f, 1.5f);
+        ApplyVolumes();
     }
 
     public void SaveCurrentVolumes()
@@ -209,7 +260,7 @@ public sealed class MenuAudioManager : MonoBehaviour
     {
         if (ambientMusicSource != null)
         {
-            ambientMusicSource.volume = masterVolume * musicVolume;
+            ambientMusicSource.volume = masterVolume * musicVolume * runtimeMusicMultiplier;
         }
 
         if (uiSfxSource != null)
