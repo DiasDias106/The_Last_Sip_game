@@ -38,9 +38,19 @@ public sealed class LoadingScreenController : MonoBehaviour
     private Color quoteBaseColor;
     private Color loadingBaseColor;
     private Coroutine activeSequence;
+    private bool loadingAudioMuted;
 
     private void Awake()
     {
+        if (menuAudioManager == null)
+        {
+            menuAudioManager = GetComponent<MenuAudioManager>();
+            if (menuAudioManager == null)
+            {
+                menuAudioManager = FindFirstObjectByType<MenuAudioManager>(FindObjectsInactive.Include);
+            }
+        }
+
         if (loadingIconRoot != null)
         {
             iconInitialRotation = loadingIconRoot.localRotation;
@@ -97,11 +107,13 @@ public sealed class LoadingScreenController : MonoBehaviour
 
     public void ShowLoadingThenOpenCredits()
     {
+        menuAudioManager?.EnsureAmbientMusicIsPlaying();
         StartSequence(ShowLoadingThenOpenCreditsRoutine());
     }
 
     public void ShowLoadingThenLoadScene(string sceneName)
     {
+        menuAudioManager?.EnsureAmbientMusicIsPlaying();
         StartSequence(ShowLoadingThenLoadSceneRoutine(sceneName));
     }
 
@@ -134,6 +146,8 @@ public sealed class LoadingScreenController : MonoBehaviour
         {
             loadingPanel.SetActive(false);
         }
+
+        RestoreAudioAfterLoading();
     }
 
     private void StartSequence(IEnumerator routine)
@@ -162,6 +176,7 @@ public sealed class LoadingScreenController : MonoBehaviour
             creditsPanel.Show();
         }
 
+        RestoreAudioAfterLoading();
         yield return FadeFromBlack();
         FinishSequence();
     }
@@ -190,13 +205,14 @@ public sealed class LoadingScreenController : MonoBehaviour
             mainMenuPanel.SetActive(true);
         }
 
+        RestoreAudioAfterLoading();
         yield return FadeFromBlack();
         FinishSequence();
     }
 
     private IEnumerator PlayLoadingIntro()
     {
-        menuAudioManager?.EnsureAmbientMusicIsPlaying();
+        MuteAudioForLoading();
 
         if (sceneFadeController != null)
         {
@@ -346,7 +362,30 @@ public sealed class LoadingScreenController : MonoBehaviour
 
     private void FinishSequence()
     {
+        RestoreAudioAfterLoading();
         activeSequence = null;
         SequenceFinished?.Invoke();
+    }
+
+    private void MuteAudioForLoading()
+    {
+        if (menuAudioManager == null)
+        {
+            return;
+        }
+
+        menuAudioManager.SetRuntimeMusicMultiplier(0f);
+        loadingAudioMuted = true;
+    }
+
+    private void RestoreAudioAfterLoading()
+    {
+        if (!loadingAudioMuted || menuAudioManager == null)
+        {
+            return;
+        }
+
+        menuAudioManager.SetRuntimeMusicMultiplier(1f);
+        loadingAudioMuted = false;
     }
 }

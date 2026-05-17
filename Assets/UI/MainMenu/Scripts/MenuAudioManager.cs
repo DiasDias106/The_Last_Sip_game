@@ -78,6 +78,10 @@ public sealed class MenuAudioManager : MonoBehaviour
 
         if (ambientMusicSource.clip == clip && ambientMusicSource.isPlaying)
         {
+            if (restartIfPlaying)
+            {
+                ambientMusicSource.time = 0f;
+            }
             return;
         }
 
@@ -89,6 +93,30 @@ public sealed class MenuAudioManager : MonoBehaviour
         }
 
         if (restartIfPlaying || !ambientMusicSource.isPlaying)
+        {
+            ambientMusicSource.Play();
+        }
+    }
+
+    public void RestartAmbientMusic()
+    {
+        if (ambientMusicSource == null)
+        {
+            return;
+        }
+
+        if (ambientMusicSource.clip == null)
+        {
+            ambientMusicSource.clip = ambientMusicClip;
+        }
+
+        if (ambientMusicSource.clip == null)
+        {
+            return;
+        }
+
+        ambientMusicSource.time = 0f;
+        if (!ambientMusicSource.isPlaying)
         {
             ambientMusicSource.Play();
         }
