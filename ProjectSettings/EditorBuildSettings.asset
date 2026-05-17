@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/MainMenuScene.unity
+    guid: 492188762136f3c45b33ff48acd3b9ac
+  - enabled: 1
+    path: Assets/Scenes/beco.unity
+    guid: 0c9e2a6448332ba41aad4d47d476a6de
+  - enabled: 1
     path: Assets/Scenes/masmorra_spawn.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
