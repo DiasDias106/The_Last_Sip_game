@@ -119,6 +119,29 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &1633393 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7096777960149681577, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
+  m_PrefabInstance: {fileID: 1411479270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1633398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a77eaadd2a64594ea8e460bd16263f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DoorInteractable
+  doorGroupId: level1_gate_root
+  interactionDistance: 2.5
+  openAngleY: -95
+  openSpeed: 3.5
+  promptOffset: {x: 0, y: 1.7, z: 0}
+  disableCollidersWhenOpen: 1
 --- !u!1001 &3003290
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4397,7 +4420,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a77eaadd2a64594ea8e460bd16263f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoorInteractable
-  doorGroupId: level1_main_gate
+  doorGroupId: level1_gate_env
   interactionDistance: 2.5
   openAngleY: 95
   openSpeed: 3.5
@@ -40311,7 +40334,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9142822364846810586, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1447835480}
+    - targetCorrespondingSourceObject: {fileID: 7096777960149681577, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1633398}
   m_SourcePrefab: {fileID: 100100000, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
 --- !u!4 &1413150326 stripped
 Transform:
@@ -41248,6 +41277,29 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 8606969f693d5cf46b648d0ced0fde39, type: 3}
   m_PrefabInstance: {fileID: 1447057974}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1447835475 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9142822364846810586, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
+  m_PrefabInstance: {fileID: 1411479270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1447835480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1447835475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a77eaadd2a64594ea8e460bd16263f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DoorInteractable
+  doorGroupId: level1_gate_root
+  interactionDistance: 2.5
+  openAngleY: 95
+  openSpeed: 3.5
+  promptOffset: {x: 0, y: 1.7, z: 0}
+  disableCollidersWhenOpen: 1
 --- !u!1001 &1451228745
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -53728,7 +53780,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a77eaadd2a64594ea8e460bd16263f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoorInteractable
-  doorGroupId: level1_main_gate
+  doorGroupId: level1_gate_env
   interactionDistance: 2.5
   openAngleY: -95
   openSpeed: 3.5
