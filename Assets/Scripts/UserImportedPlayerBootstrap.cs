@@ -63,6 +63,10 @@ public static class UserImportedPlayerBootstrap
         UserImportedPlayerController controller = playerRoot.AddComponent<UserImportedPlayerController>();
         controller.AssignVisualRoot(visual.transform);
         playerRoot.AddComponent<DoorInteractor>();
+        playerRoot.AddComponent<PlayerHealth>();
+        playerRoot.tag = "Player";
+        int playerLayer = LayerMask.NameToLayer("Player");
+        if (playerLayer >= 0) playerRoot.layer = playerLayer;
         visual.AddComponent<VisualAnimationEventReceiver>();
 
         EnsureCharacterMaterialsVisible(visual);

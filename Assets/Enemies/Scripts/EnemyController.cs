@@ -35,6 +35,7 @@ public class EnemyController : MonoBehaviour, IDamageable
     private float        patrolWaitTimer;
     private Vector3      patrolTarget;
     private Vector3      spawnPosition;
+    private float        attackingExitTimer;
 
     private static readonly int HashIsWalking  = Animator.StringToHash("IsWalking");
     private static readonly int HashAttack     = Animator.StringToHash("Attack");
@@ -49,8 +50,23 @@ public class EnemyController : MonoBehaviour, IDamageable
         spawnPosition = transform.position;
         agent.speed   = moveSpeed;
         agent.stoppingDistance = attackRange * 0.85f;
-        PickNewPatrolTarget();
         patrolWaitTimer = patrolWaitTime;
+
+        // Root motion fights NavMeshAgent and causes walking-in-place
+        animator.applyRootMotion = false;
+
+        // Put on Enemy layer so physics matrix prevents pushing the player
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+        if (enemyLayer >= 0) gameObject.layer = enemyLayer;
+
+        if (!agent.isOnNavMesh)
+        {
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(transform.position, out hit, 5f, NavMesh.AllAreas))
+                agent.Warp(hit.position);
+        }
+
+        PickNewPatrolTarget();
     }
 
     private void Update()
@@ -93,12 +109,18 @@ public class EnemyController : MonoBehaviour, IDamageable
 
     private void UpdatePatrol()
     {
-        if (!agent.isOnNavMesh) return;
+        if (!agent.isOnNavMesh) { state = State.Idle; return; }
+
         animator.SetBool(HashIsWalking, true);
         agent.isStopped = false;
-        agent.SetDestination(patrolTarget);
 
-        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        if (!agent.hasPath || agent.pathStatus == NavMeshPathStatus.PathInvalid)
+            agent.SetDestination(patrolTarget);
+
+        bool arrived = !agent.pathPending
+                       && agent.remainingDistance <= agent.stoppingDistance + 0.2f
+                       && agent.velocity.sqrMagnitude < 0.05f;
+        if (arrived)
         {
             patrolWaitTimer = patrolWaitTime;
             state = State.Idle;
@@ -113,14 +135,18 @@ public class EnemyController : MonoBehaviour, IDamageable
 
         if (dist <= attackRange)
         {
-            state           = State.Attacking;
-            agent.isStopped = true;
+            state              = State.Attacking;
+            attackingExitTimer = 0f;
+            if (agent.isOnNavMesh) agent.isStopped = true;
             animator.SetBool(HashIsWalking, false);
         }
         else
         {
-            agent.isStopped = false;
-            if (agent.isOnNavMesh) agent.SetDestination(player.position);
+            if (agent.isOnNavMesh)
+            {
+                agent.isStopped = false;
+                agent.SetDestination(player.position);
+            }
             animator.SetBool(HashIsWalking, true);
         }
 
@@ -137,15 +163,22 @@ public class EnemyController : MonoBehaviour, IDamageable
 
         float dist = Vector3.Distance(transform.position, player.position);
 
+        // Smooth rotation — instant snap every frame causes the trembling
         Vector3 lookDir = player.position - transform.position;
         lookDir.y = 0f;
         if (lookDir != Vector3.zero)
-            transform.rotation = Quaternion.LookRotation(lookDir);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation, Quaternion.LookRotation(lookDir), 10f * Time.deltaTime);
 
-        if (dist > attackRange * 1.2f)
+        attackingExitTimer += Time.deltaTime;
+
+        // Require a minimum dwell time before leaving attack state to prevent flip-flop jitter
+        bool canExit = attackingExitTimer >= 0.4f;
+
+        if (canExit && dist > attackRange * 1.5f)
         {
-            state           = State.Chasing;
-            agent.isStopped = false;
+            state = State.Chasing;
+            if (agent.isOnNavMesh) agent.isStopped = false;
         }
         else if (Time.time >= lastAttackTime + attackCooldown)
         {
@@ -157,12 +190,21 @@ public class EnemyController : MonoBehaviour, IDamageable
 
     private void PickNewPatrolTarget()
     {
-        Vector2 circle = Random.insideUnitCircle * patrolRadius;
-        Vector3 candidate = spawnPosition + new Vector3(circle.x, 0, circle.y);
-        if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, patrolRadius, NavMesh.AllAreas))
-            patrolTarget = hit.position;
-        else
-            patrolTarget = spawnPosition;
+        for (int i = 1; i <= 8; i++)
+        {
+            Vector2 circle    = Random.insideUnitCircle.normalized * patrolRadius;
+            Vector3 candidate = spawnPosition + new Vector3(circle.x, 0, circle.y);
+            float   searchR   = patrolRadius * i * 0.5f;
+            if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, searchR, NavMesh.AllAreas))
+            {
+                if (Vector3.Distance(transform.position, hit.position) > 1.5f)
+                {
+                    patrolTarget = hit.position;
+                    return;
+                }
+            }
+        }
+        patrolTarget = transform.position + transform.forward * patrolRadius * 0.5f;
     }
 
     public void TakeDamage(float amount)
@@ -181,7 +223,7 @@ public class EnemyController : MonoBehaviour, IDamageable
     private void Die()
     {
         state           = State.Dead;
-        agent.isStopped = true;
+        if (agent.isOnNavMesh) agent.isStopped = true;
         animator.SetTrigger(HashDie);
         StartCoroutine(DeathRoutine());
     }

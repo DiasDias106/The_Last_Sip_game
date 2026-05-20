@@ -94,11 +94,10 @@ public class UserImportedPlayerController : MonoBehaviour
         worldMove.y = _verticalVelocity;
         _controller.Move(worldMove * Time.deltaTime);
 
-        if (movementDirection.sqrMagnitude > 0.01f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
-        }
+        // Rotation is controlled exclusively by mouse (_yaw in HandleCameraLook).
+        // Do not Slerp toward movement direction — the camera is a child of the player,
+        // so rotating the player changes camForward, which changes movementDirection,
+        // which changes the Slerp target — an infinite feedback loop causing spinning.
 
         if (input.sqrMagnitude < 0.01f)
         {
@@ -553,23 +552,15 @@ public class UserImportedPlayerController : MonoBehaviour
             return Vector3.zero;
         }
 
-        if (_mainCamera == null)
-        {
-            _mainCamera = Camera.main;
-        }
+        // Use _yaw directly instead of camera's world transform.
+        // The camera is a child of the player — if we use camera.forward, rotating
+        // the player (via Slerp) changes camera.forward, which changes movementDirection,
+        // which changes the Slerp target — a feedback loop that causes spinning.
+        // _yaw is stable (only changes from mouse input), so this breaks the loop.
+        Quaternion yawRotation = Quaternion.Euler(0f, _yaw, 0f);
+        Vector3 forward = yawRotation * Vector3.forward;
+        Vector3 right   = yawRotation * Vector3.right;
 
-        if (_mainCamera == null)
-        {
-            return new Vector3(input.x, 0f, input.z).normalized;
-        }
-
-        Vector3 camForward = _mainCamera.transform.forward;
-        Vector3 camRight = _mainCamera.transform.right;
-        camForward.y = 0f;
-        camRight.y = 0f;
-        camForward.Normalize();
-        camRight.Normalize();
-
-        return (camRight * input.x + camForward * input.z).normalized;
+        return (right * input.x + forward * input.z).normalized;
     }
 }

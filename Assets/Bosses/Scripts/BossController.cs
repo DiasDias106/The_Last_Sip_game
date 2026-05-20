@@ -45,6 +45,16 @@ public abstract class BossController : MonoBehaviour
         agent         = GetComponent<NavMeshAgent>();
         currentHealth = maxHealth;
         agent.speed   = moveSpeed;
+
+        // Snap to NavMesh if placed slightly off it
+        if (!agent.isOnNavMesh)
+        {
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(transform.position, out hit, 5f, NavMesh.AllAreas))
+                agent.Warp(hit.position);
+            else
+                Debug.LogWarning($"[BossController] {name} is not on a NavMesh — bake the NavMesh in this scene.");
+        }
     }
 
     protected virtual void Update()
