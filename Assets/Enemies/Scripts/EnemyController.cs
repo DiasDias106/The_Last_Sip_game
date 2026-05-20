@@ -4,7 +4,7 @@ using System.Collections;
 
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(NavMeshAgent))]
-public class EnemyController : MonoBehaviour
+public class EnemyController : MonoBehaviour, IDamageable
 {
     [Header("Detection")]
     public float detectionRange = 7f;
@@ -151,7 +151,7 @@ public class EnemyController : MonoBehaviour
         {
             lastAttackTime = Time.time;
             animator.SetTrigger(HashAttack);
-            // Wire up when player exists: player.GetComponent<IDamageable>()?.TakeDamage(attackDamage);
+            player.GetComponent<IDamageable>()?.TakeDamage(attackDamage);
         }
     }
 

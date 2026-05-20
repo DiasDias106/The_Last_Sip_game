@@ -1,175 +1,133 @@
 using UnityEngine;
 using UnityEngine.AI;
-
-public enum BossState { Sleeping, WakingUp, Chasing, Attacking, Dead }
+using System.Collections;
 
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(NavMeshAgent))]
 public abstract class BossController : MonoBehaviour
 {
-    [Header("Detection")]
-    public float detectionRange = 8f;
-    public float attackRange = 2f;
-
     [Header("Stats")]
-    public float maxHealth = 100f;
-    public float attackDamage = 15f;
+    public float maxHealth = 300f;
+    public float attackDamage = 25f;
+    public float moveSpeed = 4f;
     public float attackCooldown = 2f;
-    public float moveSpeed = 3f;
 
-    [Header("Wake-up")]
-    public float wakeUpDuration = 2.5f;
+    [Header("Detection")]
+    public float detectionRange = 15f;
+    public float attackRange = 2.5f;
 
-    protected BossState currentState = BossState.Sleeping;
-    protected Animator animator;
+    [Header("Death")]
+    public float deathDuration = 4f;
+
+    protected static readonly int HashSpeed      = Animator.StringToHash("Speed");
+    protected static readonly int HashAttack1    = Animator.StringToHash("Attack1");
+    protected static readonly int HashAttack2    = Animator.StringToHash("Attack2");
+    protected static readonly int HashAttack3    = Animator.StringToHash("Attack3");
+    protected static readonly int HashAttack4    = Animator.StringToHash("Attack4");
+    protected static readonly int HashAttack5    = Animator.StringToHash("Attack5");
+    protected static readonly int HashTakeDamage = Animator.StringToHash("TakeDamage");
+    protected static readonly int HashDie        = Animator.StringToHash("Die");
+
+    protected Animator anim;
     protected NavMeshAgent agent;
     protected Transform player;
-    protected float health;
-    protected float lastAttackTime;
-
-    protected static readonly int HashIsWalking = Animator.StringToHash("IsWalking");
-    protected static readonly int HashAttack    = Animator.StringToHash("Attack");
-    protected static readonly int HashWakeUp    = Animator.StringToHash("WakeUp");
-    protected static readonly int HashDie       = Animator.StringToHash("Die");
+    protected float currentHealth;
+    protected bool isDead;
+    protected float attackTimer;
 
     protected virtual void Awake()
     {
-        animator = GetComponent<Animator>();
-        agent    = GetComponent<NavMeshAgent>();
-        health   = maxHealth;
-        agent.speed            = moveSpeed;
-        agent.stoppingDistance = attackRange * 0.85f;
-        agent.isStopped        = true;
+        anim          = GetComponent<Animator>();
+        agent         = GetComponent<NavMeshAgent>();
+        currentHealth = maxHealth;
+        agent.speed   = moveSpeed;
     }
 
     protected virtual void Update()
     {
-        if (currentState == BossState.Dead || currentState == BossState.WakingUp)
-            return;
-
-        if (currentState == BossState.Sleeping)
-        {
-            ScanForPlayer();
-            return;
-        }
+        if (isDead) return;
+        attackTimer -= Time.deltaTime;
+        DetectPlayer();
 
         if (player == null)
         {
-            player = FindPlayer();
-            if (player == null) return;
+            if (agent.isOnNavMesh) agent.ResetPath();
+            anim.SetFloat(HashSpeed, 0f, 0.2f, Time.deltaTime);
+            return;
         }
 
-        UpdateCombat();
-    }
-
-    private void ScanForPlayer()
-    {
-        Collider[] hits = Physics.OverlapSphere(transform.position, detectionRange);
-        foreach (Collider hit in hits)
-        {
-            if (hit.CompareTag("Player"))
-            {
-                player = hit.transform;
-                StartWakeUp();
-                return;
-            }
-        }
-    }
-
-    private Transform FindPlayer()
-    {
-        GameObject go = GameObject.FindGameObjectWithTag("Player");
-        return go != null ? go.transform : null;
-    }
-
-    private void StartWakeUp()
-    {
-        currentState = BossState.WakingUp;
-        animator.SetTrigger(HashWakeUp);
-        Invoke(nameof(FinishWakeUp), wakeUpDuration);
-    }
-
-    private void FinishWakeUp()
-    {
-        currentState    = BossState.Chasing;
-        agent.isStopped = false;
-    }
-
-    private void UpdateCombat()
-    {
         float dist = Vector3.Distance(transform.position, player.position);
 
-        if (currentState == BossState.Chasing)
+        if (dist > detectionRange * 1.5f)
+        {
+            player = null;
+            return;
+        }
+
+        if (dist <= attackRange && attackTimer <= 0f)
+        {
+            if (agent.isOnNavMesh) agent.ResetPath();
+            anim.SetFloat(HashSpeed, 0f, 0.1f, Time.deltaTime);
+            FaceTarget(player.position);
+            PerformAttack();
+            attackTimer = attackCooldown;
+        }
+        else if (dist > attackRange)
         {
             if (agent.isOnNavMesh)
                 agent.SetDestination(player.position);
-            animator.SetBool(HashIsWalking, true);
-
-            if (dist <= attackRange)
-            {
-                currentState    = BossState.Attacking;
-                agent.isStopped = true;
-                animator.SetBool(HashIsWalking, false);
-            }
-        }
-        else if (currentState == BossState.Attacking)
-        {
-            Vector3 lookDir = player.position - transform.position;
-            lookDir.y = 0f;
-            if (lookDir != Vector3.zero)
-                transform.rotation = Quaternion.LookRotation(lookDir);
-
-            if (dist > attackRange * 1.2f)
-            {
-                currentState    = BossState.Chasing;
-                agent.isStopped = false;
-            }
-            else if (Time.time >= lastAttackTime + attackCooldown)
-            {
-                PerformAttack();
-            }
+            float normalizedSpeed = agent.velocity.magnitude / Mathf.Max(agent.speed, 0.01f);
+            anim.SetFloat(HashSpeed, normalizedSpeed, 0.1f, Time.deltaTime);
         }
     }
 
-    protected virtual void PerformAttack()
+    void DetectPlayer()
     {
-        lastAttackTime = Time.time;
-        animator.SetTrigger(HashAttack);
-        ApplyMeleeDamage(attackRange);
-    }
-
-    protected void ApplyMeleeDamage(float range)
-    {
-        Collider[] hits = Physics.OverlapSphere(transform.position, range);
-        foreach (Collider hit in hits)
+        if (player != null) return;
+        var cols = Physics.OverlapSphere(transform.position, detectionRange);
+        foreach (var col in cols)
         {
-            if (hit.CompareTag("Player"))
+            if (col.CompareTag("Player"))
             {
-                // Wire up player health here: hit.GetComponent<IDamageable>()?.TakeDamage(attackDamage);
+                player = col.transform;
+                break;
             }
         }
     }
+
+    void FaceTarget(Vector3 target)
+    {
+        var dir = (target - transform.position).normalized;
+        dir.y = 0;
+        if (dir != Vector3.zero)
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation, Quaternion.LookRotation(dir), 15f * Time.deltaTime);
+    }
+
+    protected abstract void PerformAttack();
 
     public virtual void TakeDamage(float amount)
     {
-        if (currentState == BossState.Dead) return;
-        health -= amount;
-        if (health <= 0f) Die();
+        if (isDead) return;
+        currentHealth -= amount;
+        if (currentHealth <= 0f)
+            Die();
+        else
+            anim.SetTrigger(HashTakeDamage);
     }
 
     protected virtual void Die()
     {
-        currentState    = BossState.Dead;
-        agent.isStopped = true;
-        animator.SetTrigger(HashDie);
-        Destroy(gameObject, 5f);
+        isDead = true;
+        if (agent.isOnNavMesh) agent.ResetPath();
+        agent.enabled = false;
+        anim.SetTrigger(HashDie);
+        StartCoroutine(DeathRoutine());
     }
 
-    private void OnDrawGizmosSelected()
+    IEnumerator DeathRoutine()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRange);
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        yield return new WaitForSeconds(deathDuration);
+        Destroy(gameObject);
     }
 }
