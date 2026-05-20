@@ -19,6 +19,10 @@ public abstract class BossController : MonoBehaviour
     [Header("Death")]
     public float deathDuration = 4f;
 
+    [Header("Memory Drop")]
+    public GameObject memoryPrefab;
+    public int videoIndex = 1;
+
     protected static readonly int HashSpeed      = Animator.StringToHash("Speed");
     protected static readonly int HashAttack1    = Animator.StringToHash("Attack1");
     protected static readonly int HashAttack2    = Animator.StringToHash("Attack2");
@@ -128,6 +132,15 @@ public abstract class BossController : MonoBehaviour
     IEnumerator DeathRoutine()
     {
         yield return new WaitForSeconds(deathDuration);
+
+        if (memoryPrefab != null)
+        {
+            var spawnPos = transform.position + Vector3.up * 1f;
+            var mem = Instantiate(memoryPrefab, spawnPos, Quaternion.identity);
+            var pickup = mem.GetComponent<MemoryPickup>();
+            if (pickup != null) pickup.videoIndex = videoIndex;
+        }
+
         Destroy(gameObject);
     }
 }
