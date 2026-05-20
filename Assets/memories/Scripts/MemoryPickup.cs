@@ -25,6 +25,17 @@ public class MemoryPickup : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
+
+        // Auto-spawn the video player manager if not present in scene
+        if (MemoryVideoPlayer.Instance == null)
+        {
+            var prefab = Resources.Load<GameObject>("MemoryVideoPlayer");
+            if (prefab != null)
+                Instantiate(prefab);
+            else
+                new GameObject("MemoryVideoPlayer").AddComponent<MemoryVideoPlayer>();
+        }
+
         MemoryVideoPlayer.Instance?.PlayVideo(videoIndex);
         Destroy(gameObject);
     }
