@@ -1,6 +1,10 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Assets_construcao/portal.meta
 guid: 5d1d025d051666f40b6936fe6ac48900
 folderAsset: yes
+========
+guid: 1dcb2c787aca56d4cbc61d6f3a16f30c
+>>>>>>>> 0e318e054e235c2cd5c0e3585890f3d7d8522aee:Assets/Bosses/golem_boss/Characters/Humanoid Giant/Demo Scene/GiantModel01 - Golem - Demo Scene.unity.meta
 DefaultImporter:
   externalObjects: {}
   userData: 

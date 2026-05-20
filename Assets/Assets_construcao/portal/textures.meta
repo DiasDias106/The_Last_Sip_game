@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Assets_construcao/portal/textures.meta
 guid: 89c340014d41cd345bfa3c821172e6fd
+========
+guid: 20ac1907c189df7428c5599a253b407c
+>>>>>>>> 0e318e054e235c2cd5c0e3585890f3d7d8522aee:Assets/Kevin Iglesias.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
