@@ -12,14 +12,38 @@ public static class UserImportedPlayerBootstrap
     private static bool _levelCollidersEnsured;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void SpawnPlayerOnLevel1()
+    private static void OnSceneLoaded()
     {
+        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        if (sceneName == "masmorra_spawn")
+        {
+            SetupTavernShop();
+        }
+        else if (sceneName == "level_1")
+        {
+            EnsureLevel1Colliders();
+        }
+
         EnsurePlayerSpawned();
+    }
+
+    private static void EnsureLevel1Colliders()
+    {
+        // level_1 relies on auto-generated colliders for its floor/walls.
+        MeshFilter[] meshes = Object.FindObjectsOfType<MeshFilter>();
+        foreach (MeshFilter mf in meshes)
+        {
+            if (mf.gameObject.GetComponent<Collider>() == null)
+            {
+                mf.gameObject.AddComponent<MeshCollider>();
+            }
+        }
     }
 
     public static void EnsurePlayerSpawned()
     {
-        if (SceneManager.GetActiveScene().name != SceneName)
+        string currentScene = SceneManager.GetActiveScene().name;
+        if (currentScene != SceneName && currentScene != "masmorra_spawn")
         {
             return;
         }
@@ -29,7 +53,6 @@ public static class UserImportedPlayerBootstrap
             return;
         }
 
-        EnsureLevelColliders();
         EnsureEventSystem();
         HideScenePreviewCharacter();
 
@@ -207,7 +230,7 @@ public static class UserImportedPlayerBootstrap
 
     private static Vector3 GetRequestedSpawnPoint(out bool fromBase, out Quaternion rot)
     {
-        GameObject preview = GameObject.Find("PaladinOnBase");
+        GameObject preview = FindInactiveObjectByName("PaladinOnBase");
         if (preview != null)
         {
             rot = preview.transform.rotation;
@@ -217,73 +240,51 @@ public static class UserImportedPlayerBootstrap
             rot = Quaternion.Euler(0, 180, 0); // Default to 180 if requested
         }
 
-        GameObject baseObj = GameObject.Find("Base");
+        GameObject baseObj = FindInactiveObjectByName("Base");
         if (baseObj != null)
         {
             fromBase = true;
-            return baseObj.transform.position + Vector3.up * 1.2f;
+            return baseObj.transform.position + Vector3.up * 0.1f;
+        }
+
+        if (preview != null)
+        {
+            fromBase = true;
+            return preview.transform.position + Vector3.up * 0.1f;
         }
 
         fromBase = false;
         return FallbackSpawn;
     }
 
+    private static GameObject FindInactiveObjectByName(string name)
+    {
+        foreach (GameObject go in Resources.FindObjectsOfTypeAll<GameObject>())
+        {
+            if (go.scene.isLoaded && go.name == name)
+            {
+                return go;
+            }
+        }
+        return null;
+    }
+
     private static void EnsureSafetyPlatform(Vector3 around)
     {
         // If the level has no collider below spawn, create a hidden fallback floor.
-        if (Physics.Raycast(around + Vector3.up * 2f, Vector3.down, out _, 6f))
+        if (_levelCollidersEnsured) return;
+
+        if (!Physics.Raycast(around + Vector3.up, Vector3.down, out RaycastHit _, 50f))
         {
-            return;
+            GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            platform.name = "SafetyPlatform";
+            platform.transform.position = around - Vector3.up * 1.5f;
+            platform.transform.localScale = new Vector3(50, 1, 50);
+            platform.GetComponent<MeshRenderer>().enabled = false;
         }
-
-        GameObject safety = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        safety.name = "PlayerSpawnSafetyFloor";
-        safety.transform.position = new Vector3(around.x, around.y - 0.15f, around.z);
-        safety.transform.localScale = new Vector3(0.25f, 1f, 0.25f);
-
-        Renderer r = safety.GetComponent<Renderer>();
-        if (r != null)
-        {
-            r.enabled = false;
-        }
-    }
-
-    private static void EnsureLevelColliders()
-    {
-        if (_levelCollidersEnsured)
-        {
-            return;
-        }
-
-        MeshFilter[] meshFilters = Object.FindObjectsOfType<MeshFilter>(true);
-        int added = 0;
-        foreach (MeshFilter mf in meshFilters)
-        {
-            if (mf == null || mf.sharedMesh == null)
-            {
-                continue;
-            }
-
-            GameObject go = mf.gameObject;
-            if (go.GetComponent<Collider>() != null)
-            {
-                continue;
-            }
-
-            if (go.GetComponentInParent<UserImportedPlayerController>() != null)
-            {
-                continue;
-            }
-
-            MeshCollider mc = go.AddComponent<MeshCollider>();
-            mc.sharedMesh = mf.sharedMesh;
-            mc.convex = false;
-            added++;
-        }
-
         _levelCollidersEnsured = true;
-        Debug.Log($"[UserImportedPlayerBootstrap] Added {added} mesh colliders for level safety.");
     }
+
     private static void EnsureEventSystem()
     {
         if (Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>() != null)
@@ -305,5 +306,25 @@ public static class UserImportedPlayerBootstrap
         }
         
         Debug.Log("[UserImportedPlayerBootstrap] Added EventSystem because none was found in the scene.");
+    }
+
+    private static void SetupTavernShop()
+    {
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "masmorra_spawn")
+            return;
+
+        GameObject cylinder = GameObject.Find("Cylinder.155");
+        if (cylinder != null)
+        {
+            if (cylinder.GetComponent<ShopInteractable>() == null)
+            {
+                cylinder.AddComponent<ShopInteractable>();
+                Debug.Log("[UserImportedPlayerBootstrap] ShopInteractable added to Cylinder.155");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[UserImportedPlayerBootstrap] Cylinder.155 not found in masmorra_spawn!");
+        }
     }
 }

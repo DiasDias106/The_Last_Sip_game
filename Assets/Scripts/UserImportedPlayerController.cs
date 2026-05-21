@@ -58,6 +58,17 @@ public class UserImportedPlayerController : MonoBehaviour
     {
         _controller = GetComponent<CharacterController>();
         _mainCamera = Camera.main;
+        if (_mainCamera == null)
+        {
+            _mainCamera = UnityEngine.Object.FindObjectOfType<Camera>();
+        }
+        if (_mainCamera == null)
+        {
+            GameObject camGo = new GameObject("MainCamera");
+            camGo.tag = "MainCamera";
+            _mainCamera = camGo.AddComponent<Camera>();
+            camGo.AddComponent<AudioListener>();
+        }
         _yaw = transform.eulerAngles.y;
     }
 

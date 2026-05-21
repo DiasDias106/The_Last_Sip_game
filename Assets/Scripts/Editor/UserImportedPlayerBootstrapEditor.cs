@@ -17,10 +17,11 @@ public static class UserImportedPlayerBootstrapEditor
     {
         if (state == PlayModeStateChange.EnteredPlayMode)
         {
-            if (SceneManager.GetActiveScene().name != "level_1")
-            {
-                EditorSceneManager.LoadScene(Level1Path, LoadSceneMode.Single);
-            }
+            // Removed forced loading of level_1 so the user can test masmorra_spawn
+            // if (SceneManager.GetActiveScene().name != "level_1")
+            // {
+            //     EditorSceneManager.LoadScene(Level1Path, LoadSceneMode.Single);
+            // }
             UserImportedPlayerBootstrap.EnsurePlayerSpawned();
         }
     }
