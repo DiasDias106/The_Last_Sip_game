@@ -30,6 +30,7 @@ public static class UserImportedPlayerBootstrap
         }
 
         EnsureLevelColliders();
+        EnsureEventSystem();
         HideScenePreviewCharacter();
 
         GameObject modelPrefab = Resources.Load<GameObject>(CharacterResourcePath);
@@ -39,12 +40,13 @@ public static class UserImportedPlayerBootstrap
             return;
         }
 
-        Vector3 requested = GetRequestedSpawnPoint(out bool fromBase);
+        Vector3 requested = GetRequestedSpawnPoint(out bool fromBase, out Quaternion spawnRot);
         Vector3 spawn = fromBase ? requested : ResolveSpawnPoint(requested);
         EnsureSafetyPlatform(spawn);
 
         GameObject playerRoot = new GameObject("UserImportedPlayer");
         playerRoot.transform.position = spawn;
+        playerRoot.transform.rotation = spawnRot;
 
         CharacterController cc = playerRoot.AddComponent<CharacterController>();
         cc.height = 1.8f;
@@ -62,6 +64,7 @@ public static class UserImportedPlayerBootstrap
 
         UserImportedPlayerController controller = playerRoot.AddComponent<UserImportedPlayerController>();
         controller.AssignVisualRoot(visual.transform);
+
         playerRoot.AddComponent<DoorInteractor>();
         playerRoot.AddComponent<PlayerHealth>();
         playerRoot.tag = "Player";
@@ -202,8 +205,18 @@ public static class UserImportedPlayerBootstrap
         return desired;
     }
 
-    private static Vector3 GetRequestedSpawnPoint(out bool fromBase)
+    private static Vector3 GetRequestedSpawnPoint(out bool fromBase, out Quaternion rot)
     {
+        GameObject preview = GameObject.Find("PaladinOnBase");
+        if (preview != null)
+        {
+            rot = preview.transform.rotation;
+        }
+        else
+        {
+            rot = Quaternion.Euler(0, 180, 0); // Default to 180 if requested
+        }
+
         GameObject baseObj = GameObject.Find("Base");
         if (baseObj != null)
         {
@@ -270,5 +283,27 @@ public static class UserImportedPlayerBootstrap
 
         _levelCollidersEnsured = true;
         Debug.Log($"[UserImportedPlayerBootstrap] Added {added} mesh colliders for level safety.");
+    }
+    private static void EnsureEventSystem()
+    {
+        if (Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>() != null)
+        {
+            return;
+        }
+
+        GameObject eventSystemGo = new GameObject("EventSystem");
+        eventSystemGo.AddComponent<UnityEngine.EventSystems.EventSystem>();
+
+        System.Type inputModuleType = System.Type.GetType("UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem");
+        if (inputModuleType != null)
+        {
+            eventSystemGo.AddComponent(inputModuleType);
+        }
+        else
+        {
+            eventSystemGo.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+        }
+        
+        Debug.Log("[UserImportedPlayerBootstrap] Added EventSystem because none was found in the scene.");
     }
 }

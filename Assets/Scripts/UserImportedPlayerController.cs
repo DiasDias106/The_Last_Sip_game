@@ -20,11 +20,13 @@ public class UserImportedPlayerController : MonoBehaviour
     [SerializeField] private float gravity = -18f;
     [SerializeField] private float rollDuration = 0.8f;
     [SerializeField] private float rollSpeed = 7f;
-    [SerializeField] private float turnSpeed = 12f;
+    [SerializeField] private float turnSpeed = 6f;
     [SerializeField] private float mouseSensitivity = 2.2f;
     [SerializeField] private float cameraPitchMin = -30f;
     [SerializeField] private float cameraPitchMax = 70f;
-    [SerializeField] private Vector3 cameraLocalOffset = new Vector3(0f, 1.8f, -3.6f);
+    [SerializeField] private Vector3 cameraLocalOffset = new Vector3(0f, 0.4f, -3.2f);
+    [SerializeField] private float cameraFollowSpeed = 15f;
+    [SerializeField] private float movementSmoothTime = 0.1f;
 
     private Transform _visualRoot;
     private CharacterController _controller;
@@ -41,6 +43,11 @@ public class UserImportedPlayerController : MonoBehaviour
     private AnimationClipPlayable _clipPlayable;
     private AnimationPlayableOutput _animationOutput;
     private bool _graphCreated;
+    
+    private Vector3 _currentMovementVelocity;
+    private Vector3 _movementVelocityRef;
+    
+    private bool _isTargetingMode = false;
 
     public void AssignVisualRoot(Transform visualRoot)
     {
@@ -51,10 +58,14 @@ public class UserImportedPlayerController : MonoBehaviour
     {
         _controller = GetComponent<CharacterController>();
         _mainCamera = Camera.main;
+        _yaw = transform.eulerAngles.y;
     }
 
     private void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
         LoadClips();
         SetupCameraRig();
         EnsureAnimationGraph();
@@ -64,6 +75,11 @@ public class UserImportedPlayerController : MonoBehaviour
     private void Update()
     {
         if (_controller == null || _visualRoot == null)
+        {
+            return;
+        }
+
+        if (Time.timeScale <= 0f)
         {
             return;
         }
@@ -81,9 +97,18 @@ public class UserImportedPlayerController : MonoBehaviour
         Vector3 input = new Vector3(inputX, 0f, inputZ).normalized;
 
         bool run = GetRunHeld();
-        float speed = run ? runSpeed : walkSpeed;
-        Vector3 movementDirection = GetMovementDirection(input);
-        Vector3 worldMove = movementDirection * speed;
+        float targetSpeed = run ? runSpeed : walkSpeed;
+        Vector3 targetDirection = GetMovementDirection(input);
+        Vector3 targetVelocity = targetDirection * (input.sqrMagnitude > 0.01f ? targetSpeed : 0f);
+
+        _currentMovementVelocity = Vector3.SmoothDamp(
+            _currentMovementVelocity, 
+            targetVelocity, 
+            ref _movementVelocityRef, 
+            movementSmoothTime
+        );
+
+        Vector3 worldMove = _currentMovementVelocity;
 
         if (grounded && GetJumpPressed())
         {
@@ -94,12 +119,37 @@ public class UserImportedPlayerController : MonoBehaviour
         worldMove.y = _verticalVelocity;
         _controller.Move(worldMove * Time.deltaTime);
 
-        // Rotation is controlled exclusively by mouse (_yaw in HandleCameraLook).
-        // Do not Slerp toward movement direction — the camera is a child of the player,
-        // so rotating the player changes camForward, which changes movementDirection,
-        // which changes the Slerp target — an infinite feedback loop causing spinning.
+        if (GetAttackPressed())
+        {
+            bool clickingUI = UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
+            if (!clickingUI)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
 
-        if (input.sqrMagnitude < 0.01f)
+        if (GetCtrlPressed())
+        {
+            _isTargetingMode = !_isTargetingMode;
+        }
+
+        Vector3 currentHorizontalMove = new Vector3(_currentMovementVelocity.x, 0f, _currentMovementVelocity.z);
+
+        if (_isTargetingMode)
+        {
+            transform.rotation = Quaternion.Euler(0f, _yaw, 0f);
+        }
+        else
+        {
+            if (currentHorizontalMove.sqrMagnitude > 0.01f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(currentHorizontalMove.normalized);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
+            }
+        }
+
+        if (currentHorizontalMove.sqrMagnitude < 0.1f && input.sqrMagnitude < 0.01f)
         {
             PlayClip("idle");
         }
@@ -476,6 +526,26 @@ public class UserImportedPlayerController : MonoBehaviour
 #endif
     }
 
+    private static bool GetEscapePressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        Keyboard kb = Keyboard.current;
+        return kb != null && kb.escapeKey.wasPressedThisFrame;
+#else
+        return Input.GetKeyDown(KeyCode.Escape);
+#endif
+    }
+
+    private static bool GetCtrlPressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        Keyboard kb = Keyboard.current;
+        return kb != null && kb.leftCtrlKey.wasPressedThisFrame;
+#else
+        return Input.GetKeyDown(KeyCode.LeftControl);
+#endif
+    }
+
     private static bool GetHealPressed()
     {
 #if ENABLE_INPUT_SYSTEM
@@ -509,9 +579,9 @@ public class UserImportedPlayerController : MonoBehaviour
 
         GameObject pivot = new GameObject("PlayerCameraPivot");
         _cameraPivot = pivot.transform;
-        _cameraPivot.SetParent(transform, false);
-        _cameraPivot.localPosition = new Vector3(0f, 1.2f, 0f);
-        _cameraPivot.localRotation = Quaternion.identity;
+        // The camera pivot is detached from the player to allow smooth world-space following and independent rotation.
+        _cameraPivot.position = transform.position + new Vector3(0f, 1.2f, 0f);
+        _cameraPivot.rotation = Quaternion.identity;
 
         _mainCamera.transform.SetParent(_cameraPivot, false);
         _mainCamera.transform.localPosition = cameraLocalOffset;
@@ -530,8 +600,39 @@ public class UserImportedPlayerController : MonoBehaviour
         _pitch -= delta.y * mouseSensitivity;
         _pitch = Mathf.Clamp(_pitch, cameraPitchMin, cameraPitchMax);
 
-        transform.rotation = Quaternion.Euler(0f, _yaw, 0f);
-        _cameraPivot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
+        // The camera pivot rotates independently.
+        _cameraPivot.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
+    }
+
+    private void LateUpdate()
+    {
+        if (_cameraPivot == null || _mainCamera == null || Time.timeScale <= 0f)
+        {
+            return;
+        }
+
+        // Smoothly follow the player
+        Vector3 targetPivotPos = transform.position + new Vector3(0f, 1.2f, 0f);
+        _cameraPivot.position = Vector3.Lerp(_cameraPivot.position, targetPivotPos, cameraFollowSpeed * Time.deltaTime);
+
+        // Camera collision
+        Vector3 direction = cameraLocalOffset.normalized;
+        float distance = cameraLocalOffset.magnitude;
+        
+        int layerMask = ~0;
+        int playerLayer = LayerMask.NameToLayer("Player");
+        int ignoreLayer = LayerMask.NameToLayer("Ignore Raycast");
+        if (playerLayer >= 0) layerMask &= ~(1 << playerLayer);
+        if (ignoreLayer >= 0) layerMask &= ~(1 << ignoreLayer);
+
+        if (Physics.SphereCast(_cameraPivot.position, 0.3f, _cameraPivot.TransformDirection(direction), out RaycastHit hit, distance, layerMask))
+        {
+            _mainCamera.transform.localPosition = direction * hit.distance;
+        }
+        else
+        {
+            _mainCamera.transform.localPosition = Vector3.Lerp(_mainCamera.transform.localPosition, cameraLocalOffset, 10f * Time.deltaTime);
+        }
     }
 
     private static Vector2 GetMouseDelta()
@@ -552,11 +653,7 @@ public class UserImportedPlayerController : MonoBehaviour
             return Vector3.zero;
         }
 
-        // Use _yaw directly instead of camera's world transform.
-        // The camera is a child of the player — if we use camera.forward, rotating
-        // the player (via Slerp) changes camera.forward, which changes movementDirection,
-        // which changes the Slerp target — a feedback loop that causes spinning.
-        // _yaw is stable (only changes from mouse input), so this breaks the loop.
+        // Use _yaw directly for movement direction based on where the camera is facing.
         Quaternion yawRotation = Quaternion.Euler(0f, _yaw, 0f);
         Vector3 forward = yawRotation * Vector3.forward;
         Vector3 right   = yawRotation * Vector3.right;

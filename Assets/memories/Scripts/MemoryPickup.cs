@@ -11,6 +11,8 @@ public class MemoryPickup : MonoBehaviour
 
     private Vector3 basePosition;
 
+    private bool isPlayerNear = false;
+
     void Start()
     {
         basePosition = transform.position;
