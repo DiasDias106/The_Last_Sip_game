@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 
-[RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(NavMeshAgent))]
 public abstract class BossController : MonoBehaviour
 {
@@ -15,6 +14,10 @@ public abstract class BossController : MonoBehaviour
     [Header("Detection")]
     public float detectionRange = 15f;
     public float attackRange = 2.5f;
+
+    [Header("Patrol")]
+    public float patrolRadius   = 8f;
+    public float patrolWaitTime = 4f;
 
     [Header("Death")]
     public float deathDuration = 4f;
@@ -39,22 +42,36 @@ public abstract class BossController : MonoBehaviour
     protected bool isDead;
     protected float attackTimer;
 
+    private enum PatrolState { Waiting, Moving }
+    private PatrolState patrolState = PatrolState.Waiting;
+    private Vector3     spawnPosition;
+    private Vector3     patrolTarget;
+    private float       patrolWaitTimer;
+
     protected virtual void Awake()
     {
-        anim          = GetComponent<Animator>();
+        var allAnims = GetComponentsInChildren<Animator>(true);
+        anim = System.Array.Find(allAnims, a => a.runtimeAnimatorController != null)
+               ?? (allAnims.Length > 0 ? allAnims[0] : null);
         agent         = GetComponent<NavMeshAgent>();
         currentHealth = maxHealth;
         agent.speed   = moveSpeed;
+        anim.applyRootMotion = false;
+
+        spawnPosition   = transform.position;
+        patrolWaitTimer = patrolWaitTime;
 
         // Snap to NavMesh if placed slightly off it
         if (!agent.isOnNavMesh)
         {
             NavMeshHit hit;
-            if (NavMesh.SamplePosition(transform.position, out hit, 5f, NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(transform.position, out hit, 10f, NavMesh.AllAreas))
                 agent.Warp(hit.position);
             else
                 Debug.LogWarning($"[BossController] {name} is not on a NavMesh — bake the NavMesh in this scene.");
         }
+
+        PickPatrolTarget();
     }
 
     protected virtual void Update()
@@ -65,8 +82,7 @@ public abstract class BossController : MonoBehaviour
 
         if (player == null)
         {
-            if (agent.isOnNavMesh) agent.ResetPath();
-            anim.SetFloat(HashSpeed, 0f, 0.2f, Time.deltaTime);
+            UpdatePatrol();
             return;
         }
 
@@ -78,21 +94,80 @@ public abstract class BossController : MonoBehaviour
             return;
         }
 
-        if (dist <= attackRange && attackTimer <= 0f)
+        if (dist <= attackRange)
         {
-            if (agent.isOnNavMesh) agent.ResetPath();
+            if (agent.isOnNavMesh) agent.isStopped = true;
             anim.SetFloat(HashSpeed, 0f, 0.1f, Time.deltaTime);
             FaceTarget(player.position);
-            PerformAttack();
-            attackTimer = attackCooldown;
+            if (attackTimer <= 0f)
+            {
+                PerformAttack();
+                attackTimer = attackCooldown;
+            }
         }
-        else if (dist > attackRange)
+        else
         {
             if (agent.isOnNavMesh)
+            {
+                agent.isStopped = false;
                 agent.SetDestination(player.position);
+            }
             float normalizedSpeed = agent.velocity.magnitude / Mathf.Max(agent.speed, 0.01f);
             anim.SetFloat(HashSpeed, normalizedSpeed, 0.1f, Time.deltaTime);
         }
+    }
+
+    private void UpdatePatrol()
+    {
+        if (!agent.isOnNavMesh) return;
+
+        if (patrolState == PatrolState.Waiting)
+        {
+            agent.isStopped = true;
+            anim.SetFloat(HashSpeed, 0f, 0.2f, Time.deltaTime);
+            patrolWaitTimer -= Time.deltaTime;
+            if (patrolWaitTimer <= 0f)
+            {
+                agent.isStopped = false;
+                agent.SetDestination(patrolTarget);
+                patrolState = PatrolState.Moving;
+            }
+        }
+        else
+        {
+            anim.SetFloat(HashSpeed,
+                agent.velocity.magnitude / Mathf.Max(agent.speed, 0.01f),
+                0.15f, Time.deltaTime);
+
+            bool arrived = !agent.pathPending
+                           && agent.remainingDistance <= agent.stoppingDistance + 0.3f
+                           && agent.velocity.sqrMagnitude < 0.05f;
+            if (arrived)
+            {
+                patrolWaitTimer = patrolWaitTime;
+                patrolState     = PatrolState.Waiting;
+                PickPatrolTarget();
+            }
+        }
+    }
+
+    private void PickPatrolTarget()
+    {
+        for (int i = 1; i <= 8; i++)
+        {
+            Vector2 circle    = Random.insideUnitCircle.normalized * patrolRadius;
+            Vector3 candidate = spawnPosition + new Vector3(circle.x, 0f, circle.y);
+            float   searchR   = patrolRadius * i * 0.5f;
+            if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, searchR, NavMesh.AllAreas))
+            {
+                if (Vector3.Distance(transform.position, hit.position) > 2f)
+                {
+                    patrolTarget = hit.position;
+                    return;
+                }
+            }
+        }
+        patrolTarget = transform.position + transform.forward * patrolRadius * 0.5f;
     }
 
     void DetectPlayer()
@@ -104,6 +179,7 @@ public abstract class BossController : MonoBehaviour
             if (col.CompareTag("Player"))
             {
                 player = col.transform;
+                if (agent.isOnNavMesh) agent.isStopped = false;
                 break;
             }
         }
@@ -133,7 +209,7 @@ public abstract class BossController : MonoBehaviour
     protected virtual void Die()
     {
         isDead = true;
-        if (agent.isOnNavMesh) agent.ResetPath();
+        if (agent.isOnNavMesh) agent.isStopped = true;
         agent.enabled = false;
         anim.SetTrigger(HashDie);
         StartCoroutine(DeathRoutine());
