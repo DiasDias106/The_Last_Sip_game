@@ -7,24 +7,48 @@ using UnityEditor;
 public static class UserImportedPlayerBootstrap
 {
     private const string SceneName = "level_1";
+    private const string BecoSceneName = "beco";
+    private const string DungeonSpawnSceneName = "masmorra_spawn";
     private const string CharacterResourcePath = "UserImportedCharacter/Paladin WProp J Nordstrom";
+    private const string ScavengerPrefabPath = "Assets/Homeless_people/Free_Scavenger/Prefab/Scavenger Variant.prefab";
+    private const string BottlePrefabPath = "Assets/Fantastic Dungeon Pack/prefabs/PROPS/containers/bottles/P_PROP_bottle_dungeon_05.prefab";
     private static readonly Vector3 FallbackSpawn = new Vector3(-8.48f, 2.2f, 69.553f);
+    private static readonly Vector3 BecoFallbackSpawn = new Vector3(0f, 1.2f, 0f);
     private static bool _levelCollidersEnsured;
+    private static bool _sceneHookRegistered;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void OnSceneLoaded()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegisterSceneHooks()
     {
-        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-        if (sceneName == "masmorra_spawn")
+        if (_sceneHookRegistered)
+        {
+            return;
+        }
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        _sceneHookRegistered = true;
+    }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        string sceneName = scene.name;
+        if (sceneName == DungeonSpawnSceneName)
         {
             SetupTavernShop();
         }
-        else if (sceneName == "level_1")
+        else if (sceneName == SceneName)
         {
             EnsureLevel1Colliders();
         }
 
         EnsurePlayerSpawned();
+
+#if UNITY_EDITOR
+        if (sceneName == BecoSceneName)
+        {
+            SetupBecoEncounter();
+        }
+#endif
     }
 
     private static void EnsureLevel1Colliders()
@@ -43,7 +67,7 @@ public static class UserImportedPlayerBootstrap
     public static void EnsurePlayerSpawned()
     {
         string currentScene = SceneManager.GetActiveScene().name;
-        if (currentScene != SceneName && currentScene != "masmorra_spawn")
+        if (currentScene != SceneName && currentScene != DungeonSpawnSceneName && currentScene != BecoSceneName)
         {
             return;
         }
@@ -56,10 +80,13 @@ public static class UserImportedPlayerBootstrap
         EnsureEventSystem();
         HideScenePreviewCharacter();
 
-        GameObject modelPrefab = Resources.Load<GameObject>(CharacterResourcePath);
+        bool useScavengerVisual = currentScene == BecoSceneName;
+        GameObject modelPrefab = LoadPlayerVisualPrefab(useScavengerVisual);
         if (modelPrefab == null)
         {
-            Debug.LogError("Could not load Paladin model from Resources/UserImportedCharacter.");
+            Debug.LogError(useScavengerVisual
+                ? "Could not load Free Scavenger prefab."
+                : "Could not load Paladin model from Resources/UserImportedCharacter.");
             return;
         }
 
@@ -84,6 +111,7 @@ public static class UserImportedPlayerBootstrap
         visual.transform.localPosition = Vector3.zero;
         visual.transform.localRotation = Quaternion.identity;
         visual.transform.localScale = Vector3.one;
+        DisableVisualColliders(visual);
 
         UserImportedPlayerController controller = playerRoot.AddComponent<UserImportedPlayerController>();
         controller.AssignVisualRoot(visual.transform);
@@ -95,8 +123,37 @@ public static class UserImportedPlayerBootstrap
         if (playerLayer >= 0) playerRoot.layer = playerLayer;
         visual.AddComponent<VisualAnimationEventReceiver>();
 
-        EnsureCharacterMaterialsVisible(visual);
+        if (!useScavengerVisual)
+        {
+            EnsureCharacterMaterialsVisible(visual);
+        }
 
+    }
+
+    private static GameObject LoadPlayerVisualPrefab(bool useScavengerVisual)
+    {
+        if (!useScavengerVisual)
+        {
+            return Resources.Load<GameObject>(CharacterResourcePath);
+        }
+
+#if UNITY_EDITOR
+        return AssetDatabase.LoadAssetAtPath<GameObject>(ScavengerPrefabPath);
+#else
+        return null;
+#endif
+    }
+
+    private static void DisableVisualColliders(GameObject visualRoot)
+    {
+        Collider[] colliders = visualRoot.GetComponentsInChildren<Collider>(true);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i] != null)
+            {
+                colliders[i].enabled = false;
+            }
+        }
     }
 
     private static void HideScenePreviewCharacter()
@@ -230,6 +287,8 @@ public static class UserImportedPlayerBootstrap
 
     private static Vector3 GetRequestedSpawnPoint(out bool fromBase, out Quaternion rot)
     {
+        string sceneName = SceneManager.GetActiveScene().name;
+
         GameObject preview = FindInactiveObjectByName("PaladinOnBase");
         if (preview != null)
         {
@@ -253,8 +312,47 @@ public static class UserImportedPlayerBootstrap
             return preview.transform.position + Vector3.up * 0.1f;
         }
 
+        if (sceneName == BecoSceneName && TryGetSpawnFromMainCamera(out Vector3 cameraSpawn, out Quaternion cameraRotation))
+        {
+            fromBase = false;
+            rot = cameraRotation;
+            return cameraSpawn;
+        }
+
         fromBase = false;
-        return FallbackSpawn;
+        return sceneName == BecoSceneName ? BecoFallbackSpawn : FallbackSpawn;
+    }
+
+    private static bool TryGetSpawnFromMainCamera(out Vector3 spawn, out Quaternion rot)
+    {
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            cam = Object.FindObjectOfType<Camera>();
+        }
+
+        if (cam == null)
+        {
+            spawn = Vector3.zero;
+            rot = Quaternion.Euler(0f, 180f, 0f);
+            return false;
+        }
+
+        Vector3 forward = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
+        if (forward.sqrMagnitude < 0.001f)
+        {
+            forward = Vector3.forward;
+        }
+
+        Vector3 candidate = cam.transform.position + forward * 2f;
+        if (Physics.Raycast(candidate + Vector3.up * 10f, Vector3.down, out RaycastHit hit, 30f))
+        {
+            candidate = hit.point + Vector3.up * 0.08f;
+        }
+
+        spawn = candidate;
+        rot = Quaternion.LookRotation(forward, Vector3.up);
+        return true;
     }
 
     private static GameObject FindInactiveObjectByName(string name)
@@ -310,7 +408,7 @@ public static class UserImportedPlayerBootstrap
 
     private static void SetupTavernShop()
     {
-        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "masmorra_spawn")
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != DungeonSpawnSceneName)
             return;
 
         GameObject cylinder = GameObject.Find("Cylinder.155");
@@ -327,4 +425,54 @@ public static class UserImportedPlayerBootstrap
             Debug.LogWarning("[UserImportedPlayerBootstrap] Cylinder.155 not found in masmorra_spawn!");
         }
     }
+
+#if UNITY_EDITOR
+    private static void SetupBecoEncounter()
+    {
+        if (SceneManager.GetActiveScene().name != BecoSceneName)
+        {
+            return;
+        }
+
+        if (GameObject.Find("BottlePickup_Beco") != null)
+        {
+            return;
+        }
+
+        GameObject bottlePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BottlePrefabPath);
+
+        if (bottlePrefab == null)
+        {
+            Debug.LogWarning("[UserImportedPlayerBootstrap] Could not load beco bottle prefab.");
+            return;
+        }
+
+        GameObject player = GameObject.FindWithTag("Player");
+        Vector3 anchor = player != null ? player.transform.position : BecoFallbackSpawn;
+        Vector3 forward = player != null ? player.transform.forward : Vector3.forward;
+        forward = Vector3.ProjectOnPlane(forward, Vector3.up).normalized;
+        if (forward.sqrMagnitude < 0.001f)
+        {
+            forward = Vector3.forward;
+        }
+
+        Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
+
+        GameObject bottle = PrefabUtility.InstantiatePrefab(bottlePrefab) as GameObject;
+        if (bottle != null)
+        {
+            bottle.name = "BottlePickup_Beco";
+            bottle.transform.position = anchor + forward * 2.7f + right * 0.35f;
+            bottle.transform.rotation = Quaternion.Euler(0f, 18f, 84f);
+            bottle.transform.localScale *= 1.08f;
+
+            if (bottle.GetComponent<BottleSceneTransitionInteractable>() == null)
+            {
+                bottle.AddComponent<BottleSceneTransitionInteractable>();
+            }
+        }
+
+        Debug.Log("[UserImportedPlayerBootstrap] Bottle pickup created in beco.");
+    }
+#endif
 }

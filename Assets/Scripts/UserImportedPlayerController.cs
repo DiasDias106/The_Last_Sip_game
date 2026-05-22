@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -48,6 +49,10 @@ public class UserImportedPlayerController : MonoBehaviour
     private Vector3 _movementVelocityRef;
     
     private bool _isTargetingMode = false;
+    private bool _isScriptedSequencePlaying;
+    private Coroutine _activeScriptedSequence;
+
+    public bool IsScriptedSequencePlaying => _isScriptedSequencePlaying;
 
     public void AssignVisualRoot(Transform visualRoot)
     {
@@ -87,6 +92,12 @@ public class UserImportedPlayerController : MonoBehaviour
     {
         if (_controller == null || _visualRoot == null)
         {
+            return;
+        }
+
+        if (_isScriptedSequencePlaying)
+        {
+            SampleCurrentClip();
             return;
         }
 
@@ -170,6 +181,120 @@ public class UserImportedPlayerController : MonoBehaviour
         }
 
         SampleCurrentClip();
+    }
+
+    public void PlayBottleDrinkSequence(AnimationClip drinkIntroClip, AnimationClip drinkLoopClip, AnimationClip collapseClip, Transform bottleTransform, Action onComplete)
+    {
+        if (_activeScriptedSequence != null)
+        {
+            StopCoroutine(_activeScriptedSequence);
+        }
+
+        _activeScriptedSequence = StartCoroutine(PlayBottleDrinkSequenceRoutine(drinkIntroClip, drinkLoopClip, collapseClip, bottleTransform, onComplete));
+    }
+
+    private IEnumerator PlayBottleDrinkSequenceRoutine(AnimationClip drinkIntroClip, AnimationClip drinkLoopClip, AnimationClip collapseClip, Transform bottleTransform, Action onComplete)
+    {
+        _isScriptedSequencePlaying = true;
+        _currentMovementVelocity = Vector3.zero;
+        _movementVelocityRef = Vector3.zero;
+        _verticalVelocity = -1f;
+
+        AttachBottleToRightHand(bottleTransform);
+        yield return WaitForSeconds(0.18f);
+
+        if (drinkLoopClip != null)
+        {
+            PlayDirectClip(drinkLoopClip);
+            yield return WaitForClipSeconds(drinkLoopClip, 0.62f, 2.25f);
+        }
+
+        yield return WaitForSeconds(0.15f);
+
+        if (bottleTransform != null)
+        {
+            bottleTransform.gameObject.SetActive(false);
+        }
+
+        if (collapseClip != null)
+        {
+            PlayDirectClip(collapseClip);
+            yield return WaitForClipSeconds(collapseClip, 1f, 1.7f);
+        }
+
+        yield return WaitForSeconds(0.45f);
+
+        _isScriptedSequencePlaying = false;
+        _activeScriptedSequence = null;
+        onComplete?.Invoke();
+    }
+
+    private void AttachBottleToRightHand(Transform bottleTransform)
+    {
+        if (bottleTransform == null || _visualRoot == null)
+        {
+            return;
+        }
+
+        Transform rightHand = FindHandBone(_visualRoot, "righthand");
+        if (rightHand == null)
+        {
+            rightHand = FindHandBone(_visualRoot, "hand.r");
+        }
+        if (rightHand == null)
+        {
+            rightHand = FindHandBone(_visualRoot, "rhand");
+        }
+
+        if (rightHand == null)
+        {
+            return;
+        }
+
+        bottleTransform.SetParent(rightHand, false);
+        bottleTransform.localPosition = new Vector3(0.035f, 0.035f, 0.02f);
+        bottleTransform.localRotation = Quaternion.Euler(72f, -18f, 94f);
+        bottleTransform.localScale = Vector3.one * 0.35f;
+    }
+
+    private static Transform FindHandBone(Transform root, string nameFragment)
+    {
+        if (root == null)
+        {
+            return null;
+        }
+
+        foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
+        {
+            string normalized = child.name.Replace(" ", string.Empty).Replace("_", string.Empty).ToLowerInvariant();
+            if (normalized.Contains(nameFragment))
+            {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    private IEnumerator WaitForClipSeconds(AnimationClip clip, float normalizedDuration = 1f, float maxDuration = 10f)
+    {
+        float duration = clip == null ? 0f : Mathf.Max(0.05f, Mathf.Min(clip.length * normalizedDuration, maxDuration));
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    private static IEnumerator WaitForSeconds(float duration)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
     }
 
     private void LoadClips()
@@ -370,6 +495,21 @@ public class UserImportedPlayerController : MonoBehaviour
         if (!_clips.TryGetValue(key, out AnimationClip clip))
         {
             return;
+        }
+
+        PlayDirectClip(clip);
+    }
+
+    private void PlayDirectClip(AnimationClip clip)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        if (_graphCreated && (!_playableGraph.IsValid() || !_animationOutput.IsOutputValid()))
+        {
+            _graphCreated = false;
         }
 
         if (_currentClip == clip)
