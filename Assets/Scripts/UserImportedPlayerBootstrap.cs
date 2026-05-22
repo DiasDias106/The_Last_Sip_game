@@ -7,6 +7,8 @@ using UnityEditor;
 public static class UserImportedPlayerBootstrap
 {
     private const string SceneName = "level_1";
+    private const string Level2SceneName = "level_2";
+    private const string Level3SceneName = "level_3";
     private const string BecoSceneName = "beco";
     private const string DungeonSpawnSceneName = "masmorra_spawn";
     private const string CharacterResourcePath = "UserImportedCharacter/Paladin WProp J Nordstrom";
@@ -29,14 +31,25 @@ public static class UserImportedPlayerBootstrap
         _sceneHookRegistered = true;
     }
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void BootstrapInitialScene()
+    {
+        HandleSceneLoaded(SceneManager.GetActiveScene());
+    }
+
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        HandleSceneLoaded(scene);
+    }
+
+    private static void HandleSceneLoaded(Scene scene)
     {
         string sceneName = scene.name;
         if (sceneName == DungeonSpawnSceneName)
         {
             SetupTavernShop();
         }
-        else if (sceneName == SceneName)
+        else if (IsGameplayLevelScene(sceneName))
         {
             EnsureLevel1Colliders();
         }
@@ -68,7 +81,7 @@ public static class UserImportedPlayerBootstrap
     public static void EnsurePlayerSpawned()
     {
         string currentScene = SceneManager.GetActiveScene().name;
-        if (currentScene != SceneName && currentScene != DungeonSpawnSceneName && currentScene != BecoSceneName)
+        if (!IsPlayerSpawnScene(currentScene))
         {
             return;
         }
@@ -155,6 +168,20 @@ public static class UserImportedPlayerBootstrap
                 colliders[i].enabled = false;
             }
         }
+    }
+
+    private static bool IsGameplayLevelScene(string sceneName)
+    {
+        return sceneName == SceneName
+            || sceneName == Level2SceneName
+            || sceneName == Level3SceneName;
+    }
+
+    private static bool IsPlayerSpawnScene(string sceneName)
+    {
+        return IsGameplayLevelScene(sceneName)
+            || sceneName == DungeonSpawnSceneName
+            || sceneName == BecoSceneName;
     }
 
     private static void HideScenePreviewCharacter()
@@ -481,13 +508,33 @@ public static class UserImportedPlayerBootstrap
             bottle.transform.rotation = Quaternion.Euler(0f, 18f, 84f);
             bottle.transform.localScale *= 1.08f;
 
-            if (bottle.GetComponent<BottleSceneTransitionInteractable>() == null)
+            System.Type interactableType = FindTypeByName("BottleSceneTransitionInteractable");
+            if (interactableType != null && bottle.GetComponent(interactableType) == null)
             {
-                bottle.AddComponent<BottleSceneTransitionInteractable>();
+                bottle.AddComponent(interactableType);
             }
         }
 
         Debug.Log("[UserImportedPlayerBootstrap] Bottle pickup created in beco.");
+    }
+
+    private static System.Type FindTypeByName(string typeName)
+    {
+        if (string.IsNullOrWhiteSpace(typeName))
+        {
+            return null;
+        }
+
+        foreach (System.Reflection.Assembly assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+        {
+            System.Type type = assembly.GetType(typeName) ?? System.Array.Find(assembly.GetTypes(), t => t.Name == typeName);
+            if (type != null)
+            {
+                return type;
+            }
+        }
+
+        return null;
     }
 #endif
 }
