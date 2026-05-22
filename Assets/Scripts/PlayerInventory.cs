@@ -7,10 +7,10 @@ public class PlayerInventory : MonoBehaviour
 
     [Header("Starting Resources")]
     public int startingCoins       = 0;
-    public int startingGems        = 8;
-    public int startingRedPotions  = 3;
-    public int startingBluePotions = 2;
-    public int startingGreenPotions = 1;
+    public int startingGems        = 0;
+    public int startingRedPotions  = 0;
+    public int startingBluePotions = 0;
+    public int startingGreenPotions = 0;
 
     public int Coins        { get; private set; }
     public int Gems         { get; private set; }

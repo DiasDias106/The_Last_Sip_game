@@ -67,14 +67,19 @@ public class UserImportedPlayerController : MonoBehaviour
 
     // ── Animation ────────────────────────────────────────────────────────────────
     private readonly Dictionary<string, AnimationClip> _clips = new Dictionary<string, AnimationClip>();
-    private Animator              _animator;
-    private AnimationClip         _currentClip;
-    private float                 _clipTime;
-    private PlayableGraph         _playableGraph;
-    private AnimationClipPlayable _clipPlayable;
+    private Animator _animator;
+    private PlayableGraph _playableGraph;
     private AnimationPlayableOutput _animOutput;
-    private bool                  _graphCreated;
-    private bool                  _isScriptedSequencePlaying;
+    private AnimationMixerPlayable _mixerPlayable;
+    private AnimationClipPlayable _clipPlayable;
+    private AnimationClipPlayable _oldClipPlayable;
+    private AnimationClip _currentClip;
+    private bool _graphCreated = false;
+    private float _clipTime = 0f;
+    private float _transitionTime = 0f;
+    private float _transitionDuration = 0.25f;
+    private bool _isTransitioning = false;
+    private bool _isScriptedSequencePlaying;
     private Coroutine             _activeScriptedSequence;
 
     public bool IsScriptedSequencePlaying => _isScriptedSequencePlaying;
@@ -142,6 +147,7 @@ public class UserImportedPlayerController : MonoBehaviour
             case MoveState.Blocking:   UpdateBlocking(grounded);   break;
         }
 
+        UpdateAnimationTransition();
         SampleCurrentClip();
     }
 
@@ -612,12 +618,57 @@ public class UserImportedPlayerController : MonoBehaviour
         EnsureAnimationGraph();
 
         if (!_graphCreated) { SampleClipAt(clip, 0f); return; }
-        if (_clipPlayable.IsValid()) _clipPlayable.Destroy();
+
+        if (_oldClipPlayable.IsValid()) _oldClipPlayable.Destroy();
+
+        if (_clipPlayable.IsValid())
+        {
+            _oldClipPlayable = _clipPlayable;
+            _playableGraph.Disconnect(_mixerPlayable, 0);
+            _playableGraph.Connect(_oldClipPlayable, 0, _mixerPlayable, 1);
+            _mixerPlayable.SetInputWeight(1, 1f);
+        }
+
         _clipPlayable = AnimationClipPlayable.Create(_playableGraph, clip);
         _clipPlayable.SetApplyFootIK(false);
         _clipPlayable.SetApplyPlayableIK(false);
-        _animOutput.SetSourcePlayable(_clipPlayable);
+        
+        _playableGraph.Connect(_clipPlayable, 0, _mixerPlayable, 0);
+        
+        if (_oldClipPlayable.IsValid())
+        {
+            _mixerPlayable.SetInputWeight(0, 0f);
+            _isTransitioning = true;
+            _transitionTime = 0f;
+        }
+        else
+        {
+            _mixerPlayable.SetInputWeight(0, 1f);
+            _isTransitioning = false;
+        }
+
         _playableGraph.Evaluate();
+    }
+
+    private void UpdateAnimationTransition()
+    {
+        if (!_isTransitioning || !_graphCreated || !_mixerPlayable.IsValid()) return;
+        
+        _transitionTime += Time.deltaTime;
+        float t = Mathf.Clamp01(_transitionTime / _transitionDuration);
+        
+        _mixerPlayable.SetInputWeight(0, t);
+        _mixerPlayable.SetInputWeight(1, 1f - t);
+        
+        if (t >= 1f)
+        {
+            _isTransitioning = false;
+            if (_oldClipPlayable.IsValid())
+            {
+                _playableGraph.Disconnect(_mixerPlayable, 1);
+                _oldClipPlayable.Destroy();
+            }
+        }
     }
 
     void SampleCurrentClip()
@@ -648,7 +699,11 @@ public class UserImportedPlayerController : MonoBehaviour
         _animator.applyRootMotion = false;
         _playableGraph = PlayableGraph.Create("PlayerGraph");
         _playableGraph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
+        
+        _mixerPlayable = AnimationMixerPlayable.Create(_playableGraph, 2);
         _animOutput = AnimationPlayableOutput.Create(_playableGraph, "Anim", _animator);
+        _animOutput.SetSourcePlayable(_mixerPlayable);
+        
         _playableGraph.Play();
         _graphCreated = true;
     }
