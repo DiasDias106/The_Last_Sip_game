@@ -189,8 +189,13 @@ public class UserImportedPlayerController : MonoBehaviour
             return;
         }
 
-        // Combat timeout
-        if (_inCombat)
+        // Combat mode: active while enemies are nearby, lingers CombatExitDelay after they leave
+        if (CheckEnemiesNearby())
+        {
+            _inCombat    = true;
+            _combatTimer = CombatExitDelay;
+        }
+        else if (_inCombat)
         {
             _combatTimer -= Time.deltaTime;
             if (_combatTimer <= 0f) _inCombat = false;
@@ -220,8 +225,6 @@ public class UserImportedPlayerController : MonoBehaviour
     // ═══════════════════════════════════════════════════════════════════════════
     void EnterAttack()
     {
-        _inCombat    = true;
-        _combatTimer = CombatExitDelay;
         _moveState   = MoveState.Attacking;
         _stateTimer  = 0f;
         _hitDealt    = false;
@@ -321,8 +324,6 @@ public class UserImportedPlayerController : MonoBehaviour
     public void TriggerHitReaction()
     {
         if (_isInvincible || _isBlocking) return;
-        _inCombat    = true;
-        _combatTimer = CombatExitDelay;
         _moveState   = MoveState.HitReact;
         _stateTimer  = 0f;
         PlayClip("getHit");
@@ -395,20 +396,22 @@ public class UserImportedPlayerController : MonoBehaviour
         string ua = AnimBase + "Unarmed/RPG-Character@Unarmed-";
         string s2 = AnimBase + "2Hand-Sword/RPG-Character@2Hand-Sword-";
 
-        // Locomotion: normal walk uses 2Hand-Sword-Walk; combat walk uses Strafe-Forward
+        // Exploration (unarmed — no weapon visible)
         Override("idle",       ua + "Idle.FBX");
-        Override("walk",       s2 + "Walk.FBX");
-        Override("walkCombat", s2 + "Strafe-Forward.FBX");
-        Override("run",        s2 + "Run-Forward.FBX");
+        Override("walk",       ua + "Strafe-Forward.FBX");
+        Override("run",        ua + "Run-Forward.FBX");
+        Override("roll",       ua + "DiveRoll-Forward1.FBX");
 
-        // Combat
+        // Combat locomotion (2Hand-Sword)
+        Override("walkCombat", s2 + "Strafe-Forward.FBX");
+
+        // Combat actions (2Hand-Sword)
         Override("attack1",    s2 + "Attack1.FBX");
         Override("attack2",    s2 + "Attack2.FBX");
         Override("attack3",    s2 + "Attack3.FBX");
         Override("attack4",    s2 + "Attack4.FBX");
-        Override("block",      s2 + "Block.FBX");
+        Override("block",      s2 + "Idle.FBX");
         Override("getHit",     s2 + "GetHit-F1.FBX");
-        Override("roll",       s2 + "DiveRoll-Forward1.max.FBX");
 #endif
 
         if (_clips.Count == 0)
@@ -680,6 +683,14 @@ public class UserImportedPlayerController : MonoBehaviour
     // ═══════════════════════════════════════════════════════════════════════════
     //  HELPERS
     // ═══════════════════════════════════════════════════════════════════════════
+    bool CheckEnemiesNearby()
+    {
+        const float radius = 20f;
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+        if (enemyLayer < 0) return false;
+        return Physics.CheckSphere(transform.position, radius, 1 << enemyLayer);
+    }
+
     Vector3 MoveDir(Vector3 input)
     {
         if (input.sqrMagnitude <= 0.0001f) return Vector3.zero;

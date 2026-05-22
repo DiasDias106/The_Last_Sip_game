@@ -20,8 +20,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     void Awake()
     {
-        CurrentHealth  = maxHealth;
-        CurrentStamina = maxStamina;
+        onHealthChanged  ??= new UnityEvent<float, float>();
+        onStaminaChanged ??= new UnityEvent<float, float>();
+        onDamaged        ??= new UnityEvent();
+        onDeath          ??= new UnityEvent();
+        CurrentHealth    = maxHealth;
+        CurrentStamina   = maxStamina;
     }
 
     public void TakeDamage(float amount)
