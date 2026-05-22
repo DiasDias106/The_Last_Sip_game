@@ -28,6 +28,10 @@ public class PlayerInventory : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        onCoinsChanged   ??= new UnityEvent<int>();
+        onGemsChanged    ??= new UnityEvent<int>();
+        onPotionsChanged ??= new UnityEvent<int, int, int>();
+
         Coins        = startingCoins;
         Gems         = startingGems;
         RedPotions   = startingRedPotions;

@@ -10,23 +10,30 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     [Header("Events")]
     public UnityEvent<float, float> onHealthChanged;
     public UnityEvent<float, float> onStaminaChanged;
-    public UnityEvent onDeath;
+    public UnityEvent               onDamaged;
+    public UnityEvent               onDeath;
 
-    public float CurrentHealth  { get; private set; }
-    public float CurrentStamina { get; private set; }
-    public bool  IsDead         { get; private set; }
+    public float CurrentHealth    { get; private set; }
+    public float CurrentStamina  { get; private set; }
+    public bool  IsDead          { get; private set; }
+    public float DamageReduction { get; set; } = 0f;
 
     void Awake()
     {
-        CurrentHealth  = maxHealth;
-        CurrentStamina = maxStamina;
+        onHealthChanged  ??= new UnityEvent<float, float>();
+        onStaminaChanged ??= new UnityEvent<float, float>();
+        onDamaged        ??= new UnityEvent();
+        onDeath          ??= new UnityEvent();
+        CurrentHealth    = maxHealth;
+        CurrentStamina   = maxStamina;
     }
 
     public void TakeDamage(float amount)
     {
         if (IsDead) return;
-        CurrentHealth = Mathf.Max(0f, CurrentHealth - amount);
+        CurrentHealth = Mathf.Max(0f, CurrentHealth - amount * (1f - DamageReduction));
         onHealthChanged?.Invoke(CurrentHealth, maxHealth);
+        onDamaged?.Invoke();
         if (CurrentHealth <= 0f) Die();
     }
 
