@@ -253,9 +253,8 @@ public class PlayerHUDController : MonoBehaviour
         gRT.anchorMin = new Vector2(1,0.5f); gRT.anchorMax = new Vector2(1,0.5f);
         gRT.pivot = new Vector2(1,0.5f);
         gRT.sizeDelta = new Vector2(36,36); gRT.anchoredPosition = new Vector2(-5,0);
-        T("GearTxt", gearBg.transform, null, "o", 20, Dim, TextAnchor.MiddleCenter)
-            .rectTransform.anchorMin = Vector2.zero;
-        Fill(gearBg.transform.Find("GearTxt").GetComponent<RectTransform>());
+        var gearTxt = T("GearTxt", gearBg.transform, null, "=", 16, Dim, TextAnchor.MiddleCenter);
+        Fill(gearTxt.rectTransform);
     }
 
     // ── Objectives ── right ───────────────────────────────────────────────────────

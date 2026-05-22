@@ -24,6 +24,9 @@ public class EnemyController : MonoBehaviour, IDamageable
     public float deathAnimDuration = 2f;
     public float shrinkDuration    = 0.6f;
 
+    [Header("Rewards")]
+    public int coinReward = 10;
+
     private enum State { Idle, Patrolling, Chasing, Attacking, Dead }
     private State state = State.Idle;
 
@@ -222,9 +225,10 @@ public class EnemyController : MonoBehaviour, IDamageable
 
     private void Die()
     {
-        state           = State.Dead;
+        state = State.Dead;
         if (agent.isOnNavMesh) agent.isStopped = true;
         animator.SetTrigger(HashDie);
+        PlayerInventory.Instance?.AddCoins(coinReward);
         StartCoroutine(DeathRoutine());
     }
 

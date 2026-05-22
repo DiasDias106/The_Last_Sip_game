@@ -3,7 +3,7 @@ using UnityEngine.AI;
 using System.Collections;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public abstract class BossController : MonoBehaviour
+public abstract class BossController : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
     public float maxHealth = 300f;
@@ -25,6 +25,9 @@ public abstract class BossController : MonoBehaviour
     [Header("Memory Drop")]
     public GameObject memoryPrefab;
     public int videoIndex = 1;
+
+    [Header("Rewards")]
+    public int coinReward = 50;
 
     protected static readonly int HashSpeed      = Animator.StringToHash("Speed");
     protected static readonly int HashAttack1    = Animator.StringToHash("Attack1");
@@ -218,6 +221,8 @@ public abstract class BossController : MonoBehaviour
     IEnumerator DeathRoutine()
     {
         yield return new WaitForSeconds(deathDuration);
+
+        PlayerInventory.Instance?.AddCoins(coinReward);
 
         if (memoryPrefab != null)
         {
