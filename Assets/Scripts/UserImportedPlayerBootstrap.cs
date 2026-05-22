@@ -25,6 +25,7 @@ public static class UserImportedPlayerBootstrap
         }
 
         EnsurePlayerSpawned();
+        EnsureHUDSpawned();
     }
 
     private static void EnsureLevel1Colliders()
@@ -306,6 +307,20 @@ public static class UserImportedPlayerBootstrap
         }
         
         Debug.Log("[UserImportedPlayerBootstrap] Added EventSystem because none was found in the scene.");
+    }
+
+    private static void EnsureHUDSpawned()
+    {
+        if (PlayerHUDController.Instance != null) return;
+
+        var hudGo = new GameObject("PlayerHUD");
+        hudGo.AddComponent<PlayerHUDController>();
+
+        if (PlayerInventory.Instance == null)
+        {
+            var invGo = new GameObject("PlayerInventory");
+            invGo.AddComponent<PlayerInventory>();
+        }
     }
 
     private static void SetupTavernShop()

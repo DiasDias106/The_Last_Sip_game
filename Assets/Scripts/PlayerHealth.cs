@@ -4,18 +4,22 @@ using UnityEngine.Events;
 public class PlayerHealth : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
-    public float maxHealth = 100f;
+    public float maxHealth  = 100f;
+    public float maxStamina = 100f;
 
     [Header("Events")]
-    public UnityEvent<float, float> onHealthChanged; // (current, max)
+    public UnityEvent<float, float> onHealthChanged;
+    public UnityEvent<float, float> onStaminaChanged;
     public UnityEvent onDeath;
 
-    public float CurrentHealth { get; private set; }
-    public bool  IsDead        { get; private set; }
+    public float CurrentHealth  { get; private set; }
+    public float CurrentStamina { get; private set; }
+    public bool  IsDead         { get; private set; }
 
     void Awake()
     {
-        CurrentHealth = maxHealth;
+        CurrentHealth  = maxHealth;
+        CurrentStamina = maxStamina;
     }
 
     public void TakeDamage(float amount)
@@ -31,6 +35,20 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         if (IsDead) return;
         CurrentHealth = Mathf.Min(maxHealth, CurrentHealth + amount);
         onHealthChanged?.Invoke(CurrentHealth, maxHealth);
+    }
+
+    public void UseStamina(float amount)
+    {
+        if (IsDead) return;
+        CurrentStamina = Mathf.Max(0f, CurrentStamina - amount);
+        onStaminaChanged?.Invoke(CurrentStamina, maxStamina);
+    }
+
+    public void RestoreStamina(float amount)
+    {
+        if (IsDead) return;
+        CurrentStamina = Mathf.Min(maxStamina, CurrentStamina + amount);
+        onStaminaChanged?.Invoke(CurrentStamina, maxStamina);
     }
 
     void Die()
