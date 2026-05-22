@@ -42,6 +42,7 @@ public static class UserImportedPlayerBootstrap
         }
 
         EnsurePlayerSpawned();
+        EnsureHUDSpawned();
 
 #if UNITY_EDITOR
         if (sceneName == BecoSceneName)
@@ -402,8 +403,22 @@ public static class UserImportedPlayerBootstrap
         {
             eventSystemGo.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
         }
-        
+
         Debug.Log("[UserImportedPlayerBootstrap] Added EventSystem because none was found in the scene.");
+    }
+
+    private static void EnsureHUDSpawned()
+    {
+        if (PlayerHUDController.Instance != null) return;
+
+        var hudGo = new GameObject("PlayerHUD");
+        hudGo.AddComponent<PlayerHUDController>();
+
+        if (PlayerInventory.Instance == null)
+        {
+            var invGo = new GameObject("PlayerInventory");
+            invGo.AddComponent<PlayerInventory>();
+        }
     }
 
     private static void SetupTavernShop()
