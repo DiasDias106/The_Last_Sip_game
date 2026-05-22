@@ -9,6 +9,7 @@ public static class UserImportedPlayerBootstrap
     private const string SceneName = "level_1";
     private const string Level2SceneName = "level_2";
     private const string Level3SceneName = "level_3";
+    private const string BossRoomSceneName = "boss_room";
     private const string BecoSceneName = "beco";
     private const string DungeonSpawnSceneName = "masmorra_spawn";
     private const string CharacterResourcePath = "UserImportedCharacter/Paladin WProp J Nordstrom";
@@ -180,6 +181,7 @@ public static class UserImportedPlayerBootstrap
     private static bool IsPlayerSpawnScene(string sceneName)
     {
         return IsGameplayLevelScene(sceneName)
+            || sceneName == BossRoomSceneName
             || sceneName == DungeonSpawnSceneName
             || sceneName == BecoSceneName;
     }
