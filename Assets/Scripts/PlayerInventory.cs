@@ -22,6 +22,12 @@ public class PlayerInventory : MonoBehaviour
     public UnityEvent<int>           onGemsChanged;
     public UnityEvent<int, int, int> onPotionsChanged;
 
+    void Update()
+    {
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "MainMenuScene")
+            Destroy(gameObject);
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }

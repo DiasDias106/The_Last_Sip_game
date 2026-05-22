@@ -18,6 +18,12 @@ public class PlayerHUDController : MonoBehaviour
     private Text _coinsText, _gemsText;
     private readonly List<(Text title, Text desc)> _objRows = new List<(Text, Text)>();
 
+    void Update()
+    {
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "MainMenuScene")
+            Destroy(gameObject);
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
