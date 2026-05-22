@@ -46,8 +46,17 @@ public sealed class PauseMenuController : MonoBehaviour
     private bool isTransitioning;
     private bool isSaving;
 
+    public static PauseMenuController Instance { get; private set; }
+
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
         if (menuAudioManager == null)
         {
             menuAudioManager = GetComponent<MenuAudioManager>();
@@ -123,6 +132,11 @@ public sealed class PauseMenuController : MonoBehaviour
 
     private void Update()
     {
+        if (SceneManager.GetActiveScene().name == "MainMenuScene")
+        {
+            Destroy(gameObject);
+            return;
+        }
         if (!IsEscapePressedThisFrame() || isTransitioning)
         {
             return;
@@ -231,6 +245,12 @@ public sealed class PauseMenuController : MonoBehaviour
 
         menuAudioManager?.SetRuntimeMusicMultiplier(1f);
         Time.timeScale = 1f;
+
+        if (PlayerHUDController.Instance != null) Destroy(PlayerHUDController.Instance.gameObject);
+        if (PlayerInventory.Instance != null) Destroy(PlayerInventory.Instance.gameObject);
+        
+        Destroy(gameObject);
+
         SceneManager.LoadScene(mainMenuSceneName);
     }
 
