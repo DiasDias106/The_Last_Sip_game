@@ -16,6 +16,7 @@ public class PlayerHUDController : MonoBehaviour
     private Image _hpFill;
     private Text _redCount, _blueCount, _greenCount;
     private Text _coinsText, _gemsText;
+    private Text _interactionPrompt;
     private readonly List<(Text title, Text desc)> _objRows = new List<(Text, Text)>();
 
     void Update()
@@ -107,6 +108,46 @@ public class PlayerHUDController : MonoBehaviour
         BuildHealthBar(root);
         BuildPotions(root, bold);
         BuildResources(root, bold);
+        BuildInteractionPrompt(root, bold);
+    }
+
+    void BuildInteractionPrompt(Transform root, Font font)
+    {
+        var promptGo = new GameObject("InteractionPrompt");
+        promptGo.transform.SetParent(root, false);
+
+        _interactionPrompt = promptGo.AddComponent<Text>();
+        _interactionPrompt.font = font;
+        _interactionPrompt.fontSize = 22;
+        _interactionPrompt.alignment = TextAnchor.MiddleCenter;
+        _interactionPrompt.color = new Color(0.95f, 0.90f, 0.75f, 1f);
+        _interactionPrompt.text = "";
+        _interactionPrompt.enabled = false;
+
+        var outline = promptGo.AddComponent<Outline>();
+        outline.effectColor = new Color(0f, 0f, 0f, 0.9f);
+        outline.effectDistance = new Vector2(1.2f, -1.2f);
+
+        var rt = promptGo.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0.18f);
+        rt.anchorMax = new Vector2(0.5f, 0.18f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(600f, 42f);
+        rt.anchoredPosition = Vector2.zero;
+    }
+
+    public void ShowInteractionPrompt(string message)
+    {
+        if (_interactionPrompt == null) return;
+        _interactionPrompt.text = message;
+        _interactionPrompt.enabled = !string.IsNullOrWhiteSpace(message);
+    }
+
+    public void HideInteractionPrompt()
+    {
+        if (_interactionPrompt == null) return;
+        _interactionPrompt.text = "";
+        _interactionPrompt.enabled = false;
     }
 
     void BuildHealthBar(Transform root)

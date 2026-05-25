@@ -9,10 +9,24 @@ public class PlayerInteractionDetector : MonoBehaviour
 
     void Update()
     {
-        if (!GetInteractPressed()) return;
+        IInteractable closest = GetClosestInteractable();
+        if (closest != null)
+        {
+            PlayerHUDController.Instance?.ShowInteractionPrompt("Pressiona F para interagir");
+        }
+        else
+        {
+            PlayerHUDController.Instance?.HideInteractionPrompt();
+        }
 
-        IInteractable closest  = null;
-        float         bestDist = interactRange;
+        if (!GetInteractPressed() || closest == null) return;
+        closest.Interact();
+    }
+
+    IInteractable GetClosestInteractable()
+    {
+        IInteractable closest = null;
+        float bestDist = interactRange;
 
         foreach (var col in Physics.OverlapSphere(transform.position, interactRange))
         {
@@ -23,7 +37,7 @@ public class PlayerInteractionDetector : MonoBehaviour
             if (d < bestDist) { bestDist = d; closest = interactable; }
         }
 
-        closest?.Interact();
+        return closest;
     }
 
     static bool GetInteractPressed()
