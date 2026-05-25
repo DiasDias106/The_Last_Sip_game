@@ -57,6 +57,7 @@ public sealed class PauseMenuController : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
         if (menuAudioManager == null)
         {
             menuAudioManager = GetComponent<MenuAudioManager>();
@@ -99,6 +100,26 @@ public sealed class PauseMenuController : MonoBehaviour
         if (fullscreenToggle != null)
         {
             fullscreenToggle.SetIsOnWithoutNotify(fullscreen);
+        }
+    }
+
+    private void Start()
+    {
+        ShiftPanelLeft(pausePanel);
+        ShiftPanelLeft(settingsPanel);
+    }
+
+    private void ShiftPanelLeft(MenuPanelController panel)
+    {
+        if (panel == null) return;
+        var rt = panel.GetComponent<RectTransform>();
+        if (rt != null)
+        {
+            rt.anchorMin = new Vector2(0, 0.5f);
+            rt.anchorMax = new Vector2(0, 0.5f);
+            rt.pivot = new Vector2(0, 0.5f);
+            rt.anchoredPosition = new Vector2(250, 0);
+            panel.SetShownPosition(rt.anchoredPosition);
         }
     }
 

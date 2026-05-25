@@ -50,7 +50,7 @@ public static class UserImportedPlayerBootstrap
         {
             SetupTavernShop();
         }
-        else if (IsGameplayLevelScene(sceneName))
+        else if (sceneName == SceneName) // Apenas no level_1
         {
             EnsureLevel1Colliders();
             EnsureTrapBasesConfigured();
