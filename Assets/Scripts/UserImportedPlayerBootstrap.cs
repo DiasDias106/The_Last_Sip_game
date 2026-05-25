@@ -53,6 +53,7 @@ public static class UserImportedPlayerBootstrap
         else if (IsGameplayLevelScene(sceneName))
         {
             EnsureLevel1Colliders();
+            EnsureTrapBasesConfigured();
         }
 
         EnsurePlayerSpawned();
@@ -75,6 +76,29 @@ public static class UserImportedPlayerBootstrap
             if (mf.gameObject.GetComponent<Collider>() == null)
             {
                 mf.gameObject.AddComponent<MeshCollider>();
+            }
+        }
+    }
+
+    private static void EnsureTrapBasesConfigured()
+    {
+        Transform[] allTransforms = Object.FindObjectsOfType<Transform>(true);
+        for (int i = 0; i < allTransforms.Length; i++)
+        {
+            Transform t = allTransforms[i];
+            if (t == null)
+            {
+                continue;
+            }
+
+            if (!t.name.ToLowerInvariant().Contains("base_armadilha"))
+            {
+                continue;
+            }
+
+            if (t.GetComponent<BaseArmadilhaFall>() == null)
+            {
+                t.gameObject.AddComponent<BaseArmadilhaFall>();
             }
         }
     }
@@ -133,6 +157,8 @@ public static class UserImportedPlayerBootstrap
 
         playerRoot.AddComponent<DoorInteractor>();
         playerRoot.AddComponent<PlayerHealth>();
+        playerRoot.AddComponent<PlayerDeathSceneLoader>();
+        playerRoot.AddComponent<PlayerLavaRespawn>();
         playerRoot.tag = "Player";
         int playerLayer = LayerMask.NameToLayer("Player");
         if (playerLayer >= 0) playerRoot.layer = playerLayer;
