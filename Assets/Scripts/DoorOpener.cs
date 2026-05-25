@@ -5,14 +5,38 @@ public class DoorOpener : MonoBehaviour
 {
     public Vector3 openOffset   = new Vector3(0f, 4f, 0f);
     public float   openDuration = 1.5f;
+    public bool hideOnOpen = false;
 
+    private Vector3 _closedPosition;
     private bool _opened;
+
+    void Awake()
+    {
+        _closedPosition = transform.position;
+    }
 
     public void Open()
     {
         if (_opened) return;
         _opened = true;
         StartCoroutine(OpenRoutine());
+    }
+
+    public void CloseAndReset()
+    {
+        StopAllCoroutines();
+        _opened = false;
+        transform.position = _closedPosition;
+
+        foreach (var col in GetComponentsInChildren<Collider>(true))
+        {
+            col.enabled = true;
+        }
+
+        foreach (var r in GetComponentsInChildren<Renderer>(true))
+        {
+            r.enabled = true;
+        }
     }
 
     IEnumerator OpenRoutine()
@@ -30,7 +54,17 @@ public class DoorOpener : MonoBehaviour
 
         transform.position = end;
 
-        var col = GetComponent<Collider>();
-        if (col != null) col.enabled = false;
+        foreach (var col in GetComponentsInChildren<Collider>(true))
+        {
+            col.enabled = false;
+        }
+
+        if (hideOnOpen)
+        {
+            foreach (var r in GetComponentsInChildren<Renderer>(true))
+            {
+                r.enabled = false;
+            }
+        }
     }
 }
