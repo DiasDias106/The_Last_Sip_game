@@ -34,6 +34,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         CurrentHealth = Mathf.Max(0f, CurrentHealth - amount * (1f - DamageReduction));
         onHealthChanged?.Invoke(CurrentHealth, maxHealth);
         onDamaged?.Invoke();
+        PlayerHUDController.Instance?.RefreshHealth(CurrentHealth, maxHealth);
         if (CurrentHealth <= 0f) Die();
     }
 
@@ -42,6 +43,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         if (IsDead) return;
         CurrentHealth = Mathf.Min(maxHealth, CurrentHealth + amount);
         onHealthChanged?.Invoke(CurrentHealth, maxHealth);
+        PlayerHUDController.Instance?.RefreshHealth(CurrentHealth, maxHealth);
     }
 
     public void UseStamina(float amount)

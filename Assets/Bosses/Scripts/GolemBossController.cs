@@ -32,7 +32,8 @@ public class GolemBossController : BossController
         float dist = Vector3.Distance(transform.position, player.position);
         if (dist <= attackRange + 1f)
         {
-            player.GetComponent<IDamageable>()?.TakeDamage(attackDamage);
+            var ph = player.GetComponentInParent<PlayerHealth>() ?? player.GetComponentInChildren<PlayerHealth>();
+            if (ph != null) ph.TakeDamage(attackDamage);
         }
     }
 }

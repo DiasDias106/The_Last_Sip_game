@@ -70,7 +70,16 @@ public sealed class MainMenuController : MonoBehaviour
             versionText.text = versionPrefix + resolvedVersion;
         }
 
-        mainMenuPanel?.SetActive(true);
+        // When arriving from a death-retry, ScreenFader is already black (sortingOrder=999).
+        // Don't touch any panels — LoadingScreenController.PlayLoadingIntro will hide
+        // mainMenuPanel once it's safe to do so (under its own SceneFadeController black).
+        bool deathRetry = PlayerPrefs.GetInt("__DR__", 0) == 1;
+        if (deathRetry)
+        {
+            PlayerPrefs.DeleteKey("__DR__");
+            PlayerPrefs.Save();
+        }
+
         optionsPanel?.HideImmediate();
         creditsPanel?.HideImmediate();
         slotSelectionController?.HideImmediate();

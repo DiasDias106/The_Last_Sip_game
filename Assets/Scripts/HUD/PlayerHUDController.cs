@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -14,15 +15,30 @@ public class PlayerHUDController : MonoBehaviour
     static readonly Color GoldText = new Color(0.9f, 0.8f, 0.5f, 1f);
 
     private Image _hpFill;
+    private RectTransform _hpFillRT;
     private Text _redCount, _blueCount, _greenCount;
     private Text _coinsText, _gemsText;
     private Text _interactionPrompt;
     private readonly List<(Text title, Text desc)> _objRows = new List<(Text, Text)>();
+    private PlayerHealth _subscribedHealth;
 
     void Update()
     {
-        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "MainMenuScene")
+        if (SceneManager.GetActiveScene().name == "MainMenuScene")
+        {
             Destroy(gameObject);
+            return;
+        }
+
+        // Polling fallback: keep bar in sync every frame regardless of event state
+        if (_hpFillRT != null)
+        {
+            if (_subscribedHealth == null || !(_subscribedHealth as UnityEngine.Object))
+                _subscribedHealth = FindObjectOfType<PlayerHealth>();
+
+            if (_subscribedHealth != null)
+                SetHealthFill(_subscribedHealth.CurrentHealth, _subscribedHealth.maxHealth);
+        }
     }
 
     void Awake()
@@ -44,17 +60,31 @@ public class PlayerHUDController : MonoBehaviour
         BuildHUD();
     }
 
+    void OnEnable()  => SceneManager.sceneLoaded += OnSceneLoaded;
+    void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode) => StartCoroutine(LateSubscribe());
+
     void Start() => StartCoroutine(LateSubscribe());
 
     IEnumerator LateSubscribe()
     {
         yield return null;
+
         var ph = FindObjectOfType<PlayerHealth>();
-        if (ph != null)
+        if (ph != null && ph != _subscribedHealth)
         {
+            if (_subscribedHealth != null)
+                _subscribedHealth.onHealthChanged.RemoveListener(OnHpChanged);
+            _subscribedHealth = ph;
             ph.onHealthChanged.AddListener(OnHpChanged);
             OnHpChanged(ph.CurrentHealth, ph.maxHealth);
         }
+        else if (ph != null)
+        {
+            OnHpChanged(ph.CurrentHealth, ph.maxHealth);
+        }
+
         var inv = PlayerInventory.Instance;
         if (inv != null)
         {
@@ -67,9 +97,15 @@ public class PlayerHUDController : MonoBehaviour
         }
     }
 
-    void OnHpChanged(float cur, float max)
+    void OnHpChanged(float cur, float max) => SetHealthFill(cur, max);
+
+    public void RefreshHealth(float cur, float max) => SetHealthFill(cur, max);
+
+    void SetHealthFill(float cur, float max)
     {
-        if (_hpFill) _hpFill.fillAmount = max > 0 ? cur / max : 0f;
+        if (_hpFillRT == null) return;
+        float pct = max > 0f ? Mathf.Clamp01(cur / max) : 0f;
+        _hpFillRT.anchorMax = new Vector2(pct, 1f);
     }
 
     void OnPotions(int r, int b, int g)
@@ -175,13 +211,12 @@ public class PlayerHUDController : MonoBehaviour
         fillGo.transform.SetParent(track.transform, false);
         _hpFill = fillGo.AddComponent<Image>();
         _hpFill.color = HpFill;
-        _hpFill.type = Image.Type.Filled;
-        _hpFill.fillMethod = Image.FillMethod.Horizontal;
-        _hpFill.fillAmount = 1f;
         var fRT = fillGo.GetComponent<RectTransform>();
-        fRT.anchorMin = Vector2.zero; fRT.anchorMax = Vector2.one;
+        fRT.anchorMin = Vector2.zero;
+        fRT.anchorMax = Vector2.one; // starts at 100%
         fRT.sizeDelta = Vector2.zero;
         fRT.anchoredPosition = Vector2.zero;
+        _hpFillRT = fRT; // anchor-based fill: shrink anchorMax.x to reduce bar width
     }
 
     void BuildPotions(Transform root, Font bold)

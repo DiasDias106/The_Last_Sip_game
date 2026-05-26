@@ -16,7 +16,7 @@ public class UserImportedPlayerController : MonoBehaviour
     // ── Inspector ────────────────────────────────────────────────────────────────
     [SerializeField] private float walkSpeed          = 2.25f;
     [SerializeField] private float runSpeed           = 4.5f;
-    [SerializeField] private float jumpForce          = 5.5f;
+    [SerializeField] private float jumpForce          = 9f;
     [SerializeField] private float gravity            = -18f;
     [SerializeField] private float turnSpeed          = 6f;
     [SerializeField] private float mouseSensitivity   = 5.0f;
@@ -28,11 +28,12 @@ public class UserImportedPlayerController : MonoBehaviour
 
     [Header("Combat")]
     [SerializeField] private float attackDamage      = 15f;
-    [SerializeField] private float attackRadius      = 1.8f;
+    [SerializeField] private float heavyAttackDamage = 40f;
+    [SerializeField] private float attackRadius      = 2.0f;
     [SerializeField] private float attackFwdOffset   = 1.0f;
 
     // ── State Machine ────────────────────────────────────────────────────────────
-    private enum MoveState { Locomotion, Attacking, Rolling, HitReact, Blocking }
+    private enum MoveState { Locomotion, Attacking, Rolling, HitReact, Blocking, Dead }
     private MoveState _moveState = MoveState.Locomotion;
     private float     _stateTimer;
 
@@ -111,7 +112,11 @@ public class UserImportedPlayerController : MonoBehaviour
         PlayClip("idle");
 
         _playerHealth = GetComponent<PlayerHealth>();
-        if (_playerHealth != null) _playerHealth.onDamaged.AddListener(TriggerHitReaction);
+        if (_playerHealth != null)
+        {
+            _playerHealth.onDamaged.AddListener(TriggerHitReaction);
+            _playerHealth.onDeath.AddListener(EnterDeath);
+        }
     }
 
     void OnDestroy()
@@ -145,6 +150,7 @@ public class UserImportedPlayerController : MonoBehaviour
             case MoveState.Rolling:    UpdateRolling(grounded);    break;
             case MoveState.HitReact:   UpdateHitReact(grounded);   break;
             case MoveState.Blocking:   UpdateBlocking(grounded);   break;
+            case MoveState.Dead:       UpdateDead(grounded);       break;
         }
 
         UpdateAnimationTransition();
@@ -374,7 +380,8 @@ public class UserImportedPlayerController : MonoBehaviour
         if (!_hitDealt && _stateTimer >= AttackHitTime)
         {
             _hitDealt = true;
-            DealAttackDamage();
+            float dmg = _comboStep == 3 ? heavyAttackDamage : attackDamage;
+            DealAttackDamage(dmg);
         }
 
         // Buffer next combo input (only for light attack chain, not heavy)
@@ -399,17 +406,19 @@ public class UserImportedPlayerController : MonoBehaviour
         }
     }
 
-    void DealAttackDamage()
+    void DealAttackDamage(float damage)
     {
-        Vector3 origin = transform.position + Vector3.up + transform.forward * attackFwdOffset;
-        var already    = new HashSet<GameObject>();
+        Vector3 origin = transform.position + Vector3.up * 0.9f + transform.forward * attackFwdOffset;
+
+        var already = new HashSet<GameObject>();
         foreach (var col in Physics.OverlapSphere(origin, attackRadius))
         {
+            if (col.isTrigger) continue;
             var root = col.transform.root.gameObject;
             if (root == gameObject || already.Contains(root)) continue;
             var dmg = col.GetComponentInParent<IDamageable>();
             if (dmg == null || dmg is PlayerHealth) continue;
-            dmg.TakeDamage(attackDamage);
+            dmg.TakeDamage(damage);
             already.Add(root);
         }
     }
@@ -448,7 +457,7 @@ public class UserImportedPlayerController : MonoBehaviour
     // ═══════════════════════════════════════════════════════════════════════════
     public void TriggerHitReaction()
     {
-        if (_isInvincible || _isBlocking) return;
+        if (_isInvincible || _isBlocking || _moveState == MoveState.Dead) return;
         _moveState   = MoveState.HitReact;
         _stateTimer  = 0f;
         PlayClip("getHit");
@@ -467,6 +476,35 @@ public class UserImportedPlayerController : MonoBehaviour
             _stateTimer = 0f;
             PlayClip("idle");
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  DEATH
+    // ═══════════════════════════════════════════════════════════════════════════
+    public void EnterDeath()
+    {
+        if (_moveState == MoveState.Dead) return;
+        _moveState = MoveState.Dead;
+        _stateTimer = 0f;
+        _isInvincible = false;
+        _isBlocking = false;
+        if (_playerHealth != null) _playerHealth.DamageReduction = 0f;
+
+        if (_activeScriptedSequence != null)
+        {
+            StopCoroutine(_activeScriptedSequence);
+            _activeScriptedSequence = null;
+        }
+        _isScriptedSequencePlaying = false;
+
+        PlayClip("knockdown");
+    }
+
+    void UpdateDead(bool grounded)
+    {
+        _verticalVelocity += gravity * Time.deltaTime;
+        if (grounded && _verticalVelocity < 0f) _verticalVelocity = -1f;
+        _controller.Move(Vector3.up * _verticalVelocity * Time.deltaTime);
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -537,6 +575,7 @@ public class UserImportedPlayerController : MonoBehaviour
         Override("attack4",    s2 + "Attack4.FBX");
         Override("block",      s2 + "Idle.FBX");
         Override("getHit",     s2 + "GetHit-F1.FBX");
+        Override("knockdown",  s2 + "Knockdown1.FBX");
 #endif
 
         if (_clips.Count == 0)
@@ -553,6 +592,7 @@ public class UserImportedPlayerController : MonoBehaviour
         Fallback("attack4",    "attack3");
         Fallback("block",      "idle");
         Fallback("getHit",     "idle");
+        Fallback("knockdown",  "getHit");
         Fallback("roll",       "run");
     }
 

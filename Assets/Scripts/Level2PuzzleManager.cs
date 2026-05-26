@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Level2PuzzleManager : MonoBehaviour
@@ -147,7 +148,7 @@ public class Level2PuzzleManager : MonoBehaviour
             {
                 OpenBigGateway();
                 if (door1ForReset != null) door1ForReset.CloseAndReset();
-                TeleportPlayerAboveDoor1(door1ForReset);
+                StartCoroutine(FadeTeleport(door1ForReset));
             });
     }
 
@@ -211,17 +212,26 @@ public class Level2PuzzleManager : MonoBehaviour
         return null;
     }
 
-    void TeleportPlayerAboveDoor1(DoorOpener door1)
+    IEnumerator FadeTeleport(DoorOpener door1)
     {
-        if (door1 == null) return;
+        var fader = ScreenFader.GetOrCreate();
 
-        var player = FindObjectOfType<UserImportedPlayerController>();
-        if (player == null) return;
+        yield return fader.FadeOut(0.5f);
 
-        Vector3 target = door1.transform.position + Vector3.up * 1.6f;
-        var cc = player.GetComponent<CharacterController>();
-        if (cc != null) cc.enabled = false;
-        player.transform.position = target;
-        if (cc != null) cc.enabled = true;
+        if (door1 != null)
+        {
+            var player = FindObjectOfType<UserImportedPlayerController>();
+            if (player != null)
+            {
+                Vector3 target = door1.transform.position + Vector3.up * 1.6f;
+                var cc = player.GetComponent<CharacterController>();
+                if (cc != null) cc.enabled = false;
+                player.transform.position = target;
+                if (cc != null) cc.enabled = true;
+            }
+        }
+
+        yield return new WaitForSeconds(0.2f);
+        yield return fader.FadeIn(0.6f);
     }
 }

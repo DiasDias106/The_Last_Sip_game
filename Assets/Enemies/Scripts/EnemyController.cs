@@ -187,7 +187,8 @@ public class EnemyController : MonoBehaviour, IDamageable
         {
             lastAttackTime = Time.time;
             animator.SetTrigger(HashAttack);
-            player.GetComponent<IDamageable>()?.TakeDamage(attackDamage);
+            var ph = player.GetComponentInParent<PlayerHealth>() ?? player.GetComponentInChildren<PlayerHealth>();
+            if (ph != null) ph.TakeDamage(attackDamage);
         }
     }
 

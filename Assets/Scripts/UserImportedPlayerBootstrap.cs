@@ -111,8 +111,10 @@ public static class UserImportedPlayerBootstrap
             return;
         }
 
-        if (Object.FindObjectOfType<UserImportedPlayerController>() != null)
+        UserImportedPlayerController existing = Object.FindObjectOfType<UserImportedPlayerController>();
+        if (existing != null)
         {
+            EnsureRequiredPlayerComponents(existing.gameObject);
             return;
         }
 
@@ -141,7 +143,8 @@ public static class UserImportedPlayerBootstrap
         cc.height = 1.8f;
         cc.radius = 0.3f;
         cc.center = new Vector3(0f, 0.9f, 0f);
-        cc.stepOffset = 0.35f;
+        cc.stepOffset = 0.65f;
+        cc.slopeLimit = 60f;
         cc.skinWidth = 0.03f;
         cc.minMoveDistance = 0f;
 
@@ -169,6 +172,22 @@ public static class UserImportedPlayerBootstrap
             EnsureCharacterMaterialsVisible(visual);
         }
 
+    }
+
+    private static void EnsureRequiredPlayerComponents(GameObject playerGo)
+    {
+        if (playerGo.GetComponent<PlayerHealth>() == null)
+            playerGo.AddComponent<PlayerHealth>();
+        if (playerGo.GetComponent<PlayerDeathSceneLoader>() == null)
+            playerGo.AddComponent<PlayerDeathSceneLoader>();
+        if (playerGo.GetComponent<DoorInteractor>() == null)
+            playerGo.AddComponent<DoorInteractor>();
+        if (playerGo.GetComponent<PlayerLavaRespawn>() == null)
+            playerGo.AddComponent<PlayerLavaRespawn>();
+        if (string.IsNullOrEmpty(playerGo.tag) || playerGo.tag == "Untagged")
+            playerGo.tag = "Player";
+        int playerLayer = LayerMask.NameToLayer("Player");
+        if (playerLayer >= 0) playerGo.layer = playerLayer;
     }
 
     private static GameObject LoadPlayerVisualPrefab(bool useScavengerVisual)

@@ -27,6 +27,9 @@ public class LavaGolemBossController : BossController
         yield return new WaitForSeconds(delay);
         if (player == null) yield break;
         if (Vector3.Distance(transform.position, player.position) <= attackRange + 1f)
-            player.GetComponent<IDamageable>()?.TakeDamage(attackDamage);
+        {
+            var ph = player.GetComponentInParent<PlayerHealth>() ?? player.GetComponentInChildren<PlayerHealth>();
+            if (ph != null) ph.TakeDamage(attackDamage);
+        }
     }
 }
