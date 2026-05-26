@@ -19,8 +19,10 @@ public class PlayerHUDController : MonoBehaviour
     private Text _redCount, _blueCount, _greenCount;
     private Text _coinsText, _gemsText;
     private Text _interactionPrompt;
+    private Text _statusMessage;
     private readonly List<(Text title, Text desc)> _objRows = new List<(Text, Text)>();
     private PlayerHealth _subscribedHealth;
+    private Coroutine _statusMessageRoutine;
 
     void Update()
     {
@@ -145,6 +147,7 @@ public class PlayerHUDController : MonoBehaviour
         BuildPotions(root, bold);
         BuildResources(root, bold);
         BuildInteractionPrompt(root, bold);
+        BuildStatusMessage(root, bold);
     }
 
     void BuildInteractionPrompt(Transform root, Font font)
@@ -184,6 +187,59 @@ public class PlayerHUDController : MonoBehaviour
         if (_interactionPrompt == null) return;
         _interactionPrompt.text = "";
         _interactionPrompt.enabled = false;
+    }
+
+    public void ShowTemporaryMessage(string message, float duration = 1.5f)
+    {
+        if (_statusMessage == null) return;
+
+        if (_statusMessageRoutine != null)
+        {
+            StopCoroutine(_statusMessageRoutine);
+        }
+
+        _statusMessageRoutine = StartCoroutine(ShowTemporaryMessageRoutine(message, duration));
+    }
+
+    IEnumerator ShowTemporaryMessageRoutine(string message, float duration)
+    {
+        _statusMessage.text = message;
+        _statusMessage.enabled = !string.IsNullOrWhiteSpace(message);
+
+        yield return new WaitForSecondsRealtime(duration);
+
+        if (_statusMessage != null)
+        {
+            _statusMessage.text = "";
+            _statusMessage.enabled = false;
+        }
+
+        _statusMessageRoutine = null;
+    }
+
+    void BuildStatusMessage(Transform root, Font font)
+    {
+        var messageGo = new GameObject("StatusMessage");
+        messageGo.transform.SetParent(root, false);
+
+        _statusMessage = messageGo.AddComponent<Text>();
+        _statusMessage.font = font;
+        _statusMessage.fontSize = 20;
+        _statusMessage.alignment = TextAnchor.MiddleCenter;
+        _statusMessage.color = new Color(0.95f, 0.90f, 0.75f, 1f);
+        _statusMessage.text = "";
+        _statusMessage.enabled = false;
+
+        var outline = messageGo.AddComponent<Outline>();
+        outline.effectColor = new Color(0f, 0f, 0f, 0.9f);
+        outline.effectDistance = new Vector2(1.2f, -1.2f);
+
+        var rt = messageGo.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0.24f);
+        rt.anchorMax = new Vector2(0.5f, 0.24f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(700f, 40f);
+        rt.anchoredPosition = Vector2.zero;
     }
 
     void BuildHealthBar(Transform root)

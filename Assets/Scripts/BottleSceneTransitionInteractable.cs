@@ -13,6 +13,7 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     [SerializeField] private float blackScreenDuration = 2f;
     [SerializeField] private Vector3 promptOffset = new Vector3(0f, 0.35f, 0f);
     [SerializeField] private string promptText = "F - Apanhar garrafa";
+    [SerializeField] private AnimationClip drinkIntroClip;
     [SerializeField] private AnimationClip drinkLoopClip;
     [SerializeField] private AnimationClip collapseClip;
 
@@ -23,6 +24,7 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     private bool _transitionStarted;
 
 #if UNITY_EDITOR
+    private const string DrinkIntroClipAssetPath = "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Stand_Trans_Moonshine.FBX";
     private const string DrinkLoopClipAssetPath = "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Moonshine_01_Drink_Loop.FBX";
     private const string FallClipAssetPath = "Assets/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/Unarmed/RPG-Character@Unarmed-Knockdown1.FBX";
 #endif
@@ -100,9 +102,9 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         FacePlayerToBottle();
 
         UserImportedPlayerController controller = _player != null ? _player.GetComponent<UserImportedPlayerController>() : null;
-        if (controller != null && drinkLoopClip != null)
+        if (controller != null && (drinkIntroClip != null || drinkLoopClip != null))
         {
-            controller.PlayBottleDrinkSequence(null, drinkLoopClip, collapseClip, transform, BeginScreenTransition);
+            controller.PlayBottleDrinkSequence(drinkIntroClip, drinkLoopClip, collapseClip, transform, BeginScreenTransition);
             return;
         }
 
@@ -161,6 +163,11 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
             collapseClip = null;
         }
 
+        if (drinkIntroClip == null)
+        {
+            drinkIntroClip = FindRuntimeClip("MCU_am_Stand_Trans_Moonshine");
+        }
+
         if (drinkLoopClip == null)
         {
             drinkLoopClip = FindRuntimeClip("MCU_am_Moonshine_01_Drink_Loop");
@@ -172,6 +179,11 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         }
 
 #if UNITY_EDITOR
+        if (drinkIntroClip == null)
+        {
+            drinkIntroClip = FindClipAtPath(DrinkIntroClipAssetPath, "MCU_am_Stand_Trans_Moonshine");
+        }
+
         if (drinkLoopClip == null)
         {
             drinkLoopClip = FindClipAtPath(DrinkLoopClipAssetPath, "MCU_am_Moonshine_01_Drink_Loop");

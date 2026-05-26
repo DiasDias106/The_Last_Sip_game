@@ -3,14 +3,18 @@ using UnityEngine.Events;
 
 public class PlayerInventory : MonoBehaviour
 {
+    private const float RedPotionHealAmount = 33f;
+    private const float BluePotionHealAmount = 66f;
+    public const int MaxPotionCount = 5;
+
     public static PlayerInventory Instance { get; private set; }
 
     [Header("Starting Resources")]
-    public int startingCoins       = 0;
+    public int startingCoins       = 1000;
     public int startingGems        = 0;
-    public int startingRedPotions  = 0;
-    public int startingBluePotions = 0;
-    public int startingGreenPotions = 0;
+    public int startingRedPotions  = 1;
+    public int startingBluePotions = 1;
+    public int startingGreenPotions = 1;
 
     public int Coins        { get; private set; }
     public int Gems         { get; private set; }
@@ -59,8 +63,11 @@ public class PlayerInventory : MonoBehaviour
     public bool UseRedPotion()
     {
         if (RedPotions <= 0) return false;
+        PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>();
+        if (playerHealth == null || playerHealth.CurrentHealth >= playerHealth.maxHealth) return false;
+
         RedPotions--;
-        FindObjectOfType<PlayerHealth>()?.Heal(30f);
+        playerHealth.Heal(RedPotionHealAmount);
         onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
         return true;
     }
@@ -68,8 +75,11 @@ public class PlayerInventory : MonoBehaviour
     public bool UseBluePotion()
     {
         if (BluePotions <= 0) return false;
+        PlayerHealth playerHealth = FindObjectOfType<PlayerHealth>();
+        if (playerHealth == null || playerHealth.CurrentHealth >= playerHealth.maxHealth) return false;
+
         BluePotions--;
-        FindObjectOfType<PlayerHealth>()?.Heal(60f);
+        playerHealth.Heal(BluePotionHealAmount);
         onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
         return true;
     }
@@ -77,14 +87,34 @@ public class PlayerInventory : MonoBehaviour
     public bool UseGreenPotion()
     {
         if (GreenPotions <= 0) return false;
-        GreenPotions--;
         var ph = FindObjectOfType<PlayerHealth>();
-        if (ph != null) ph.Heal(ph.maxHealth);
+        if (ph == null || ph.CurrentHealth >= ph.maxHealth) return false;
+
+        GreenPotions--;
+        ph.Heal(ph.maxHealth);
         onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
         return true;
     }
 
-    public void AddRedPotion(int n = 1)   { RedPotions   += n; onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions); }
-    public void AddBluePotion(int n = 1)  { BluePotions  += n; onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions); }
-    public void AddGreenPotion(int n = 1) { GreenPotions += n; onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions); }
+    public bool CanAddRedPotion(int n = 1) => RedPotions <= MaxPotionCount - n;
+    public bool CanAddBluePotion(int n = 1) => BluePotions <= MaxPotionCount - n;
+    public bool CanAddGreenPotion(int n = 1) => GreenPotions <= MaxPotionCount - n;
+
+    public void AddRedPotion(int n = 1)
+    {
+        RedPotions = Mathf.Min(MaxPotionCount, RedPotions + Mathf.Max(0, n));
+        onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
+    }
+
+    public void AddBluePotion(int n = 1)
+    {
+        BluePotions = Mathf.Min(MaxPotionCount, BluePotions + Mathf.Max(0, n));
+        onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
+    }
+
+    public void AddGreenPotion(int n = 1)
+    {
+        GreenPotions = Mathf.Min(MaxPotionCount, GreenPotions + Mathf.Max(0, n));
+        onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
+    }
 }
