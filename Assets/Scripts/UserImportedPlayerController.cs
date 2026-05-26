@@ -33,7 +33,7 @@ public class UserImportedPlayerController : MonoBehaviour
     [SerializeField] private float attackFwdOffset   = 1.0f;
 
     // ── State Machine ────────────────────────────────────────────────────────────
-    private enum MoveState { Locomotion, Attacking, Rolling, HitReact, Blocking, Dead }
+    private enum MoveState { Locomotion, Drinking, Attacking, Rolling, HitReact, Blocking, Dead }
     private MoveState _moveState = MoveState.Locomotion;
     private float     _stateTimer;
 
@@ -71,9 +71,11 @@ public class UserImportedPlayerController : MonoBehaviour
     private Animator _animator;
     private PlayableGraph _playableGraph;
     private AnimationPlayableOutput _animOutput;
+    private AnimationLayerMixerPlayable _layerMixerPlayable;
     private AnimationMixerPlayable _mixerPlayable;
     private AnimationClipPlayable _clipPlayable;
     private AnimationClipPlayable _oldClipPlayable;
+    private AnimationClipPlayable _drinkClipPlayable;
     private AnimationClip _currentClip;
     private bool _graphCreated = false;
     private float _clipTime = 0f;
@@ -82,6 +84,12 @@ public class UserImportedPlayerController : MonoBehaviour
     private bool _isTransitioning = false;
     private bool _isScriptedSequencePlaying;
     private Coroutine             _activeScriptedSequence;
+    private AnimationClip _potionDrinkIntroClip;
+    private AnimationClip _potionDrinkLoopClip;
+    private float _currentClipSpeed = 1f;
+    private bool _drinkOverlayActive;
+    private const float PotionDrinkStartTime = 1.97f;
+    private const float PotionDrinkPlaybackSpeed = 2f;
 
     public bool IsScriptedSequencePlaying => _isScriptedSequencePlaying;
 
@@ -107,6 +115,7 @@ public class UserImportedPlayerController : MonoBehaviour
         Cursor.visible   = false;
 
         LoadClips();
+        EnsurePotionDrinkClip();
         SetupCameraRig();
         EnsureAnimationGraph();
         PlayClip("idle");
@@ -146,6 +155,7 @@ public class UserImportedPlayerController : MonoBehaviour
         switch (_moveState)
         {
             case MoveState.Locomotion: UpdateLocomotion(grounded); break;
+            case MoveState.Drinking:   UpdateDrinking(grounded);   break;
             case MoveState.Attacking:  UpdateAttacking(grounded);  break;
             case MoveState.Rolling:    UpdateRolling(grounded);    break;
             case MoveState.HitReact:   UpdateHitReact(grounded);   break;
@@ -164,10 +174,20 @@ public class UserImportedPlayerController : MonoBehaviour
             StopCoroutine(_activeScriptedSequence);
         }
 
-        _activeScriptedSequence = StartCoroutine(PlayBottleDrinkSequenceRoutine(drinkLoopClip, collapseClip, bottleTransform, onComplete));
+        _activeScriptedSequence = StartCoroutine(PlayBottleDrinkSequenceRoutine(drinkIntroClip, drinkLoopClip, collapseClip, bottleTransform, onComplete));
     }
 
-    private IEnumerator PlayBottleDrinkSequenceRoutine(AnimationClip drinkLoopClip, AnimationClip collapseClip, Transform bottleTransform, Action onComplete)
+    public void PlayConsumableDrinkSequence(Action onDrinkMoment)
+    {
+        if (_activeScriptedSequence != null)
+        {
+            StopCoroutine(_activeScriptedSequence);
+        }
+
+        _activeScriptedSequence = StartCoroutine(PlayConsumableDrinkSequenceRoutine(onDrinkMoment));
+    }
+
+    private IEnumerator PlayBottleDrinkSequenceRoutine(AnimationClip drinkIntroClip, AnimationClip drinkLoopClip, AnimationClip collapseClip, Transform bottleTransform, Action onComplete)
     {
         _isScriptedSequencePlaying = true;
         _currentMovementVelocity = Vector3.zero;
@@ -177,10 +197,16 @@ public class UserImportedPlayerController : MonoBehaviour
         AttachBottleToRightHand(bottleTransform);
         yield return WaitForSecondsRoutine(0.18f);
 
+        if (drinkIntroClip != null)
+        {
+            PlayDirectClip(drinkIntroClip);
+            yield return WaitForClipSeconds(drinkIntroClip, 0.95f, 2.25f);
+        }
+
         if (drinkLoopClip != null)
         {
             PlayDirectClip(drinkLoopClip);
-            yield return WaitForClipSeconds(drinkLoopClip, 0.62f, 2.25f);
+            yield return WaitForClipSeconds(drinkLoopClip, 0.38f, 1.5f);
         }
 
         yield return WaitForSecondsRoutine(0.15f);
@@ -201,6 +227,36 @@ public class UserImportedPlayerController : MonoBehaviour
         _isScriptedSequencePlaying = false;
         _activeScriptedSequence = null;
         onComplete?.Invoke();
+    }
+
+    private IEnumerator PlayConsumableDrinkSequenceRoutine(Action onDrinkMoment)
+    {
+        _moveState = MoveState.Drinking;
+        _stateTimer = 0f;
+        _currentMovementVelocity = Vector3.zero;
+        _movementVelocityRef = Vector3.zero;
+        _verticalVelocity = -1f;
+
+        if (_potionDrinkLoopClip != null)
+        {
+            PlayDrinkOverlayClip(_potionDrinkLoopClip, PotionDrinkStartTime, PotionDrinkPlaybackSpeed);
+            yield return WaitForSecondsRoutine(3f);
+        }
+        else
+        {
+            yield return WaitForSecondsRoutine(3f);
+        }
+
+        onDrinkMoment?.Invoke();
+        yield return WaitForSecondsRoutine(0.15f);
+
+        if (_moveState == MoveState.Drinking)
+        {
+            _moveState = MoveState.Locomotion;
+            StopDrinkOverlay();
+            PlayClip("idle");
+        }
+        _activeScriptedSequence = null;
     }
 
     private void AttachBottleToRightHand(Transform bottleTransform)
@@ -270,6 +326,18 @@ public class UserImportedPlayerController : MonoBehaviour
     // ═══════════════════════════════════════════════════════════════════════════
     void UpdateLocomotion(bool grounded)
     {
+        if (GetRedPotionPressed())
+        {
+            TryUseHealingPotion(true);
+            return;
+        }
+
+        if (GetBluePotionPressed())
+        {
+            TryUseHealingPotion(false);
+            return;
+        }
+
         float ix = GetAxis("H");
         float iz = GetAxis("V");
         Vector3 input = new Vector3(ix, 0f, iz).normalized;
@@ -351,9 +419,75 @@ public class UserImportedPlayerController : MonoBehaviour
             PlayClip(_inCombat ? "walkCombat" : "walk");
     }
 
+    private void TryUseHealingPotion(bool useRedPotion)
+    {
+        PlayerInventory inventory = PlayerInventory.Instance;
+        if (inventory == null || _playerHealth == null || _playerHealth.IsDead)
+        {
+            return;
+        }
+
+        if (_playerHealth.CurrentHealth >= _playerHealth.maxHealth)
+        {
+            PlayerHUDController.Instance?.ShowTemporaryMessage("A vida esta cheia.");
+            return;
+        }
+
+        bool hasPotion = useRedPotion ? inventory.RedPotions > 0 : inventory.BluePotions > 0;
+        if (!hasPotion)
+        {
+            return;
+        }
+
+        PlayConsumableDrinkSequence(() =>
+        {
+            if (useRedPotion)
+            {
+                inventory.UseRedPotion();
+            }
+            else
+            {
+                inventory.UseBluePotion();
+            }
+        });
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     //  ATTACK COMBO
     // ═══════════════════════════════════════════════════════════════════════════
+    void UpdateDrinking(bool grounded)
+    {
+        float ix = GetAxis("H");
+        float iz = GetAxis("V");
+        Vector3 input = new Vector3(ix, 0f, iz).normalized;
+        bool run = GetRunHeld();
+
+        Vector3 targetVel = MoveDir(input) * (input.sqrMagnitude > 0.01f ? (run ? runSpeed : walkSpeed) : 0f);
+        _currentMovementVelocity = Vector3.SmoothDamp(
+            _currentMovementVelocity, targetVel, ref _movementVelocityRef, movementSmoothTime);
+
+        if (grounded && GetJumpPressed()) _verticalVelocity = jumpForce;
+        _verticalVelocity += gravity * Time.deltaTime;
+
+        Vector3 move = _currentMovementVelocity;
+        move.y = _verticalVelocity;
+        _controller.Move(move * Time.deltaTime);
+
+        Vector3 hVel = new Vector3(_currentMovementVelocity.x, 0f, _currentMovementVelocity.z);
+        if (_isTargetingMode)
+            transform.rotation = Quaternion.Euler(0f, _yaw, 0f);
+        else if (hVel.sqrMagnitude > 0.01f)
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation, Quaternion.LookRotation(hVel.normalized), turnSpeed * Time.deltaTime);
+
+        if (input.sqrMagnitude < 0.01f)
+            PlayClip("idle");
+        else if (run)
+            PlayClip("run");
+        else
+            PlayClip(_inCombat ? "walkCombat" : "walk");
+    }
+
     void EnterAttack()
     {
         _moveState   = MoveState.Attacking;
@@ -596,6 +730,62 @@ public class UserImportedPlayerController : MonoBehaviour
         Fallback("roll",       "run");
     }
 
+    void EnsurePotionDrinkClip()
+    {
+        if (_potionDrinkIntroClip != null && _potionDrinkLoopClip != null)
+        {
+            return;
+        }
+
+        if (_potionDrinkIntroClip == null)
+        {
+            _potionDrinkIntroClip = FindRuntimeClipByName("MCU_am_Stand_Trans_Moonshine");
+        }
+
+        if (_potionDrinkLoopClip == null)
+        {
+            _potionDrinkLoopClip = FindRuntimeClipByName("Drinking");
+        }
+
+#if UNITY_EDITOR
+        if (_potionDrinkLoopClip == null)
+        {
+            _potionDrinkLoopClip = FindClipAtPath(
+                "Assets/ImportedAnimations/Paladin WProp J Nordstrom@Drinking.fbx",
+                "Drinking");
+        }
+
+        if (_potionDrinkIntroClip == null)
+        {
+            _potionDrinkIntroClip = FindClipAtPath(
+                "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Stand_Trans_Moonshine.FBX",
+                "MCU_am_Stand_Trans_Moonshine");
+        }
+
+        if (_potionDrinkLoopClip == null)
+        {
+            _potionDrinkLoopClip = FindClipAtPath(
+                "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Moonshine_01_Drink_Loop.FBX",
+                "MCU_am_Moonshine_01_Drink_Loop");
+        }
+#endif
+    }
+
+    static AnimationClip FindRuntimeClipByName(string clipName)
+    {
+        AnimationClip[] clips = Resources.FindObjectsOfTypeAll<AnimationClip>();
+        for (int i = 0; i < clips.Length; i++)
+        {
+            AnimationClip clip = clips[i];
+            if (clip != null && clip.name == clipName)
+            {
+                return clip;
+            }
+        }
+
+        return null;
+    }
+
 #if UNITY_EDITOR
     void Override(string key, string path)
     {
@@ -604,6 +794,27 @@ public class UserImportedPlayerController : MonoBehaviour
             if (obj is AnimationClip c && !c.name.StartsWith("__preview__"))
             { _clips[key] = c; return; }
         }
+    }
+
+    static AnimationClip FindClipAtPath(string assetPath, string preferredClipName)
+    {
+        foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(assetPath))
+        {
+            if (obj is AnimationClip clip && clip.name == preferredClipName)
+            {
+                return clip;
+            }
+        }
+
+        foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(assetPath))
+        {
+            if (obj is AnimationClip clip && !clip.name.StartsWith("__preview__"))
+            {
+                return clip;
+            }
+        }
+
+        return null;
     }
 #endif
 
@@ -653,6 +864,7 @@ public class UserImportedPlayerController : MonoBehaviour
         }
         if (_currentClip == clip) return;
         _currentClip = clip;
+        _currentClipSpeed = 1f;
         _clipTime    = 0f;
 
         EnsureAnimationGraph();
@@ -690,6 +902,118 @@ public class UserImportedPlayerController : MonoBehaviour
         _playableGraph.Evaluate();
     }
 
+    private void SeekCurrentClip(float timeSeconds)
+    {
+        float clampedTime = Mathf.Max(0f, timeSeconds);
+        _clipTime = clampedTime;
+
+        if (_graphCreated && _clipPlayable.IsValid())
+        {
+            _clipPlayable.SetTime(clampedTime);
+            _playableGraph.Evaluate();
+            return;
+        }
+
+        if (_currentClip != null)
+        {
+            SampleClipAt(_currentClip, clampedTime);
+        }
+    }
+
+    private void PlayDirectClipImmediate(AnimationClip clip, float startTimeSeconds, float playbackSpeed)
+    {
+        if (clip == null) return;
+
+        PlayDirectClip(clip);
+
+        _isTransitioning = false;
+        _currentClip = clip;
+        _currentClipSpeed = Mathf.Max(0.01f, playbackSpeed);
+        _clipTime = Mathf.Clamp(startTimeSeconds, 0f, Mathf.Max(0.01f, clip.length - 0.01f));
+
+        if (_graphCreated && _mixerPlayable.IsValid())
+        {
+            _mixerPlayable.SetInputWeight(0, 1f);
+            _mixerPlayable.SetInputWeight(1, 0f);
+        }
+
+        if (_graphCreated && _clipPlayable.IsValid())
+        {
+            _clipPlayable.SetTime(_clipTime);
+            _clipPlayable.SetSpeed(_currentClipSpeed);
+            _playableGraph.Evaluate();
+            return;
+        }
+
+        SampleClipAt(clip, _clipTime);
+    }
+
+    private void PlayDrinkOverlayClip(AnimationClip clip, float startTimeSeconds, float playbackSpeed)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        EnsureAnimationGraph();
+        if (!_graphCreated)
+        {
+            PlayDirectClipImmediate(clip, startTimeSeconds, playbackSpeed);
+            return;
+        }
+
+        StopDrinkOverlay();
+
+        if (!_layerMixerPlayable.IsValid())
+        {
+            _layerMixerPlayable = AnimationLayerMixerPlayable.Create(_playableGraph, 2);
+            _playableGraph.Connect(_mixerPlayable, 0, _layerMixerPlayable, 0);
+            _layerMixerPlayable.SetInputWeight(0, 1f);
+            _layerMixerPlayable.SetInputWeight(1, 0f);
+            _layerMixerPlayable.SetLayerMaskFromAvatarMask(1, CreateUpperBodyMask());
+        }
+
+        _drinkClipPlayable = AnimationClipPlayable.Create(_playableGraph, clip);
+        _drinkClipPlayable.SetApplyFootIK(false);
+        _drinkClipPlayable.SetApplyPlayableIK(false);
+        _drinkClipPlayable.SetTime(Mathf.Clamp(startTimeSeconds, 0f, Mathf.Max(0.01f, clip.length - 0.01f)));
+        _drinkClipPlayable.SetSpeed(Mathf.Max(0.01f, playbackSpeed));
+
+        _playableGraph.Connect(_drinkClipPlayable, 0, _layerMixerPlayable, 1);
+        _layerMixerPlayable.SetInputWeight(1, 1f);
+        _animOutput.SetSourcePlayable(_layerMixerPlayable);
+        _playableGraph.Evaluate();
+        _drinkOverlayActive = true;
+    }
+
+    private void StopDrinkOverlay()
+    {
+        if (!_graphCreated || !_layerMixerPlayable.IsValid())
+        {
+            return;
+        }
+
+        _layerMixerPlayable.SetInputWeight(1, 0f);
+        if (_drinkClipPlayable.IsValid())
+        {
+            _playableGraph.Disconnect(_layerMixerPlayable, 1);
+            _drinkClipPlayable.Destroy();
+        }
+
+        _animOutput.SetSourcePlayable(_mixerPlayable);
+        _drinkOverlayActive = false;
+    }
+
+    private void SetCurrentClipPlaybackSpeed(float speed)
+    {
+        _currentClipSpeed = Mathf.Max(0.01f, speed);
+
+        if (_graphCreated && _clipPlayable.IsValid())
+        {
+            _clipPlayable.SetSpeed(_currentClipSpeed);
+        }
+    }
+
     private void UpdateAnimationTransition()
     {
         if (!_isTransitioning || !_graphCreated || !_mixerPlayable.IsValid()) return;
@@ -714,7 +1038,7 @@ public class UserImportedPlayerController : MonoBehaviour
     void SampleCurrentClip()
     {
         if (_currentClip == null || (_graphCreated && _clipPlayable.IsValid())) return;
-        _clipTime += Time.deltaTime;
+        _clipTime += Time.deltaTime * _currentClipSpeed;
         SampleClipAt(_currentClip, _clipTime % Mathf.Max(_currentClip.length, 0.01f));
     }
 
@@ -746,6 +1070,24 @@ public class UserImportedPlayerController : MonoBehaviour
         
         _playableGraph.Play();
         _graphCreated = true;
+    }
+
+    private static AvatarMask CreateUpperBodyMask()
+    {
+        AvatarMask mask = new AvatarMask();
+        foreach (AvatarMaskBodyPart bodyPart in Enum.GetValues(typeof(AvatarMaskBodyPart)))
+        {
+            mask.SetHumanoidBodyPartActive(bodyPart, false);
+        }
+
+        mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.Body, true);
+        mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.Head, true);
+        mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.LeftArm, true);
+        mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.RightArm, true);
+        mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.LeftFingers, true);
+        mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.RightFingers, true);
+
+        return mask;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -904,6 +1246,24 @@ public class UserImportedPlayerController : MonoBehaviour
     static bool IsPointerOverUI() =>
         UnityEngine.EventSystems.EventSystem.current != null
         && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
+
+    static bool GetRedPotionPressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        return Keyboard.current?.qKey.wasPressedThisFrame ?? false;
+#else
+        return Input.GetKeyDown(KeyCode.Q);
+#endif
+    }
+
+    static bool GetBluePotionPressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        return Keyboard.current?.eKey.wasPressedThisFrame ?? false;
+#else
+        return Input.GetKeyDown(KeyCode.E);
+#endif
+    }
 
     // ═══════════════════════════════════════════════════════════════════════════
     //  HELPERS
