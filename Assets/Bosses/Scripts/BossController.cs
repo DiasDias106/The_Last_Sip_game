@@ -50,6 +50,7 @@ public abstract class BossController : MonoBehaviour, IDamageable
     private Vector3     spawnPosition;
     private Vector3     patrolTarget;
     private float       patrolWaitTimer;
+    private bool        bossHudShown;
 
     protected virtual void Awake()
     {
@@ -60,6 +61,8 @@ public abstract class BossController : MonoBehaviour, IDamageable
         currentHealth = maxHealth;
         agent.speed   = moveSpeed;
         anim.applyRootMotion = false;
+        EnsureBossHud();
+        BossHUDController.Instance?.Hide();
 
         spawnPosition   = transform.position;
         patrolWaitTimer = patrolWaitTime;
@@ -183,6 +186,13 @@ public abstract class BossController : MonoBehaviour, IDamageable
             {
                 player = col.transform;
                 if (agent.isOnNavMesh) agent.isStopped = false;
+                if (!bossHudShown)
+                {
+                    bossHudShown = true;
+                    EnsureBossHud();
+                    BossHUDController.Instance?.Show();
+                    BossHUDController.Instance?.Refresh(currentHealth, maxHealth);
+                }
                 break;
             }
         }
@@ -203,6 +213,7 @@ public abstract class BossController : MonoBehaviour, IDamageable
     {
         if (isDead) return;
         currentHealth -= amount;
+        BossHUDController.Instance?.Refresh(currentHealth, maxHealth);
         if (currentHealth <= 0f)
             Die();
         else
@@ -212,10 +223,22 @@ public abstract class BossController : MonoBehaviour, IDamageable
     protected virtual void Die()
     {
         isDead = true;
+        BossHUDController.Instance?.Hide();
         if (agent.isOnNavMesh) agent.isStopped = true;
         agent.enabled = false;
         anim.SetTrigger(HashDie);
         StartCoroutine(DeathRoutine());
+    }
+
+    private static void EnsureBossHud()
+    {
+        if (BossHUDController.Instance != null)
+        {
+            return;
+        }
+
+        var hudObject = new GameObject("BossHUD");
+        hudObject.AddComponent<BossHUDController>();
     }
 
     IEnumerator DeathRoutine()

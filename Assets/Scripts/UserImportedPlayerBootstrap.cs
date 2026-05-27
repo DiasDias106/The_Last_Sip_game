@@ -159,6 +159,7 @@ public static class UserImportedPlayerBootstrap
         controller.AssignVisualRoot(visual.transform);
 
         playerRoot.AddComponent<DoorInteractor>();
+        playerRoot.AddComponent<PlayerInteractionDetector>();
         playerRoot.AddComponent<PlayerHealth>();
         playerRoot.AddComponent<PlayerDeathSceneLoader>();
         playerRoot.AddComponent<PlayerLavaRespawn>();
@@ -182,6 +183,8 @@ public static class UserImportedPlayerBootstrap
             playerGo.AddComponent<PlayerDeathSceneLoader>();
         if (playerGo.GetComponent<DoorInteractor>() == null)
             playerGo.AddComponent<DoorInteractor>();
+        if (playerGo.GetComponent<PlayerInteractionDetector>() == null)
+            playerGo.AddComponent<PlayerInteractionDetector>();
         if (playerGo.GetComponent<PlayerLavaRespawn>() == null)
             playerGo.AddComponent<PlayerLavaRespawn>();
         if (string.IsNullOrEmpty(playerGo.tag) || playerGo.tag == "Untagged")

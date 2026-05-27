@@ -72,6 +72,8 @@ public class PlayerDeathSceneLoader : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
     void BuildDeathUI()
     {
+        EnsureEventSystem();
+
         Font reg  = Resources.Load<Font>("Fonts/Cinzel-Regular")
                     ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         Font bold = Resources.Load<Font>("Fonts/Cinzel-Bold") ?? reg;
@@ -88,6 +90,8 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         // CanvasGroup starts invisible – DeathSequence fades it in
         var cg = _deathCanvas.AddComponent<CanvasGroup>();
         cg.alpha = 0f;
+        cg.interactable = true;
+        cg.blocksRaycasts = true;
 
         var root = _deathCanvas.transform;
 
@@ -138,6 +142,30 @@ public class PlayerDeathSceneLoader : MonoBehaviour
 
         var menuBtn = MakeButton(panel.transform, bold, "Menu Principal", new Vector2(0f, -58f));
         menuBtn.GetComponent<Button>().onClick.AddListener(() => StartCoroutine(ExitToMenu()));
+    }
+
+    static void EnsureEventSystem()
+    {
+        if (Object.FindObjectOfType<EventSystem>() != null)
+        {
+            return;
+        }
+
+        GameObject eventSystemGo = new GameObject("EventSystem");
+        eventSystemGo.AddComponent<EventSystem>();
+
+        System.Type inputModuleType =
+            System.Type.GetType("UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem") ??
+            System.Type.GetType("UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem.ForUI");
+
+        if (inputModuleType != null)
+        {
+            eventSystemGo.AddComponent(inputModuleType);
+        }
+        else
+        {
+            eventSystemGo.AddComponent<StandaloneInputModule>();
+        }
     }
 
     GameObject MakeButton(Transform parent, Font font, string label, Vector2 pos)

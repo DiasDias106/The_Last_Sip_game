@@ -10,12 +10,22 @@ public class PortalSceneInteractable : MonoBehaviour
     [SerializeField] private float interactionDistance = 5f;
     [SerializeField] private Vector3 promptOffset = new Vector3(0f, 1.7f, 0f);
     [SerializeField] private string promptText = "F - Entrar portal";
+    [SerializeField] private bool lockPortalWhenLevelCompleted = true;
+    [SerializeField] private string lockedPromptText = "Nivel concluido";
+    [SerializeField] private Color completedPortalColor = new Color(0.15f, 0.95f, 0.35f, 1f);
+    [SerializeField] private Color completedEmissionColor = new Color(0.1f, 1f, 0.25f, 1f);
 
     private GameObject _player;
     private Camera _targetCamera;
     private GUIStyle _promptStyle;
     private bool _isPlayerNear;
     private bool _transitionStarted;
+    private bool _isLocked;
+
+    private void Awake()
+    {
+        RefreshCompletionState();
+    }
 
     private void Update()
     {
@@ -41,7 +51,7 @@ public class PortalSceneInteractable : MonoBehaviour
         float distSq = (portalPos - playerPos).sqrMagnitude;
         _isPlayerNear = distSq <= interactionDistance * interactionDistance;
 
-        if (_isPlayerNear && GetInteractPressed())
+        if (_isPlayerNear && !_isLocked && GetInteractPressed())
         {
             _transitionStarted = true;
             LoadTargetScene();
@@ -71,9 +81,10 @@ public class PortalSceneInteractable : MonoBehaviour
         }
 
         EnsureStyle();
-        Vector2 size = _promptStyle.CalcSize(new GUIContent(promptText));
+        string currentPrompt = _isLocked ? lockedPromptText : promptText;
+        Vector2 size = _promptStyle.CalcSize(new GUIContent(currentPrompt));
         Rect rect = new Rect(screen.x - size.x * 0.5f, Screen.height - screen.y - size.y * 0.5f, size.x, size.y);
-        GUI.Label(rect, promptText, _promptStyle);
+        GUI.Label(rect, currentPrompt, _promptStyle);
     }
 
     private void EnsureStyle()
@@ -117,6 +128,62 @@ public class PortalSceneInteractable : MonoBehaviour
 
         Debug.LogWarning($"PortalSceneInteractable could not resolve scene '{targetSceneName}'.");
         _transitionStarted = false;
+    }
+
+    private void RefreshCompletionState()
+    {
+        _isLocked = lockPortalWhenLevelCompleted
+            && !string.IsNullOrWhiteSpace(targetSceneName)
+            && PlayerPrefs.GetInt(LevelCompletionState.GetKey(targetSceneName), 0) == 1;
+
+        if (_isLocked)
+        {
+            ApplyCompletedVisual();
+        }
+    }
+
+    private void ApplyCompletedVisual()
+    {
+        Transform portalCenter = transform.Find("Portal.obj.cleaner.materialmerger.gles/centro_vortice");
+        Renderer[] renderers = portalCenter != null
+            ? portalCenter.GetComponentsInChildren<Renderer>(true)
+            : GetComponentsInChildren<Renderer>(true);
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null)
+            {
+                continue;
+            }
+
+            Material[] materials = renderer.materials;
+            for (int j = 0; j < materials.Length; j++)
+            {
+                Material material = materials[j];
+                if (material == null)
+                {
+                    continue;
+                }
+
+                if (material.HasProperty("_BaseColor"))
+                {
+                    material.SetColor("_BaseColor", completedPortalColor);
+                }
+                else if (material.HasProperty("_Color"))
+                {
+                    material.SetColor("_Color", completedPortalColor);
+                }
+
+                if (material.HasProperty("_EmissionColor"))
+                {
+                    material.EnableKeyword("_EMISSION");
+                    material.SetColor("_EmissionColor", completedEmissionColor);
+                }
+            }
+
+            renderer.materials = materials;
+        }
     }
 
     private static GameObject FindPlayerObject()
