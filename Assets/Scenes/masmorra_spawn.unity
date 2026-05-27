@@ -5492,6 +5492,10 @@ PrefabInstance:
       propertyPath: interactionDistance
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 4590711535528435730, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: velocidadeX
+      value: -50
+      objectReference: {fileID: 0}
     - target: {fileID: 6717087551740606249, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: m_Name
       value: PortalMiddle
@@ -29112,6 +29116,10 @@ PrefabInstance:
       propertyPath: interactionDistance
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 4590711535528435730, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: velocidadeX
+      value: -50
+      objectReference: {fileID: 0}
     - target: {fileID: 6717087551740606249, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: m_Name
       value: PortalLeft
@@ -37321,6 +37329,10 @@ PrefabInstance:
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: interactionDistance
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4590711535528435730, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: velocidadeX
+      value: -50
       objectReference: {fileID: 0}
     - target: {fileID: 6717087551740606249, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: m_Name
