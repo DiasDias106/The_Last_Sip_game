@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 
 public sealed class MainMenuController : MonoBehaviour
 {
+    private const string PendingSceneKey = "__PENDING_LOAD_SCENE__";
+
     [Header("Audio")]
     [SerializeField] private MenuAudioManager menuAudioManager;
     [SerializeField] private AudioClip menuAmbientClip;
@@ -44,12 +46,19 @@ public sealed class MainMenuController : MonoBehaviour
     private bool isTransitioning;
     private bool isMainMenuInputBlocked;
     private MenuPanelController activePanel;
+    private string pendingSceneFromTransition;
+    private bool pendingSceneLaunchQueued;
 
     private void Awake()
     {
         if (menuAudioManager == null)
         {
             menuAudioManager = GetComponent<MenuAudioManager>();
+        }
+
+        if (loadingScreenController == null)
+        {
+            loadingScreenController = FindFirstObjectByType<LoadingScreenController>(FindObjectsInactive.Include);
         }
 
         if (optionsPanelView == null && optionsPanel != null)
@@ -80,12 +89,37 @@ public sealed class MainMenuController : MonoBehaviour
             PlayerPrefs.Save();
         }
 
+        pendingSceneFromTransition = !string.IsNullOrWhiteSpace(GlobalSceneTransitionRequest.PendingSceneName)
+            ? GlobalSceneTransitionRequest.PendingSceneName
+            : PlayerPrefs.GetString(PendingSceneKey, string.Empty);
+        if (!string.IsNullOrWhiteSpace(pendingSceneFromTransition))
+        {
+            GlobalSceneTransitionRequest.PendingSceneName = null;
+            PlayerPrefs.DeleteKey(PendingSceneKey);
+            PlayerPrefs.Save();
+            pendingSceneLaunchQueued = true;
+        }
+
         optionsPanel?.HideImmediate();
         creditsPanel?.HideImmediate();
         slotSelectionController?.HideImmediate();
         confirmOverwritePanel?.HideImmediate();
         loadingScreenController?.HideLoading();
-        sceneFadeController?.SetVisibleImmediate(false);
+        if (pendingSceneLaunchQueued)
+        {
+            mainMenuPanel?.SetActive(false);
+            if (mainMenuCanvasGroup != null)
+            {
+                mainMenuCanvasGroup.alpha = 0f;
+                mainMenuCanvasGroup.interactable = false;
+                mainMenuCanvasGroup.blocksRaycasts = false;
+            }
+            sceneFadeController?.SetVisibleImmediate(true);
+        }
+        else
+        {
+            sceneFadeController?.SetVisibleImmediate(false);
+        }
 
         bool fullscreen = PlayerPrefs.GetInt(FullscreenPrefsKey, 1) == 1;
         Screen.fullScreen = fullscreen;
@@ -96,6 +130,7 @@ public sealed class MainMenuController : MonoBehaviour
 
         RefreshContinueVisibility();
         UpdateMainMenuPresentation();
+
     }
 
     private void OnEnable()
@@ -123,6 +158,15 @@ public sealed class MainMenuController : MonoBehaviour
         if (loadingScreenController != null)
         {
             loadingScreenController.SequenceFinished += HandleLoadingSequenceFinished;
+        }
+
+    }
+
+    private void Start()
+    {
+        if (pendingSceneLaunchQueued)
+        {
+            StartCoroutine(BeginPendingSceneTransition());
         }
     }
 
@@ -421,6 +465,13 @@ public sealed class MainMenuController : MonoBehaviour
     {
         if (loadingScreenController == null)
         {
+            loadingScreenController = FindFirstObjectByType<LoadingScreenController>(FindObjectsInactive.Include);
+        }
+
+        if (loadingScreenController == null)
+        {
+            Debug.LogWarning("LoadingScreenController not found. Falling back to direct scene load.");
+            UnityEngine.SceneManagement.SceneManager.LoadScene(ResolveSceneName(sceneName));
             return;
         }
 
@@ -429,6 +480,22 @@ public sealed class MainMenuController : MonoBehaviour
         slotSelectionController?.HideImmediate();
         confirmOverwritePanel?.HideImmediate();
         loadingScreenController.ShowLoadingThenLoadScene(ResolveSceneName(sceneName));
+    }
+
+    private System.Collections.IEnumerator BeginPendingSceneTransition()
+    {
+        yield return null;
+
+        if (string.IsNullOrWhiteSpace(pendingSceneFromTransition))
+        {
+            pendingSceneLaunchQueued = false;
+            yield break;
+        }
+
+        mainMenuPanel?.SetActive(false);
+        StartLoadingToScene(pendingSceneFromTransition);
+        pendingSceneFromTransition = null;
+        pendingSceneLaunchQueued = false;
     }
 
     private string ResolveSceneName(string sceneName)

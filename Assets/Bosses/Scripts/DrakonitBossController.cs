@@ -5,7 +5,7 @@ public class DrakonitBossController : BossController
 {
     protected override void Awake()
     {
-        maxHealth      = 450f;
+        maxHealth      = 50f;
         attackDamage   = 38f;
         moveSpeed      = 3.5f;
         detectionRange = 16f;
