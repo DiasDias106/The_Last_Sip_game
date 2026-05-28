@@ -19,7 +19,8 @@ public static class MainMenuSceneBuilder
     private const string MusicPath = "Assets/Audio/ImportedFromZip/Audio/";
     private const bool CreateDecorationsByDefault = false;
 
-    [MenuItem("Tools/The Last Sip/Build Main Menu Scene")]
+    // O ecrã está finalizado, ferramenta removida do menu para evitar cliques acidentais
+    // [MenuItem("Tools/The Last Sip/Build Main Menu Scene")]
     public static void BuildMainMenuScene()
     {
         ConfigureSprites();
@@ -782,67 +783,124 @@ public static class MainMenuSceneBuilder
     private static void BuildCreditsPaper(GameObject bodyRoot, TMP_FontAsset tmpFont)
     {
         RectTransform bodyRect = RectOf(bodyRoot);
-        SetRect(bodyRect, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-56f, -8f), new Vector2(692f, 782f));
-        bodyRect.localRotation = Quaternion.Euler(0f, 0f, -1.35f);
+        // Centralizar bem e manter um tamanho adequado para o texto rolar no meio do ecrã
+        SetRect(bodyRect, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(692f, 782f));
+        // Sem caixa não faz sentido ter o texto inclinado, vamos colocar a direito (0 graus)
+        bodyRect.localRotation = Quaternion.identity;
 
         Image bodyImage = bodyRoot.GetComponent<Image>();
         if (bodyImage != null)
         {
-            bodyImage.type = Image.Type.Simple;
-            bodyImage.preserveAspect = false;
-            bodyImage.color = new Color(1f, 1f, 1f, 0.97f);
+            // Remover a caixa visual
+            bodyImage.enabled = false;
         }
 
         Shadow bodyShadow = bodyRoot.GetComponent<Shadow>();
         if (bodyShadow != null)
         {
-            bodyShadow.effectColor = new Color(0f, 0f, 0f, 0.48f);
-            bodyShadow.effectDistance = new Vector2(0f, -18f);
+            // Remover a sombra da caixa
+            bodyShadow.enabled = false;
         }
 
         Transform shade = bodyRoot.transform.Find("PanelShade");
         if (shade != null && shade.TryGetComponent(out Image shadeImage))
         {
-            shadeImage.color = new Color(0.18f, 0.1f, 0.06f, 0.04f);
+            // Remover o escurecimento do fundo da caixa
+            shadeImage.enabled = false;
         }
 
-        GameObject innerPaper = CreateUIObject("InnerPaper", bodyRoot.transform);
-        StretchFull(RectOf(innerPaper));
-        RectOf(innerPaper).offsetMin = new Vector2(22f, 26f);
-        RectOf(innerPaper).offsetMax = new Vector2(-22f, -24f);
-        AddImage(innerPaper, null, new Color(0.93f, 0.84f, 0.68f, 0.78f), false).raycastTarget = false;
+        // --- ECRÃ DE CRÉDITOS ROLANTE (SCROLL) ---
+        
+        // 1. Criar o Viewport (Área de visão visível com máscara)
+        GameObject viewport = CreateUIObject("Viewport", bodyRoot.transform);
+        StretchFull(RectOf(viewport));
+        // Margens simétricas e equilibradas para o texto não ficar colado às bordas do papel
+        RectOf(viewport).offsetMin = new Vector2(40f, 60f); 
+        RectOf(viewport).offsetMax = new Vector2(-40f, -40f);
+        
+        // Usar RectMask2D em vez de Mask+Image para não criar quadrados de fundo feios
+        viewport.AddComponent<UnityEngine.UI.RectMask2D>();
+        
+        // Adicionar um Image transparente apenas para apanhar os eventos do rato (scroll)
+        UnityEngine.UI.Image viewportImage = AddImage(viewport, null, new Color(0, 0, 0, 0), false);
+        viewportImage.raycastTarget = true;
 
-        GameObject topBurn = CreateUIObject("TopBurn", bodyRoot.transform);
-        SetRect(RectOf(topBurn), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -18f), new Vector2(-36f, 64f));
-        AddImage(topBurn, null, new Color(0.32f, 0.18f, 0.11f, 0.18f), false).raycastTarget = false;
+        // 2. Criar o Content (O recipiente elástico onde ficam os nomes)
+        GameObject contentGo = CreateUIObject("CreditsContent", viewport.transform);
+        // Ancorar ao topo para crescer para baixo
+        SetRect(RectOf(contentGo), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 0f), new Vector2(0f, 0f));
+        
+        ContentSizeFitter sizeFitter = contentGo.AddComponent<ContentSizeFitter>();
+        sizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        
+        VerticalLayoutGroup layoutGroup = contentGo.AddComponent<VerticalLayoutGroup>();
+        layoutGroup.childAlignment = TextAnchor.UpperCenter;
+        layoutGroup.childControlHeight = true;
+        layoutGroup.childControlWidth = true;
+        layoutGroup.childForceExpandHeight = false;
+        layoutGroup.childForceExpandWidth = true;
+        // Padding inferior mais pequeno para garantir que o scroll pára quando a última linha atinge o fundo
+        layoutGroup.padding = new RectOffset(20, 20, 80, 100); 
+        layoutGroup.spacing = 16f;
 
-        GameObject bottomBurn = CreateUIObject("BottomBurn", bodyRoot.transform);
-        SetRect(RectOf(bottomBurn), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 18f), new Vector2(-42f, 84f));
-        AddImage(bottomBurn, null, new Color(0.34f, 0.18f, 0.12f, 0.22f), false).raycastTarget = false;
+        // 3. Adicionar o ScrollRect
+        ScrollRect scrollRect = viewport.AddComponent<ScrollRect>();
+        scrollRect.content = RectOf(contentGo);
+        scrollRect.viewport = RectOf(viewport);
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.scrollSensitivity = 35f;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
 
-        CreatePaperBlotch(bodyRoot.transform, "StainTopLeft", new Vector2(0f, 1f), new Vector2(68f, -76f), new Vector2(148f, 118f), new Color(0.49f, 0.25f, 0.16f, 0.13f), -12f);
-        CreatePaperBlotch(bodyRoot.transform, "StainTopRight", new Vector2(1f, 1f), new Vector2(-82f, -94f), new Vector2(138f, 102f), new Color(0.43f, 0.21f, 0.14f, 0.11f), 14f);
-        CreatePaperBlotch(bodyRoot.transform, "StainMidRight", new Vector2(1f, 0.5f), new Vector2(-74f, 64f), new Vector2(124f, 180f), new Color(0.52f, 0.16f, 0.14f, 0.16f), 18f);
-        CreatePaperBlotch(bodyRoot.transform, "StainBottomLeft", new Vector2(0f, 0f), new Vector2(84f, 92f), new Vector2(176f, 144f), new Color(0.46f, 0.17f, 0.12f, 0.16f), -10f);
-        CreatePaperBlotch(bodyRoot.transform, "StainBottomRight", new Vector2(1f, 0f), new Vector2(-92f, 84f), new Vector2(156f, 128f), new Color(0.36f, 0.14f, 0.1f, 0.1f), 11f);
+        // 4. Adicionar o novo Script de Animação (AutoScroll)
+        AutoScrollCredits autoScroll = viewport.AddComponent<AutoScrollCredits>();
+        
+        // --- CONTEÚDO TIPOGRÁFICO ---
+        
+        // Título Principal (Agora em tons dourados/claros para ler na madeira escura)
+        GameObject titleGo = CreateUIObject("CreditsTitle", contentGo.transform);
+        TMP_Text titleText = AddText(titleGo, "CRÉDITOS", tmpFont, 44, FontStyles.SmallCaps | FontStyles.Bold, TextAlignmentOptions.Center, new Color32(241, 226, 194, 255));
+        titleText.characterSpacing = 8f;
+        titleGo.AddComponent<LayoutElement>().minHeight = 60f;
 
-        GameObject contentGo = CreateUIObject("CreditsText", bodyRoot.transform);
-        SetRect(RectOf(contentGo), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(-10f, -18f), new Vector2(-154f, -160f));
-        TMP_Text contentText = AddText(
-            contentGo,
-            "<size=34><b>CRÉDITOS</b></size>\n\n<size=21><b>DESENVOLVIDO POR</b></size>\n<size=24>Rafa Team</size>\n\n<size=21><b>DESIGN</b></size>\n<size=24>Rafa Silva</size>\n\n<size=21><b>PROGRAMAÇÃO</b></size>\n<size=24>Rafa Silva</size>\n\n<size=21><b>ARTE</b></size>\n<size=24>Rafa Silva</size>\n\n<size=21><b>MÚSICA</b></size>\n<size=23>Biblioteca de Áudio do Unity</size>\n\n<size=21><b>AGRADECIMENTOS</b></size>\n<size=23>A todos que apoiaram este projeto.</size>\n\n<size=28><i>Obrigado por jogar!</i></size>",
-            tmpFont,
-            24,
-            FontStyles.Normal,
-            TextAlignmentOptions.Center,
-            new Color32(50, 33, 25, 255));
-        contentText.lineSpacing = 9f;
-        contentText.characterSpacing = 0.4f;
-        contentText.margin = new Vector4(18f, 16f, 18f, 20f);
+        // Divisor Elegante (Cor dourada clara)
+        GameObject dividerGo = CreateUIObject("HeaderDivider", contentGo.transform);
+        LayoutElement dividerLayout = dividerGo.AddComponent<LayoutElement>();
+        dividerLayout.minHeight = 2f;
+        dividerLayout.preferredHeight = 2f;
+        GameObject dividerLine = CreateUIObject("Line", dividerGo.transform);
+        SetRect(RectOf(dividerLine), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(300f, 2f));
+        AddImage(dividerLine, null, new Color(0.86f, 0.74f, 0.54f, 0.38f), false).raycastTarget = false;
+        
+        // Espaço de Respiração
+        GameObject spacer1 = CreateUIObject("Spacer", contentGo.transform);
+        spacer1.AddComponent<LayoutElement>().minHeight = 60f;
 
-        GameObject dividerGo = CreateUIObject("HeaderDivider", bodyRoot.transform);
-        SetRect(RectOf(dividerGo), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -104f), new Vector2(264f, 2f));
-        AddImage(dividerGo, null, new Color(0.34f, 0.22f, 0.14f, 0.38f), false).raycastTarget = false;
+        // Texto dos Créditos (Cores claras ajustadas para madeira escura)
+        string richText = 
+            "<size=20><color=#a89678><b>DESENVOLVIDO POR</b></color></size>\n" +
+            "<size=32><color=#f3e4c2>Rafa Team</color></size>\n\n\n" +
+            
+            "<size=20><color=#a89678><b>DESIGN</b></color></size>\n" +
+            "<size=32><color=#f3e4c2>Rafa Silva</color></size>\n\n\n" +
+            
+            "<size=20><color=#a89678><b>PROGRAMAÇÃO</b></color></size>\n" +
+            "<size=32><color=#f3e4c2>Rafa Silva</color></size>\n\n\n" +
+            
+            "<size=20><color=#a89678><b>ARTE</b></color></size>\n" +
+            "<size=32><color=#f3e4c2>Rafa Silva</color></size>\n\n\n" +
+            
+            "<size=20><color=#a89678><b>MÚSICA</b></color></size>\n" +
+            "<size=32><color=#f3e4c2>Biblioteca de Áudio do Unity</color></size>\n\n\n" +
+            
+            "<size=20><color=#a89678><b>AGRADECIMENTOS</b></color></size>\n" +
+            "<size=32><color=#f3e4c2>A todos que apoiaram este projeto.</color></size>\n\n\n\n\n" +
+            
+            "<size=38><color=#f1e2c2><i>Obrigado por jogar!</i></color></size>\n\n";
+
+        GameObject textGo = CreateUIObject("CreditsBody", contentGo.transform);
+        TMP_Text contentText = AddText(textGo, richText, tmpFont, 24, FontStyles.Normal, TextAlignmentOptions.Center, new Color32(241, 226, 194, 255));
+        contentText.lineSpacing = 16f;
     }
 
     private static void CreatePaperBlotch(Transform parent, string name, Vector2 anchor, Vector2 anchoredPosition, Vector2 size, Color color, float rotation)

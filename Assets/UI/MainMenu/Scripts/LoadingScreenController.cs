@@ -85,7 +85,7 @@ public sealed class LoadingScreenController : MonoBehaviour
 
         if (loadingIconRoot != null)
         {
-            loadingIconRoot.Rotate(0f, 0f, -iconRotationSpeed * delta);
+            loadingIconRoot.Rotate(0f, 0f, iconRotationSpeed * delta);
         }
 
         if (loadingText != null)

@@ -51,6 +51,7 @@ public abstract class BossController : MonoBehaviour, IDamageable
     private Vector3     patrolTarget;
     private float       patrolWaitTimer;
     private bool        bossHudShown;
+    private bool        _combatMusicStarted;
 
     protected virtual void Awake()
     {
@@ -96,6 +97,7 @@ public abstract class BossController : MonoBehaviour, IDamageable
 
         if (dist > detectionRange * 1.5f)
         {
+            if (_combatMusicStarted) { _combatMusicStarted = false; GameMusicManager.Instance?.ExitBoss(); }
             player = null;
             return;
         }
@@ -185,6 +187,7 @@ public abstract class BossController : MonoBehaviour, IDamageable
             if (col.CompareTag("Player"))
             {
                 player = col.transform;
+                if (!_combatMusicStarted) { _combatMusicStarted = true; GameMusicManager.Instance?.EnterBoss(); }
                 if (agent.isOnNavMesh) agent.isStopped = false;
                 if (!bossHudShown)
                 {
@@ -223,6 +226,7 @@ public abstract class BossController : MonoBehaviour, IDamageable
     protected virtual void Die()
     {
         isDead = true;
+        if (_combatMusicStarted) { _combatMusicStarted = false; GameMusicManager.Instance?.ExitBoss(); }
         BossHUDController.Instance?.Hide();
         if (agent.isOnNavMesh) agent.isStopped = true;
         agent.enabled = false;

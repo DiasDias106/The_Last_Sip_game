@@ -66,6 +66,7 @@ public sealed class MainMenuController : MonoBehaviour
             optionsPanelView = optionsPanel.GetComponent<OptionsPanelView>();
         }
 
+        GameMusicManager.Instance?.StopAll();
         if (menuAudioManager != null && menuAmbientClip != null)
         {
             menuAudioManager.SetAmbientMusicClip(menuAmbientClip);
