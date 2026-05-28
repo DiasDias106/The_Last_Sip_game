@@ -58809,6 +58809,53 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 872954663666569469, guid: b2e45dd6af1b1874582506c085ff8e5c, type: 3}
   m_PrefabInstance: {fileID: 1283761461}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1283897187
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1283897189}
+  - component: {fileID: 1283897188}
+  m_Layer: 0
+  m_Name: SceneMusicSetup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1283897188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283897187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3f0343b7e9670c4ab418715b37b5402, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneMusicSetup
+  ambientMusic: {fileID: 8300000, guid: 7c9d9a7e0dc4e284191e609d9bf45b39, type: 3}
+  combatMusic: {fileID: 8300000, guid: 8132cb5b43635524fb8043ba859f06da, type: 3}
+  bossMusic: {fileID: 8300000, guid: 81595bf973756d1428cd247b05a47348, type: 3}
+--- !u!4 &1283897189
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283897187}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1285017716
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -99219,3 +99266,4 @@ SceneRoots:
   - {fileID: 911017156}
   - {fileID: 960597864}
   - {fileID: 493586828}
+  - {fileID: 1283897189}

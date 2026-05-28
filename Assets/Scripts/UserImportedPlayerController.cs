@@ -501,10 +501,20 @@ public class UserImportedPlayerController : MonoBehaviour
 
     void UpdateAttacking(bool grounded)
     {
-        // Only gravity, no lateral movement
+        // Allow slow movement while attacking
+        float ix = GetAxis("H");
+        float iz = GetAxis("V");
+        Vector3 input = new Vector3(ix, 0f, iz).normalized;
+        Vector3 targetVel = MoveDir(input) * (input.sqrMagnitude > 0.01f ? walkSpeed * 0.4f : 0f);
+        _currentMovementVelocity = Vector3.SmoothDamp(
+            _currentMovementVelocity, targetVel, ref _movementVelocityRef, movementSmoothTime);
+
         _verticalVelocity += gravity * Time.deltaTime;
         if (grounded && _verticalVelocity < 0f) _verticalVelocity = -1f;
-        _controller.Move(Vector3.up * _verticalVelocity * Time.deltaTime);
+
+        Vector3 move = _currentMovementVelocity;
+        move.y = _verticalVelocity;
+        _controller.Move(move * Time.deltaTime);
 
         // Snap to face camera yaw
         transform.rotation = Quaternion.Slerp(
@@ -521,9 +531,9 @@ public class UserImportedPlayerController : MonoBehaviour
         // Buffer next combo input (only for light attack chain, not heavy)
         if (GetAttackDown() && _comboStep < 3 && !IsPointerOverUI()) _comboQueued = true;
 
-        // Transition at 85% of clip
+        // Transition at 85% of clip, or after safety timeout
         float clipLen = _currentClip != null ? _currentClip.length : 0.7f;
-        if (_stateTimer >= clipLen * 0.85f)
+        if (_stateTimer >= clipLen * 0.85f || _stateTimer >= 2.5f)
         {
             if (_comboQueued && _comboStep < 2)
             {
@@ -594,6 +604,7 @@ public class UserImportedPlayerController : MonoBehaviour
         if (_isInvincible || _isBlocking || _moveState == MoveState.Dead) return;
         _moveState   = MoveState.HitReact;
         _stateTimer  = 0f;
+        _isInvincible = true;
         PlayClip("getHit");
     }
 
@@ -601,13 +612,31 @@ public class UserImportedPlayerController : MonoBehaviour
     {
         _verticalVelocity += gravity * Time.deltaTime;
         if (grounded && _verticalVelocity < 0f) _verticalVelocity = -1f;
-        _controller.Move(Vector3.up * _verticalVelocity * Time.deltaTime);
+
+        float ix = GetAxis("H");
+        float iz = GetAxis("V");
+        Vector3 input = new Vector3(ix, 0f, iz).normalized;
+        Vector3 targetVel = MoveDir(input) * (input.sqrMagnitude > 0.01f ? walkSpeed * 0.5f : 0f);
+        _currentMovementVelocity = Vector3.SmoothDamp(
+            _currentMovementVelocity, targetVel, ref _movementVelocityRef, movementSmoothTime);
+
+        Vector3 move = _currentMovementVelocity;
+        move.y = _verticalVelocity;
+        _controller.Move(move * Time.deltaTime);
+
+        if (GetRollPressed() && grounded)
+        {
+            _isInvincible = false;
+            EnterRoll();
+            return;
+        }
 
         float clipLen = _currentClip != null ? _currentClip.length : 0.5f;
-        if (_stateTimer >= clipLen)
+        if (_stateTimer >= Mathf.Min(clipLen, 0.5f))
         {
-            _moveState  = MoveState.Locomotion;
-            _stateTimer = 0f;
+            _isInvincible = false;
+            _moveState    = MoveState.Locomotion;
+            _stateTimer   = 0f;
             PlayClip("idle");
         }
     }

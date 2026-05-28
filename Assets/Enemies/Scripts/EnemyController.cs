@@ -39,6 +39,7 @@ public class EnemyController : MonoBehaviour, IDamageable
     private Vector3      patrolTarget;
     private Vector3      spawnPosition;
     private float        attackingExitTimer;
+    private bool         _inCombat;
 
     private static readonly int HashIsWalking  = Animator.StringToHash("IsWalking");
     private static readonly int HashAttack     = Animator.StringToHash("Attack");
@@ -84,6 +85,7 @@ public class EnemyController : MonoBehaviour, IDamageable
                 if (hit.CompareTag("Player"))
                 {
                     player = hit.transform;
+                    if (!_inCombat) { _inCombat = true; GameMusicManager.Instance?.EnterCombat(); }
                     state  = State.Chasing;
                     break;
                 }
@@ -155,6 +157,7 @@ public class EnemyController : MonoBehaviour, IDamageable
 
         if (dist > detectionRange * 2f)
         {
+            if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); }
             state  = State.Patrolling;
             player = null;
         }
@@ -219,6 +222,7 @@ public class EnemyController : MonoBehaviour, IDamageable
         if (player == null)
         {
             player = FindPlayer();
+            if (!_inCombat) { _inCombat = true; GameMusicManager.Instance?.EnterCombat(); }
             state  = State.Chasing;
         }
         if (health <= 0f) Die();
@@ -227,6 +231,7 @@ public class EnemyController : MonoBehaviour, IDamageable
     private void Die()
     {
         state = State.Dead;
+        if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); }
         if (agent.isOnNavMesh) agent.isStopped = true;
         animator.SetTrigger(HashDie);
         PlayerInventory.Instance?.AddCoins(coinReward);
