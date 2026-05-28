@@ -134,7 +134,7 @@ public class PortalSceneInteractable : MonoBehaviour
     {
         _isLocked = lockPortalWhenLevelCompleted
             && !string.IsNullOrWhiteSpace(targetSceneName)
-            && PlayerPrefs.GetInt(LevelCompletionState.GetKey(targetSceneName), 0) == 1;
+            && LevelCompletionState.IsCompleted(targetSceneName);
 
         if (_isLocked)
         {

@@ -11,6 +11,8 @@ public static class UserImportedPlayerBootstrap
     private const string Level3SceneName = "level_3";
     private const string BossRoomSceneName = "boss_room";
     private const string BecoSceneName = "beco";
+    private const string BecoNoiteSceneName = "beco_noite";
+    private const string BecoDiaSceneName = "beco_dia";
     private const string DungeonSpawnSceneName = "masmorra_spawn";
     private const string CharacterResourcePath = "UserImportedCharacter/Paladin WProp J Nordstrom";
     private const string ScavengerPrefabPath = "Assets/Homeless_people/Free_Scavenger/Prefab/Scavenger Variant.prefab";
@@ -57,10 +59,10 @@ public static class UserImportedPlayerBootstrap
         }
 
         EnsurePlayerSpawned();
-        EnsureHUDSpawned();
+        EnsureHUDStateForScene(sceneName);
 
 #if UNITY_EDITOR
-        if (sceneName == BecoSceneName)
+        if (IsBecoScene(sceneName))
         {
             SetupBecoEncounter();
         }
@@ -121,7 +123,7 @@ public static class UserImportedPlayerBootstrap
         EnsureEventSystem();
         HideScenePreviewCharacter();
 
-        bool useScavengerVisual = currentScene == BecoSceneName;
+        bool useScavengerVisual = IsBecoScene(currentScene);
         GameObject modelPrefab = LoadPlayerVisualPrefab(useScavengerVisual);
         if (modelPrefab == null)
         {
@@ -231,7 +233,7 @@ public static class UserImportedPlayerBootstrap
         return IsGameplayLevelScene(sceneName)
             || sceneName == BossRoomSceneName
             || sceneName == DungeonSpawnSceneName
-            || sceneName == BecoSceneName;
+            || IsBecoScene(sceneName);
     }
 
     private static void HideScenePreviewCharacter()
@@ -390,7 +392,7 @@ public static class UserImportedPlayerBootstrap
             return preview.transform.position + Vector3.up * 0.1f;
         }
 
-        if (sceneName == BecoSceneName && TryGetSpawnFromMainCamera(out Vector3 cameraSpawn, out Quaternion cameraRotation))
+        if (IsBecoScene(sceneName) && TryGetSpawnFromMainCamera(out Vector3 cameraSpawn, out Quaternion cameraRotation))
         {
             fromBase = false;
             rot = cameraRotation;
@@ -398,7 +400,7 @@ public static class UserImportedPlayerBootstrap
         }
 
         fromBase = false;
-        return sceneName == BecoSceneName ? BecoFallbackSpawn : FallbackSpawn;
+        return IsBecoScene(sceneName) ? BecoFallbackSpawn : FallbackSpawn;
     }
 
     private static bool TryGetSpawnFromMainCamera(out Vector3 spawn, out Quaternion rot)
@@ -484,18 +486,44 @@ public static class UserImportedPlayerBootstrap
         Debug.Log("[UserImportedPlayerBootstrap] Added EventSystem because none was found in the scene.");
     }
 
-    private static void EnsureHUDSpawned()
+    private static void EnsureHUDStateForScene(string sceneName)
     {
-        if (PlayerHUDController.Instance != null) return;
+        bool shouldShowHud = IsArmoredPlayableScene(sceneName);
 
-        var hudGo = new GameObject("PlayerHUD");
-        hudGo.AddComponent<PlayerHUDController>();
+        if (!shouldShowHud)
+        {
+            if (PlayerHUDController.Instance != null)
+            {
+                Object.Destroy(PlayerHUDController.Instance.gameObject);
+            }
+
+            if (PlayerInventory.Instance != null)
+            {
+                Object.Destroy(PlayerInventory.Instance.gameObject);
+            }
+            return;
+        }
+
+        if (PlayerHUDController.Instance == null)
+        {
+            var hudGo = new GameObject("PlayerHUD");
+            hudGo.AddComponent<PlayerHUDController>();
+        }
 
         if (PlayerInventory.Instance == null)
         {
             var invGo = new GameObject("PlayerInventory");
             invGo.AddComponent<PlayerInventory>();
         }
+    }
+
+    private static bool IsArmoredPlayableScene(string sceneName)
+    {
+        return sceneName == SceneName
+            || sceneName == Level2SceneName
+            || sceneName == Level3SceneName
+            || sceneName == BossRoomSceneName
+            || sceneName == DungeonSpawnSceneName;
     }
 
     private static void SetupTavernShop()
@@ -521,7 +549,7 @@ public static class UserImportedPlayerBootstrap
 #if UNITY_EDITOR
     private static void SetupBecoEncounter()
     {
-        if (SceneManager.GetActiveScene().name != BecoSceneName)
+        if (!IsBecoScene(SceneManager.GetActiveScene().name))
         {
             return;
         }
@@ -566,6 +594,13 @@ public static class UserImportedPlayerBootstrap
         }
 
         Debug.Log("[UserImportedPlayerBootstrap] Bottle pickup created in beco.");
+    }
+
+    private static bool IsBecoScene(string sceneName)
+    {
+        return sceneName == BecoSceneName
+            || sceneName == BecoNoiteSceneName
+            || sceneName == BecoDiaSceneName;
     }
 
     private static System.Type FindTypeByName(string typeName)

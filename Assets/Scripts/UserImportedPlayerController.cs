@@ -13,6 +13,9 @@ using UnityEngine.InputSystem;
 
 public class UserImportedPlayerController : MonoBehaviour
 {
+    private const string BecoSceneName = "beco";
+    private const string BecoNoiteSceneName = "beco_noite";
+    private const string BecoDiaSceneName = "beco_dia";
     // ── Inspector ────────────────────────────────────────────────────────────────
     [SerializeField] private float walkSpeed          = 2.25f;
     [SerializeField] private float runSpeed           = 4.5f;
@@ -86,6 +89,7 @@ public class UserImportedPlayerController : MonoBehaviour
     private AnimationClip _potionDrinkLoopClip;
     private float _currentClipSpeed = 1f;
     private bool _drinkOverlayActive;
+    private bool _isBecoScavengerMode;
     private const float PotionDrinkStartTime = 1.97f;
     private const float PotionDrinkPlaybackSpeed = 2f;
 
@@ -105,6 +109,7 @@ public class UserImportedPlayerController : MonoBehaviour
             ?? FindObjectOfType<Camera>()
             ?? CreateCamera();
         _yaw = transform.eulerAngles.y;
+        _isBecoScavengerMode = IsBecoScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
 
     void Start()
@@ -339,13 +344,13 @@ public class UserImportedPlayerController : MonoBehaviour
         float ix = GetAxis("H");
         float iz = GetAxis("V");
         Vector3 input = new Vector3(ix, 0f, iz).normalized;
-        bool  run     = GetRunHeld();
+        bool  run     = !_isBecoScavengerMode && GetRunHeld();
 
         Vector3 targetVel = MoveDir(input) * (input.sqrMagnitude > 0.01f ? (run ? runSpeed : walkSpeed) : 0f);
         _currentMovementVelocity = Vector3.SmoothDamp(
             _currentMovementVelocity, targetVel, ref _movementVelocityRef, movementSmoothTime);
 
-        if (grounded && GetJumpPressed()) _verticalVelocity = jumpForce;
+        if (!_isBecoScavengerMode && grounded && GetJumpPressed()) _verticalVelocity = jumpForce;
         _verticalVelocity += gravity * Time.deltaTime;
 
         Vector3 move = _currentMovementVelocity;
@@ -353,12 +358,12 @@ public class UserImportedPlayerController : MonoBehaviour
         _controller.Move(move * Time.deltaTime);
 
         // Roll
-        if (GetRollPressed() && grounded) { EnterRoll(); return; }
+        if (!_isBecoScavengerMode && GetRollPressed() && grounded) { EnterRoll(); return; }
 
         // Block
-        if (GetBlockHeld() && grounded && !IsPointerOverUI()) { EnterBlocking(); return; }
+        if (!_isBecoScavengerMode && GetBlockHeld() && grounded && !IsPointerOverUI()) { EnterBlocking(); return; }
 
-        if (GetHeavyAttackPressed() && !IsPointerOverUI())
+        if (!_isBecoScavengerMode && GetHeavyAttackPressed() && !IsPointerOverUI())
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible   = false;
@@ -367,7 +372,7 @@ public class UserImportedPlayerController : MonoBehaviour
             return;
         }
 
-        if (GetAttackPressed() && !IsPointerOverUI())
+        if (!_isBecoScavengerMode && GetAttackPressed() && !IsPointerOverUI())
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible   = false;
@@ -447,13 +452,13 @@ public class UserImportedPlayerController : MonoBehaviour
         float ix = GetAxis("H");
         float iz = GetAxis("V");
         Vector3 input = new Vector3(ix, 0f, iz).normalized;
-        bool run = GetRunHeld();
+        bool run = !_isBecoScavengerMode && GetRunHeld();
 
         Vector3 targetVel = MoveDir(input) * (input.sqrMagnitude > 0.01f ? (run ? runSpeed : walkSpeed) : 0f);
         _currentMovementVelocity = Vector3.SmoothDamp(
             _currentMovementVelocity, targetVel, ref _movementVelocityRef, movementSmoothTime);
 
-        if (grounded && GetJumpPressed()) _verticalVelocity = jumpForce;
+        if (!_isBecoScavengerMode && grounded && GetJumpPressed()) _verticalVelocity = jumpForce;
         _verticalVelocity += gravity * Time.deltaTime;
 
         Vector3 move = _currentMovementVelocity;
@@ -1278,6 +1283,13 @@ public class UserImportedPlayerController : MonoBehaviour
     // ═══════════════════════════════════════════════════════════════════════════
     //  HELPERS
     // ═══════════════════════════════════════════════════════════════════════════
+    private static bool IsBecoScene(string sceneName)
+    {
+        return sceneName == BecoSceneName
+            || sceneName == BecoNoiteSceneName
+            || sceneName == BecoDiaSceneName;
+    }
+
     bool CheckEnemiesNearby()
     {
         const float radius = 20f;

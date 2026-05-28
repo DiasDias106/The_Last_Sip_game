@@ -94,7 +94,7 @@ public class MemoryPickup : MonoBehaviour, IInteractable
 
         if (!string.IsNullOrWhiteSpace(completedLevelSceneName))
         {
-            PlayerPrefs.SetInt(LevelCompletionState.GetKey(completedLevelSceneName), 1);
+            LevelCompletionState.SetCompleted(completedLevelSceneName, true);
         }
 
         GlobalSceneTransitionRequest.PendingSceneName = targetSceneName;
