@@ -17,6 +17,7 @@ public class MemoryVideoPlayer : MonoBehaviour
     private VideoPlayer    videoPlayer;
     private RenderTexture  renderTexture;
     private bool           isPlaying;
+    private System.Action  onVideoFinishedCallback;
 
     void Awake()
     {
@@ -63,16 +64,16 @@ public class MemoryVideoPlayer : MonoBehaviour
         var skipGO = new GameObject("SkipText");
         skipGO.transform.SetParent(videoPanel.transform, false);
         skipText = skipGO.AddComponent<Text>();
-        skipText.text = "Pressiona qualquer tecla para saltar";
+        skipText.text = "Pressiona ESPAÇO para saltar";
         skipText.alignment = TextAnchor.MiddleCenter;
-        skipText.color = new Color(1f, 1f, 1f, 0.7f);
-        skipText.fontSize = 18;
+        skipText.color = new Color(1f, 1f, 1f, 0.5f);
+        skipText.fontSize = 14;
         skipText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         var skipRect = skipGO.GetComponent<RectTransform>();
         skipRect.anchorMin = new Vector2(0, 0);
         skipRect.anchorMax = new Vector2(1, 0);
         skipRect.offsetMin = new Vector2(0, 0);
-        skipRect.offsetMax = new Vector2(0, 40);
+        skipRect.offsetMax = new Vector2(0, 30);
 
         videoPanel.SetActive(false);
     }
@@ -83,6 +84,7 @@ public class MemoryVideoPlayer : MonoBehaviour
         videoPlayer.playOnAwake   = false;
         videoPlayer.renderMode    = VideoRenderMode.RenderTexture;
         videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+        videoPlayer.timeReference = VideoTimeReference.Freerun; // Ignora o timeScale = 0
 
         var audioSource = gameObject.AddComponent<AudioSource>();
         videoPlayer.SetTargetAudioSource(0, audioSource);
@@ -103,7 +105,23 @@ public class MemoryVideoPlayer : MonoBehaviour
             return;
         }
 
+        videoPlayer.source = VideoSource.VideoClip;
         videoPlayer.clip = videoClips[slot];
+        videoDisplay.texture = renderTexture;
+        videoPanel.SetActive(true);
+        isPlaying = true;
+        Time.timeScale = 0f;
+        videoPlayer.Play();
+    }
+
+    public void PlayVideoByName(string videoFileName, System.Action onComplete = null)
+    {
+        onVideoFinishedCallback = onComplete;
+        
+        string pathStr = System.IO.Path.Combine(Application.dataPath, "videos", videoFileName + ".mp4");
+        videoPlayer.source = VideoSource.Url;
+        videoPlayer.url = pathStr;
+        
         videoDisplay.texture = renderTexture;
         videoPanel.SetActive(true);
         isPlaying = true;
@@ -113,7 +131,7 @@ public class MemoryVideoPlayer : MonoBehaviour
 
     void Update()
     {
-        if (isPlaying && Input.anyKeyDown)
+        if (isPlaying && UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame)
             CloseVideo();
     }
 
@@ -124,5 +142,9 @@ public class MemoryVideoPlayer : MonoBehaviour
         videoPlayer.Stop();
         videoPanel.SetActive(false);
         Time.timeScale = 1f;
+
+        var callback = onVideoFinishedCallback;
+        onVideoFinishedCallback = null;
+        callback?.Invoke();
     }
 }
