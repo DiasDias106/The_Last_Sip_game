@@ -44,8 +44,6 @@ public class UserImportedPlayerController : MonoBehaviour
     private bool  _comboQueued;
     private bool  _hitDealt;
     private bool  _isInvincible;
-    private float _lmbHoldTimer;
-    private bool  _heavyAttackTriggered;
     private bool  _isBlocking;
     private PlayerHealth _playerHealth;
 
@@ -357,29 +355,19 @@ public class UserImportedPlayerController : MonoBehaviour
         // Roll
         if (GetRollPressed() && grounded) { EnterRoll(); return; }
 
-        // Block (hold RMB)
+        // Block
         if (GetBlockHeld() && grounded && !IsPointerOverUI()) { EnterBlocking(); return; }
 
-        // Light / heavy attack — quick tap = light combo, hold 0.4s = heavy
-        if (GetAttackDown() && !IsPointerOverUI())
+        if (GetHeavyAttackPressed() && !IsPointerOverUI())
         {
-            _lmbHoldTimer         = 0f;
-            _heavyAttackTriggered = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible   = false;
+            _comboStep = 3;
+            EnterAttack();
+            return;
         }
-        if (GetAttackHeld() && !IsPointerOverUI())
-        {
-            _lmbHoldTimer += Time.deltaTime;
-            if (_lmbHoldTimer >= 0.4f && !_heavyAttackTriggered)
-            {
-                _heavyAttackTriggered = true;
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible   = false;
-                _comboStep = 3;
-                EnterAttack();
-                return;
-            }
-        }
-        if (GetAttackReleased() && !_heavyAttackTriggered && !IsPointerOverUI())
+
+        if (GetAttackPressed() && !IsPointerOverUI())
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible   = false;
@@ -387,7 +375,6 @@ public class UserImportedPlayerController : MonoBehaviour
             EnterAttack();
             return;
         }
-
         // Combat mode: active while enemies are nearby, lingers CombatExitDelay after they leave
         if (CheckEnemiesNearby())
         {
@@ -519,7 +506,7 @@ public class UserImportedPlayerController : MonoBehaviour
         }
 
         // Buffer next combo input (only for light attack chain, not heavy)
-        if (GetAttackDown() && _comboStep < 3 && !IsPointerOverUI()) _comboQueued = true;
+        if (GetAttackPressed() && _comboStep < 3 && !IsPointerOverUI()) _comboQueued = true;
 
         // Transition at 85% of clip
         float clipLen = _currentClip != null ? _currentClip.length : 0.7f;
@@ -1141,20 +1128,19 @@ public class UserImportedPlayerController : MonoBehaviour
     float GetAxis(string axis)
     {
 #if ENABLE_INPUT_SYSTEM
-        var kb = Keyboard.current;
-        if (kb == null) return 0f;
+        MovementKeyBindings.EnsureLoaded();
         if (axis == "H")
         {
             float v = 0f;
-            if (kb.aKey.isPressed || kb.leftArrowKey.isPressed)  v -= 1f;
-            if (kb.dKey.isPressed || kb.rightArrowKey.isPressed) v += 1f;
+            if (MovementKeyBindings.IsPressed(MovementKeyBindings.GameAction.Left) || Keyboard.current?.leftArrowKey.isPressed == true)  v -= 1f;
+            if (MovementKeyBindings.IsPressed(MovementKeyBindings.GameAction.Right) || Keyboard.current?.rightArrowKey.isPressed == true) v += 1f;
             return v;
         }
         else
         {
             float v = 0f;
-            if (kb.sKey.isPressed || kb.downArrowKey.isPressed)  v -= 1f;
-            if (kb.wKey.isPressed || kb.upArrowKey.isPressed)    v += 1f;
+            if (MovementKeyBindings.IsPressed(MovementKeyBindings.GameAction.Backward) || Keyboard.current?.downArrowKey.isPressed == true)  v -= 1f;
+            if (MovementKeyBindings.IsPressed(MovementKeyBindings.GameAction.Forward) || Keyboard.current?.upArrowKey.isPressed == true)    v += 1f;
             return v;
         }
 #else
@@ -1165,7 +1151,8 @@ public class UserImportedPlayerController : MonoBehaviour
     static bool GetRunHeld()
     {
 #if ENABLE_INPUT_SYSTEM
-        return Keyboard.current?.leftShiftKey.isPressed ?? false;
+        MovementKeyBindings.EnsureLoaded();
+        return MovementKeyBindings.IsPressed(MovementKeyBindings.GameAction.Run);
 #else
         return Input.GetKey(KeyCode.LeftShift);
 #endif
@@ -1174,13 +1161,14 @@ public class UserImportedPlayerController : MonoBehaviour
     static bool GetJumpPressed()
     {
 #if ENABLE_INPUT_SYSTEM
-        return Keyboard.current?.spaceKey.wasPressedThisFrame ?? false;
+        MovementKeyBindings.EnsureLoaded();
+        return MovementKeyBindings.WasPressedThisFrame(MovementKeyBindings.GameAction.Jump);
 #else
         return Input.GetButtonDown("Jump");
 #endif
     }
 
-    static bool GetAttackDown()
+    static bool GetAttackPressed()
     {
 #if ENABLE_INPUT_SYSTEM
         return Mouse.current?.leftButton.wasPressedThisFrame ?? false;
@@ -1189,37 +1177,30 @@ public class UserImportedPlayerController : MonoBehaviour
 #endif
     }
 
-    static bool GetAttackHeld()
+    static bool GetHeavyAttackPressed()
     {
 #if ENABLE_INPUT_SYSTEM
-        return Mouse.current?.leftButton.isPressed ?? false;
+        return Mouse.current?.rightButton.wasPressedThisFrame ?? false;
 #else
-        return Input.GetMouseButton(0);
-#endif
-    }
-
-    static bool GetAttackReleased()
-    {
-#if ENABLE_INPUT_SYSTEM
-        return Mouse.current?.leftButton.wasReleasedThisFrame ?? false;
-#else
-        return Input.GetMouseButtonUp(0);
+        return Input.GetMouseButtonDown(1);
 #endif
     }
 
     static bool GetBlockHeld()
     {
 #if ENABLE_INPUT_SYSTEM
-        return Mouse.current?.rightButton.isPressed ?? false;
+        MovementKeyBindings.EnsureLoaded();
+        return MovementKeyBindings.IsPressed(MovementKeyBindings.GameAction.Defend);
 #else
-        return Input.GetMouseButton(1);
+        return Input.GetKey(KeyCode.R);
 #endif
     }
 
     static bool GetRollPressed()
     {
 #if ENABLE_INPUT_SYSTEM
-        return Keyboard.current?.cKey.wasPressedThisFrame ?? false;
+        MovementKeyBindings.EnsureLoaded();
+        return MovementKeyBindings.WasPressedThisFrame(MovementKeyBindings.GameAction.Roll);
 #else
         return Input.GetKeyDown(KeyCode.C);
 #endif

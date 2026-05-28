@@ -12,7 +12,8 @@ public class PlayerInteractionDetector : MonoBehaviour
         IInteractable closest = GetClosestInteractable();
         if (closest != null)
         {
-            PlayerHUDController.Instance?.ShowInteractionPrompt("Pressiona F para interagir");
+            string keyName = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact);
+            PlayerHUDController.Instance?.ShowInteractionPrompt("Pressiona " + keyName + " para interagir");
         }
         else
         {
@@ -43,7 +44,8 @@ public class PlayerInteractionDetector : MonoBehaviour
     static bool GetInteractPressed()
     {
 #if ENABLE_INPUT_SYSTEM
-        return Keyboard.current?.fKey.wasPressedThisFrame ?? false;
+        MovementKeyBindings.EnsureLoaded();
+        return MovementKeyBindings.WasPressedThisFrame(MovementKeyBindings.GameAction.Interact);
 #else
         return Input.GetKeyDown(KeyCode.F);
 #endif

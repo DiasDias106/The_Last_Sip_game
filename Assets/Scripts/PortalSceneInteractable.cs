@@ -9,7 +9,7 @@ public class PortalSceneInteractable : MonoBehaviour
     [SerializeField] private string targetSceneName = "level_1";
     [SerializeField] private float interactionDistance = 5f;
     [SerializeField] private Vector3 promptOffset = new Vector3(0f, 1.7f, 0f);
-    [SerializeField] private string promptText = "F - Entrar portal";
+    [SerializeField] private string promptText = "Entrar portal";
     [SerializeField] private bool lockPortalWhenLevelCompleted = true;
     [SerializeField] private string lockedPromptText = "Nivel concluido";
     [SerializeField] private Color completedPortalColor = new Color(0.15f, 0.95f, 0.35f, 1f);
@@ -81,7 +81,7 @@ public class PortalSceneInteractable : MonoBehaviour
         }
 
         EnsureStyle();
-        string currentPrompt = _isLocked ? lockedPromptText : promptText;
+        string currentPrompt = _isLocked ? lockedPromptText : BuildPromptText();
         Vector2 size = _promptStyle.CalcSize(new GUIContent(currentPrompt));
         Rect rect = new Rect(screen.x - size.x * 0.5f, Screen.height - screen.y - size.y * 0.5f, size.x, size.y);
         GUI.Label(rect, currentPrompt, _promptStyle);
@@ -209,11 +209,18 @@ public class PortalSceneInteractable : MonoBehaviour
         return null;
     }
 
+    private string BuildPromptText()
+    {
+        string cleanPrompt = promptText ?? string.Empty;
+        cleanPrompt = cleanPrompt.Replace("F - ", string.Empty).Replace("E - ", string.Empty).Trim();
+        return MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - " + cleanPrompt;
+    }
+
     private static bool GetInteractPressed()
     {
 #if ENABLE_INPUT_SYSTEM
-        Keyboard kb = Keyboard.current;
-        return kb != null && kb.fKey.wasPressedThisFrame;
+        MovementKeyBindings.EnsureLoaded();
+        return MovementKeyBindings.WasPressedThisFrame(MovementKeyBindings.GameAction.Interact);
 #else
         return Input.GetKeyDown(KeyCode.F);
 #endif

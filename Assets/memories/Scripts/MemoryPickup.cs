@@ -19,7 +19,7 @@ public class MemoryPickup : MonoBehaviour, IInteractable
     public string targetSceneName = "masmorra_spawn";
     public string completedLevelSceneName = "level_1";
     public float blackFadeDuration = 0.28f;
-    public string interactionPromptText = "Pressiona F para interagir";
+    public string interactionPromptText = "Pressiona {0} para interagir";
 
     private Vector3 basePosition;
     private bool isTransitioning;
@@ -45,7 +45,7 @@ public class MemoryPickup : MonoBehaviour, IInteractable
         if (!other.CompareTag("Player")) return;
         if (CanInteract)
         {
-            PlayerHUDController.Instance?.ShowInteractionPrompt(interactionPromptText);
+            PlayerHUDController.Instance?.ShowInteractionPrompt(GetInteractionPromptText());
             showingOwnPrompt = true;
         }
     }
@@ -143,5 +143,18 @@ public class MemoryPickup : MonoBehaviour, IInteractable
         rect.anchorMax = Vector2.one;
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
+    }
+
+    private string GetInteractionPromptText()
+    {
+        string keyName = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact);
+        string prompt = interactionPromptText ?? "Pressiona {0} para interagir";
+        if (prompt.Contains("{0}"))
+        {
+            return string.Format(prompt, keyName);
+        }
+
+        prompt = prompt.Replace("Pressiona F", "Pressiona " + keyName).Replace("Pressiona E", "Pressiona " + keyName);
+        return prompt;
     }
 }
