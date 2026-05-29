@@ -42,20 +42,48 @@ public class PlayerInventory : MonoBehaviour
         onGemsChanged    ??= new UnityEvent<int>();
         onPotionsChanged ??= new UnityEvent<int, int, int>();
 
-        Coins        = startingCoins;
-        Gems         = startingGems;
-        RedPotions   = startingRedPotions;
-        BluePotions  = startingBluePotions;
-        GreenPotions = startingGreenPotions;
+        LoadFromPrefs();
     }
 
-    public void AddCoins(int amount)  { Coins += amount; onCoinsChanged?.Invoke(Coins); }
-    public void AddGems(int amount)   { Gems  += amount; onGemsChanged?.Invoke(Gems); }
+    public void LoadFromPrefs()
+    {
+        int slot = SaveManager.GetActiveSlot();
+        Coins = PlayerPrefs.GetInt($"Inv_Coins_{slot}", startingCoins);
+        Gems = PlayerPrefs.GetInt($"Inv_Gems_{slot}", startingGems);
+        RedPotions = PlayerPrefs.GetInt($"Inv_RedP_{slot}", startingRedPotions);
+        BluePotions = PlayerPrefs.GetInt($"Inv_BlueP_{slot}", startingBluePotions);
+        GreenPotions = PlayerPrefs.GetInt($"Inv_GreenP_{slot}", startingGreenPotions);
+    }
+
+    public void SaveToPrefs()
+    {
+        int slot = SaveManager.GetActiveSlot();
+        PlayerPrefs.SetInt($"Inv_Coins_{slot}", Coins);
+        PlayerPrefs.SetInt($"Inv_Gems_{slot}", Gems);
+        PlayerPrefs.SetInt($"Inv_RedP_{slot}", RedPotions);
+        PlayerPrefs.SetInt($"Inv_BlueP_{slot}", BluePotions);
+        PlayerPrefs.SetInt($"Inv_GreenP_{slot}", GreenPotions);
+        PlayerPrefs.Save();
+    }
+
+    public static void ClearPrefsForSlot(int slot)
+    {
+        PlayerPrefs.DeleteKey($"Inv_Coins_{slot}");
+        PlayerPrefs.DeleteKey($"Inv_Gems_{slot}");
+        PlayerPrefs.DeleteKey($"Inv_RedP_{slot}");
+        PlayerPrefs.DeleteKey($"Inv_BlueP_{slot}");
+        PlayerPrefs.DeleteKey($"Inv_GreenP_{slot}");
+        PlayerPrefs.Save();
+    }
+
+    public void AddCoins(int amount)  { Coins += amount; SaveToPrefs(); onCoinsChanged?.Invoke(Coins); }
+    public void AddGems(int amount)   { Gems  += amount; SaveToPrefs(); onGemsChanged?.Invoke(Gems); }
 
     public bool SpendCoins(int amount)
     {
         if (Coins < amount) return false;
         Coins -= amount;
+        SaveToPrefs();
         onCoinsChanged?.Invoke(Coins);
         return true;
     }
@@ -67,6 +95,7 @@ public class PlayerInventory : MonoBehaviour
         if (playerHealth == null || playerHealth.CurrentHealth >= playerHealth.maxHealth) return false;
 
         RedPotions--;
+        SaveToPrefs();
         playerHealth.Heal(RedPotionHealAmount);
         onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
         return true;
@@ -79,6 +108,7 @@ public class PlayerInventory : MonoBehaviour
         if (playerHealth == null || playerHealth.CurrentHealth >= playerHealth.maxHealth) return false;
 
         BluePotions--;
+        SaveToPrefs();
         playerHealth.Heal(BluePotionHealAmount);
         onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
         return true;
@@ -91,6 +121,7 @@ public class PlayerInventory : MonoBehaviour
         if (ph == null || ph.CurrentHealth >= ph.maxHealth) return false;
 
         GreenPotions--;
+        SaveToPrefs();
         ph.Heal(ph.maxHealth);
         onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
         return true;
@@ -103,18 +134,21 @@ public class PlayerInventory : MonoBehaviour
     public void AddRedPotion(int n = 1)
     {
         RedPotions = Mathf.Min(MaxPotionCount, RedPotions + Mathf.Max(0, n));
+        SaveToPrefs();
         onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
     }
 
     public void AddBluePotion(int n = 1)
     {
         BluePotions = Mathf.Min(MaxPotionCount, BluePotions + Mathf.Max(0, n));
+        SaveToPrefs();
         onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
     }
 
     public void AddGreenPotion(int n = 1)
     {
         GreenPotions = Mathf.Min(MaxPotionCount, GreenPotions + Mathf.Max(0, n));
+        SaveToPrefs();
         onPotionsChanged?.Invoke(RedPotions, BluePotions, GreenPotions);
     }
 }

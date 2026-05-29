@@ -99,6 +99,7 @@ public static class SaveManager
         int clamped = ClampSlot(slotIndex);
         LevelCompletionState.ClearForSlot(clamped);
         LevelCompletionState.ClearLegacyGlobal();
+        PlayerInventory.ClearPrefsForSlot(clamped);
 
         SaveSlotData data = new SaveSlotData
         {
@@ -113,6 +114,11 @@ public static class SaveManager
 
         SaveSlot(data);
         PlayerPrefs.Save();
+        
+        if (PlayerInventory.Instance != null && GetActiveSlot() == clamped)
+        {
+            PlayerInventory.Instance.LoadFromPrefs();
+        }
     }
 
     public static void SetActiveSlot(int slotIndex)

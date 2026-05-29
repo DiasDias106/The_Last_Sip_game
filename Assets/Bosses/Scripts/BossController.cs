@@ -261,6 +261,20 @@ public abstract class BossController : MonoBehaviour, IDamageable
             {
                 pickup.videoIndex = videoIndex;
                 pickup.completedLevelSceneName = SceneManager.GetActiveScene().name;
+                
+                // Define automaticamente o vídeo baseado na quantidade de níveis já concluídos
+                string sceneName = SceneManager.GetActiveScene().name;
+                
+                int completedOtherLevels = 0;
+                if (sceneName != "level_1" && LevelCompletionState.IsCompleted("level_1")) completedOtherLevels++;
+                if (sceneName != "level_2" && LevelCompletionState.IsCompleted("level_2")) completedOtherLevels++;
+                if (sceneName != "level_3" && LevelCompletionState.IsCompleted("level_3")) completedOtherLevels++;
+
+                int memoryNumber = completedOtherLevels + 1;
+                if (memoryNumber > 3) memoryNumber = 3;
+
+                pickup.videoFileName = $"{memoryNumber}_memoria_v2";
+                pickup.targetSceneName = "masmorra_spawn";
             }
         }
 
