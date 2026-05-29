@@ -4,7 +4,7 @@ public class DoorInteractable : MonoBehaviour
 {
     [SerializeField] private string doorGroupId = "level1_main_gate";
     [SerializeField] private float interactionDistance = 2.3f;
-    [SerializeField] private float openAngleY = 95f;
+    [SerializeField] private float openAngleY = -95f;
     [SerializeField] private float openSpeed = 3.5f;
     [SerializeField] private Vector3 promptOffset = new Vector3(0f, 1.7f, 0f);
     [SerializeField] private bool disableCollidersWhenOpen = true;

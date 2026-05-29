@@ -15,6 +15,8 @@ public class MemoryPickup : MonoBehaviour, IInteractable
 
     [Header("Interaction")]
     public bool loadSceneOnInteract = true;
+    public bool playVideoBeforeSceneLoad = true;
+    public string videoFileName = "1_memoria_v2";
     public string mainMenuSceneName = "MainMenuScene";
     public string targetSceneName = "masmorra_spawn";
     public string completedLevelSceneName = "level_1";
@@ -70,21 +72,77 @@ public class MemoryPickup : MonoBehaviour, IInteractable
             showingOwnPrompt = false;
         }
 
-        if (loadSceneOnInteract)
+        StartCoroutine(InteractionSequence());
+    }
+
+    private System.Collections.IEnumerator InteractionSequence()
+    {
+        isTransitioning = true;
+        
+        // 1. Melhorar a entrada: Fade to black antes do vídeo
+        yield return FadeToBlack();
+
+        // Esconder o modelo 3D da memória
+        foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = false;
+
+        // 2. Parar a música de fundo
+        var musicMgr = FindObjectOfType<GameMusicManager>();
+        if (musicMgr != null)
         {
-            StartCoroutine(LoadTargetSceneThroughMainMenu());
-            return;
+            musicMgr.StopAll();
         }
 
-        // Auto-spawn the video player manager if not present in scene
-        if (MemoryVideoPlayer.Instance == null)
+        // 3. Tocar vídeo e carregar cena em background
+        if (playVideoBeforeSceneLoad && !string.IsNullOrEmpty(videoFileName))
         {
-            var prefab = Resources.Load<GameObject>("MemoryVideoPlayer");
-            if (prefab != null) Instantiate(prefab);
-            else new GameObject("MemoryVideoPlayer").AddComponent<MemoryVideoPlayer>();
+            if (MemoryVideoPlayer.Instance == null)
+            {
+                var prefab = Resources.Load<GameObject>("MemoryVideoPlayer");
+                if (prefab != null) Instantiate(prefab);
+                else new GameObject("MemoryVideoPlayer").AddComponent<MemoryVideoPlayer>();
+            }
+
+            bool videoFinished = false;
+            MemoryVideoPlayer.Instance?.PlayVideoByName(videoFileName, () => 
+            {
+                videoFinished = true;
+            });
+
+            if (loadSceneOnInteract)
+            {
+                // Esperar que o vídeo acabe
+                while (!videoFinished)
+                {
+                    yield return null;
+                }
+                
+                // Quando o vídeo acabar, carrega através do ecrã de loading normal
+                yield return StartCoroutine(LoadTargetSceneThroughMainMenu());
+            }
+            else
+            {
+                while (!videoFinished) yield return null;
+                Destroy(gameObject);
+            }
         }
-        MemoryVideoPlayer.Instance?.PlayVideo(videoIndex);
-        Destroy(gameObject);
+        else
+        {
+            if (loadSceneOnInteract)
+            {
+                StartCoroutine(LoadTargetSceneThroughMainMenu());
+            }
+            else
+            {
+                if (MemoryVideoPlayer.Instance == null)
+                {
+                    var prefab = Resources.Load<GameObject>("MemoryVideoPlayer");
+                    if (prefab != null) Instantiate(prefab);
+                    else new GameObject("MemoryVideoPlayer").AddComponent<MemoryVideoPlayer>();
+                }
+                MemoryVideoPlayer.Instance?.PlayVideo(videoIndex);
+                Destroy(gameObject);
+            }
+        }
     }
 
     private System.Collections.IEnumerator LoadTargetSceneThroughMainMenu()
@@ -106,13 +164,16 @@ public class MemoryPickup : MonoBehaviour, IInteractable
     private System.Collections.IEnumerator FadeToBlack()
     {
         EnsureFadeOverlay();
+        if (fadeImage.color.a >= 1f) yield break;
+
         float elapsed = 0f;
-        Color color = fadeImage.color;
+        float startAlpha = fadeImage.color.a;
 
         while (elapsed < blackFadeDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            color.a = Mathf.Clamp01(elapsed / blackFadeDuration);
+            Color color = fadeImage.color;
+            color.a = Mathf.Lerp(startAlpha, 1f, elapsed / blackFadeDuration);
             fadeImage.color = color;
             yield return null;
         }
@@ -128,7 +189,7 @@ public class MemoryPickup : MonoBehaviour, IInteractable
         var canvasObject = new GameObject("MemoryTransitionFadeCanvas");
         fadeCanvas = canvasObject.AddComponent<Canvas>();
         fadeCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        fadeCanvas.sortingOrder = short.MaxValue;
+        fadeCanvas.sortingOrder = 90;
 
         canvasObject.AddComponent<CanvasScaler>();
         canvasObject.AddComponent<GraphicRaycaster>();
