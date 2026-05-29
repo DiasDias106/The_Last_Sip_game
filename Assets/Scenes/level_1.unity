@@ -138,7 +138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DoorInteractable
   doorGroupId: level1_gate_root
   interactionDistance: 2.5
-  openAngleY: -95
+  openAngleY: 95
   openSpeed: 3.5
   promptOffset: {x: 0, y: 1.7, z: 0}
   disableCollidersWhenOpen: 1
@@ -4782,7 +4782,7 @@ Transform:
   m_GameObject: {fileID: 129914258}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.645502, y: 3.21, z: -34.575}
+  m_LocalPosition: {x: 2.645502, y: 3.21, z: -35.574997}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6726,7 +6726,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DoorInteractable
   doorGroupId: level1_gate_env
   interactionDistance: 2.5
-  openAngleY: 95
+  openAngleY: -95
   openSpeed: 3.5
   promptOffset: {x: 0, y: 1.7, z: 0}
   disableCollidersWhenOpen: 1
@@ -18077,7 +18077,7 @@ Transform:
   m_GameObject: {fileID: 471501293}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -7.354497, y: 3.21, z: -44.575}
+  m_LocalPosition: {x: -7.354497, y: 3.21, z: -45.574997}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -23522,7 +23522,7 @@ Transform:
   m_GameObject: {fileID: 591365174}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.645502, y: 3.21, z: -44.575}
+  m_LocalPosition: {x: 2.645502, y: 3.21, z: -45.574997}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -42724,7 +42724,7 @@ Transform:
   m_GameObject: {fileID: 1002018210}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -7.354497, y: 3.21, z: -34.575}
+  m_LocalPosition: {x: -7.354497, y: 3.21, z: -35.574997}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -63305,7 +63305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DoorInteractable
   doorGroupId: level1_gate_root
   interactionDistance: 2.5
-  openAngleY: 95
+  openAngleY: -95
   openSpeed: 3.5
   promptOffset: {x: 0, y: 1.7, z: 0}
   disableCollidersWhenOpen: 1
@@ -82465,7 +82465,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DoorInteractable
   doorGroupId: level1_gate_env
   interactionDistance: 2.5
-  openAngleY: -95
+  openAngleY: 95
   openSpeed: 3.5
   promptOffset: {x: 0, y: 1.7, z: 0}
   disableCollidersWhenOpen: 1

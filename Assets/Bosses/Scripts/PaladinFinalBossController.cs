@@ -323,6 +323,7 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
             if (pickup != null)
             {
                 pickup.videoIndex = memoryVideoIndex;
+                pickup.videoFileName = "4_memoria_completa_fim_v2";
                 pickup.targetSceneName = memoryTargetScene;
                 pickup.completedLevelSceneName = "boss_room";
                 pickup.loadSceneOnInteract = true;
