@@ -19,8 +19,8 @@ public static class MainMenuSceneBuilder
     private const string MusicPath = "Assets/Audio/ImportedFromZip/Audio/";
     private const bool CreateDecorationsByDefault = false;
 
-    // O ecrã está finalizado, ferramenta removida do menu para evitar cliques acidentais
-    // [MenuItem("Tools/The Last Sip/Build Main Menu Scene")]
+    // O ecrã está finalizado, mas foi reativado para regenerar os créditos
+    [MenuItem("Tools/The Last Sip/Build Main Menu Scene")]
     public static void BuildMainMenuScene()
     {
         ConfigureSprites();
