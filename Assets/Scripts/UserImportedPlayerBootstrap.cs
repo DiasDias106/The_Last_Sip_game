@@ -11,12 +11,16 @@ public static class UserImportedPlayerBootstrap
     private const string Level3SceneName = "level_3";
     private const string BossRoomSceneName = "boss_room";
     private const string BecoSceneName = "beco";
+    private const string BecoNoiteSceneName = "beco_noite";
+    private const string BecoDiaSceneName = "beco_dia";
     private const string DungeonSpawnSceneName = "masmorra_spawn";
+    private const string TavernSpawnFloorName = "P_MOD_Floor_01_O_straight_med (171)";
     private const string CharacterResourcePath = "UserImportedCharacter/Paladin WProp J Nordstrom";
     private const string ScavengerPrefabPath = "Assets/Homeless_people/Free_Scavenger/Prefab/Scavenger Variant.prefab";
     private const string BottlePrefabPath = "Assets/Fantastic Dungeon Pack/prefabs/PROPS/containers/bottles/P_PROP_bottle_dungeon_05.prefab";
     private static readonly Vector3 FallbackSpawn = new Vector3(-8.48f, 2.2f, 69.553f);
     private static readonly Vector3 BecoFallbackSpawn = new Vector3(0f, 1.2f, 0f);
+    private static readonly Vector3 TavernSpawnFallback = new Vector3(4.5f, 1.2f, -2.5f);
     private static bool _levelCollidersEnsured;
     private static bool _sceneHookRegistered;
 
@@ -57,10 +61,10 @@ public static class UserImportedPlayerBootstrap
         }
 
         EnsurePlayerSpawned();
-        EnsureHUDSpawned();
+        EnsureHUDStateForScene(sceneName);
 
 #if UNITY_EDITOR
-        if (sceneName == BecoSceneName)
+        if (IsBecoScene(sceneName))
         {
             SetupBecoEncounter();
         }
@@ -121,7 +125,7 @@ public static class UserImportedPlayerBootstrap
         EnsureEventSystem();
         HideScenePreviewCharacter();
 
-        bool useScavengerVisual = currentScene == BecoSceneName;
+        bool useScavengerVisual = IsBecoScene(currentScene);
         GameObject modelPrefab = LoadPlayerVisualPrefab(useScavengerVisual);
         if (modelPrefab == null)
         {
@@ -231,7 +235,7 @@ public static class UserImportedPlayerBootstrap
         return IsGameplayLevelScene(sceneName)
             || sceneName == BossRoomSceneName
             || sceneName == DungeonSpawnSceneName
-            || sceneName == BecoSceneName;
+            || IsBecoScene(sceneName);
     }
 
     private static void HideScenePreviewCharacter()
@@ -390,7 +394,14 @@ public static class UserImportedPlayerBootstrap
             return preview.transform.position + Vector3.up * 0.1f;
         }
 
-        if (sceneName == BecoSceneName && TryGetSpawnFromMainCamera(out Vector3 cameraSpawn, out Quaternion cameraRotation))
+        if (sceneName == DungeonSpawnSceneName && TryGetTavernSpawnPoint(out Vector3 tavernSpawn, out Quaternion tavernRot))
+        {
+            fromBase = false;
+            rot = tavernRot;
+            return tavernSpawn;
+        }
+
+        if (IsBecoScene(sceneName) && TryGetSpawnFromMainCamera(out Vector3 cameraSpawn, out Quaternion cameraRotation))
         {
             fromBase = false;
             rot = cameraRotation;
@@ -398,7 +409,41 @@ public static class UserImportedPlayerBootstrap
         }
 
         fromBase = false;
-        return sceneName == BecoSceneName ? BecoFallbackSpawn : FallbackSpawn;
+        if (sceneName == DungeonSpawnSceneName)
+        {
+            return TavernSpawnFallback;
+        }
+
+        return IsBecoScene(sceneName) ? BecoFallbackSpawn : FallbackSpawn;
+    }
+
+    private static bool TryGetTavernSpawnPoint(out Vector3 spawn, out Quaternion rot)
+    {
+        GameObject spawnFloor = GameObject.Find(TavernSpawnFloorName);
+        if (spawnFloor != null)
+        {
+            spawn = spawnFloor.transform.position + Vector3.up * 0.1f;
+            rot = Quaternion.Euler(0f, 180f, 0f);
+            return true;
+        }
+
+        GameObject shop = GameObject.Find("Cylinder.155");
+        if (shop == null)
+        {
+            spawn = TavernSpawnFallback;
+            rot = Quaternion.Euler(0f, 180f, 0f);
+            return false;
+        }
+
+        Vector3 forward = Vector3.ProjectOnPlane(shop.transform.forward, Vector3.up).normalized;
+        if (forward.sqrMagnitude < 0.001f)
+        {
+            forward = Vector3.forward;
+        }
+
+        spawn = shop.transform.position + forward * 2.2f + Vector3.up * 0.1f;
+        rot = Quaternion.LookRotation(forward, Vector3.up);
+        return true;
     }
 
     private static bool TryGetSpawnFromMainCamera(out Vector3 spawn, out Quaternion rot)
@@ -484,18 +529,44 @@ public static class UserImportedPlayerBootstrap
         Debug.Log("[UserImportedPlayerBootstrap] Added EventSystem because none was found in the scene.");
     }
 
-    private static void EnsureHUDSpawned()
+    private static void EnsureHUDStateForScene(string sceneName)
     {
-        if (PlayerHUDController.Instance != null) return;
+        bool shouldShowHud = IsArmoredPlayableScene(sceneName);
 
-        var hudGo = new GameObject("PlayerHUD");
-        hudGo.AddComponent<PlayerHUDController>();
+        if (!shouldShowHud)
+        {
+            if (PlayerHUDController.Instance != null)
+            {
+                Object.Destroy(PlayerHUDController.Instance.gameObject);
+            }
+
+            if (PlayerInventory.Instance != null)
+            {
+                Object.Destroy(PlayerInventory.Instance.gameObject);
+            }
+            return;
+        }
+
+        if (PlayerHUDController.Instance == null)
+        {
+            var hudGo = new GameObject("PlayerHUD");
+            hudGo.AddComponent<PlayerHUDController>();
+        }
 
         if (PlayerInventory.Instance == null)
         {
             var invGo = new GameObject("PlayerInventory");
             invGo.AddComponent<PlayerInventory>();
         }
+    }
+
+    private static bool IsArmoredPlayableScene(string sceneName)
+    {
+        return sceneName == SceneName
+            || sceneName == Level2SceneName
+            || sceneName == Level3SceneName
+            || sceneName == BossRoomSceneName
+            || sceneName == DungeonSpawnSceneName;
     }
 
     private static void SetupTavernShop()
@@ -516,12 +587,21 @@ public static class UserImportedPlayerBootstrap
         {
             Debug.LogWarning("[UserImportedPlayerBootstrap] Cylinder.155 not found in masmorra_spawn!");
         }
+
+        // Portal is now authored directly in scene by level design.
+    }
+
+    private static bool IsBecoScene(string sceneName)
+    {
+        return sceneName == BecoSceneName
+            || sceneName == BecoNoiteSceneName
+            || sceneName == BecoDiaSceneName;
     }
 
 #if UNITY_EDITOR
     private static void SetupBecoEncounter()
     {
-        if (SceneManager.GetActiveScene().name != BecoSceneName)
+        if (!IsBecoScene(SceneManager.GetActiveScene().name))
         {
             return;
         }

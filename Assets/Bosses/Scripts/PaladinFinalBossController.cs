@@ -13,8 +13,9 @@ using UnityEditor;
 public class PaladinFinalBossController : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
-    [SerializeField] private float maxHealth = 400f;
-    [SerializeField] private float attackDamage = 28f;
+    [SerializeField] private float maxHealth = 200f;
+    [SerializeField] private float maxArmor = 200f;
+    [SerializeField] private float attackDamage = 18f;
     [SerializeField] private float moveSpeed = 4.2f;
     [SerializeField] private float attackCooldown = 1.9f;
 
@@ -31,6 +32,11 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
     [SerializeField] private float hitReactTime = 0.45f;
     [SerializeField] private float deathAnimTime = 1.5f;
 
+    [Header("Memory Drop")]
+    [SerializeField] private GameObject memoryPrefab;
+    [SerializeField] private int memoryVideoIndex = 4;
+    [SerializeField] private string memoryTargetScene = "beco_dia";
+
     private readonly Dictionary<string, AnimationClip> clips = new Dictionary<string, AnimationClip>();
 
     private Transform visualRoot;
@@ -38,6 +44,7 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
     private CapsuleCollider bodyCollider;
     private Transform player;
     private float currentHealth;
+    private float currentArmor;
     private float attackTimer;
     private bool isDead;
     private bool isAttacking;
@@ -62,6 +69,7 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         bodyCollider = GetComponent<CapsuleCollider>();
         visualRoot = transform.Find("Visual");
         currentHealth = maxHealth;
+        currentArmor = maxArmor;
 
         agent.speed = moveSpeed;
         agent.angularSpeed = 420f;
@@ -83,9 +91,18 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         }
 
         ApplyBossMaterials();
+        EnsureBossHud();
+        BossHUDController.Instance?.Hide();
         LoadClips();
         EnsureAnimationGraph();
         PlayClip("idle");
+
+#if UNITY_EDITOR
+        if (memoryPrefab == null)
+        {
+            memoryPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/memories/Prefabs/MemoryPickup.prefab");
+        }
+#endif
     }
 
     private void Update()
@@ -175,7 +192,20 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
             return;
         }
 
-        currentHealth -= amount;
+        float remainingDamage = amount;
+        if (currentArmor > 0f)
+        {
+            float absorbed = Mathf.Min(currentArmor, remainingDamage);
+            currentArmor -= absorbed;
+            remainingDamage -= absorbed;
+        }
+
+        if (remainingDamage > 0f)
+        {
+            currentHealth -= remainingDamage;
+        }
+
+        BossHUDController.Instance?.RefreshWithArmor(currentHealth, maxHealth, currentArmor, maxArmor);
         if (currentHealth <= 0f)
         {
             currentHealth = 0f;
@@ -234,6 +264,23 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
 
         PlayClip("death");
         yield return new WaitForSeconds(deathAnimTime);
+
+        if (memoryPrefab != null)
+        {
+            Vector3 spawnPos = transform.position + Vector3.up * 1f;
+            GameObject mem = Instantiate(memoryPrefab, spawnPos, Quaternion.identity);
+            MemoryPickup pickup = mem.GetComponent<MemoryPickup>();
+            if (pickup != null)
+            {
+                pickup.videoIndex = memoryVideoIndex;
+                pickup.targetSceneName = memoryTargetScene;
+                pickup.completedLevelSceneName = "boss_room";
+                pickup.loadSceneOnInteract = true;
+            }
+        }
+
+        BossHUDController.Instance?.Hide();
+        Destroy(gameObject);
     }
 
     private void DealDamage()
@@ -268,6 +315,9 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         if (playerObject != null)
         {
             player = playerObject.transform;
+            EnsureBossHud();
+            BossHUDController.Instance?.Show();
+            BossHUDController.Instance?.RefreshWithArmor(currentHealth, maxHealth, currentArmor, maxArmor);
         }
     }
 
@@ -546,6 +596,17 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         {
             playableGraph.Destroy();
         }
+    }
+
+    private static void EnsureBossHud()
+    {
+        if (BossHUDController.Instance != null)
+        {
+            return;
+        }
+
+        var hudObject = new GameObject("BossHUD");
+        hudObject.AddComponent<BossHUDController>();
     }
 
     private void OnDrawGizmosSelected()

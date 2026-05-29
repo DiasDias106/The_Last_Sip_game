@@ -81,7 +81,7 @@ public class DoorInteractor : MonoBehaviour
         }
 
         EnsureStyle();
-        const string text = "F - Interagir";
+        string text = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - Interagir";
         Vector2 size = _promptStyle.CalcSize(new GUIContent(text));
         Rect rect = new Rect(screen.x - size.x * 0.5f, Screen.height - screen.y - size.y * 0.5f, size.x, size.y);
         GUI.Label(rect, text, _promptStyle);
@@ -104,8 +104,8 @@ public class DoorInteractor : MonoBehaviour
     private static bool GetInteractPressed()
     {
 #if ENABLE_INPUT_SYSTEM
-        Keyboard kb = Keyboard.current;
-        return kb != null && kb.fKey.wasPressedThisFrame;
+        MovementKeyBindings.EnsureLoaded();
+        return MovementKeyBindings.WasPressedThisFrame(MovementKeyBindings.GameAction.Interact);
 #else
         return Input.GetKeyDown(KeyCode.F);
 #endif

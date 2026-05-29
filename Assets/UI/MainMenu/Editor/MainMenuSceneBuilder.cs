@@ -482,11 +482,8 @@ public static class MainMenuSceneBuilder
 
         GameObject controlsSection = CreateUIObject("ControlsSection", sectionsRoot.transform);
         StretchFull(RectOf(controlsSection));
-        CreateSelectorRow(controlsSection.transform, "ForwardRow", "ANDAR PARA A FRENTE", "W", 0, tmpFont, out Button forwardButton, out TMP_Text forwardValueText);
-        CreateSelectorRow(controlsSection.transform, "LeftRow", "ANDAR PARA A ESQUERDA", "A", 1, tmpFont, out Button leftButton, out TMP_Text leftValueText);
-        CreateSelectorRow(controlsSection.transform, "BackRow", "ANDAR PARA TRÁS", "S", 2, tmpFont, out Button backMoveButton, out TMP_Text backMoveValueText);
-        CreateSelectorRow(controlsSection.transform, "RightRow", "ANDAR PARA A DIREITA", "D", 3, tmpFont, out Button rightButton, out TMP_Text rightValueText);
-        CreateSelectorRow(controlsSection.transform, "RunRow", "CORRER", "SHIFT", 4, tmpFont, out Button runButton, out TMP_Text runValueText);
+        BuildControlsSection(controlsSection.transform, tmpFont);
+
 
         GameObject languageSection = CreateUIObject("LanguageSection", sectionsRoot.transform);
         StretchFull(RectOf(languageSection));
@@ -1013,6 +1010,47 @@ public static class MainMenuSceneBuilder
         TMP_Text arrow = AddText(arrowGo, ">", tmpFont, 18, FontStyles.Bold, TextAlignmentOptions.Center, new Color32(185, 171, 148, 255));
         ConfigureSingleLineText(arrow, 14f, 18f, TextOverflowModes.Truncate);
         RectOf(arrowGo).localRotation = Quaternion.Euler(0f, 0f, 90f);
+    }
+
+    private static void BuildControlsSection(Transform parent, TMP_FontAsset tmpFont)
+    {
+        GameObject viewportGo = CreateUIObject("ControlsViewport", parent);
+        StretchFull(RectOf(viewportGo));
+        Image viewportImage = AddImage(viewportGo, null, new Color(0f, 0f, 0f, 0.001f), false);
+        viewportImage.raycastTarget = true;
+        Mask mask = viewportGo.AddComponent<Mask>();
+        mask.showMaskGraphic = false;
+
+        GameObject contentGo = CreateUIObject("ControlsContent", viewportGo.transform);
+        RectTransform contentRect = RectOf(contentGo);
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = new Vector2(0f, 1f);
+        contentRect.pivot = new Vector2(0f, 1f);
+        contentRect.anchoredPosition = Vector2.zero;
+        contentRect.sizeDelta = new Vector2(780f, 770f);
+        contentRect.localScale = Vector3.one;
+
+        CreateSelectorRow(contentGo.transform, "ForwardRow", "ANDAR PARA A FRENTE", "W", 0, tmpFont, out _, out _);
+        CreateSelectorRow(contentGo.transform, "LeftRow", "ANDAR PARA A ESQUERDA", "A", 1, tmpFont, out _, out _);
+        CreateSelectorRow(contentGo.transform, "BackRow", "ANDAR PARA TRÃS", "S", 2, tmpFont, out _, out _);
+        CreateSelectorRow(contentGo.transform, "RightRow", "ANDAR PARA A DIREITA", "D", 3, tmpFont, out _, out _);
+        CreateSelectorRow(contentGo.transform, "RunRow", "CORRER", "SHIFT", 4, tmpFont, out _, out _);
+        CreateSelectorRow(contentGo.transform, "InteractRow", "INTERACAO", "F", 5, tmpFont, out _, out _);
+        CreateSelectorRow(contentGo.transform, "AttackRow", "ATAQUE", "J", 6, tmpFont, out _, out _);
+        CreateSelectorRow(contentGo.transform, "HeavyAttackRow", "ATAQUE PESADO", "K", 7, tmpFont, out _, out _);
+        CreateSelectorRow(contentGo.transform, "DefendRow", "DEFENDER", "L", 8, tmpFont, out _, out _);
+        CreateSelectorRow(contentGo.transform, "JumpRow", "SALTAR", "SPACE", 9, tmpFont, out _, out _);
+        CreateSelectorRow(contentGo.transform, "RollRow", "REBOLAR", "C", 10, tmpFont, out _, out _);
+
+        ScrollRect scrollRect = parent.gameObject.AddComponent<ScrollRect>();
+        scrollRect.viewport = RectOf(viewportGo);
+        scrollRect.content = contentRect;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+        scrollRect.inertia = true;
+        scrollRect.scrollSensitivity = 36f;
+        scrollRect.verticalNormalizedPosition = 1f;
     }
 
     private static void BuildSpinnerDots(Transform parent)

@@ -65,7 +65,19 @@ public class PlayerHUDController : MonoBehaviour
     void OnEnable()  => SceneManager.sceneLoaded += OnSceneLoaded;
     void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode) => StartCoroutine(LateSubscribe());
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "MainMenuScene"
+            || scene.name == "beco"
+            || scene.name == "beco_noite"
+            || scene.name == "beco_dia")
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        StartCoroutine(LateSubscribe());
+    }
 
     void Start() => StartCoroutine(LateSubscribe());
 

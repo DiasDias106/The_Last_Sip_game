@@ -5760,8 +5760,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c3274fb6e9331b4cbcc0b20f8ac4cf0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaladinFinalBossController
-  maxHealth: 400
-  attackDamage: 28
+  maxHealth: 200
+  maxArmor: 200
+  attackDamage: 18
   moveSpeed: 4.2
   attackCooldown: 1.9
   detectionRange: 8.5
@@ -5773,6 +5774,9 @@ MonoBehaviour:
   attackAnimTime: 0.9
   hitReactTime: 0.45
   deathAnimTime: 1.5
+  memoryPrefab: {fileID: 5033399264205613723, guid: fbb922db5af68484c9f15f31af2ce4d3, type: 3}
+  memoryVideoIndex: 4
+  memoryTargetScene: beco_dia
 --- !u!136 &432842064
 CapsuleCollider:
   m_ObjectHideFlags: 0

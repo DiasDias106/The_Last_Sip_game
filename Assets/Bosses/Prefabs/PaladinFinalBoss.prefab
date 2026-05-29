@@ -92,8 +92,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c3274fb6e9331b4cbcc0b20f8ac4cf0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PaladinFinalBossController
-  maxHealth: 400
-  attackDamage: 28
+  maxHealth: 200
+  maxArmor: 200
+  attackDamage: 18
   moveSpeed: 4.2
   attackCooldown: 1.9
   detectionRange: 8.5

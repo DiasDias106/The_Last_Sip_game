@@ -97,6 +97,9 @@ public static class SaveManager
     public static void CreateNewGame(int slotIndex)
     {
         int clamped = ClampSlot(slotIndex);
+        LevelCompletionState.ClearForSlot(clamped);
+        LevelCompletionState.ClearLegacyGlobal();
+
         SaveSlotData data = new SaveSlotData
         {
             slotIndex = clamped,
@@ -109,6 +112,7 @@ public static class SaveManager
         };
 
         SaveSlot(data);
+        PlayerPrefs.Save();
     }
 
     public static void SetActiveSlot(int slotIndex)

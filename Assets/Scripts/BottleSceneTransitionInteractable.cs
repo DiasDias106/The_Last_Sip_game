@@ -12,7 +12,7 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     [SerializeField] private float interactionDistance = 2.1f;
     [SerializeField] private float blackScreenDuration = 2f;
     [SerializeField] private Vector3 promptOffset = new Vector3(0f, 0.35f, 0f);
-    [SerializeField] private string promptText = "F - Apanhar garrafa";
+    [SerializeField] private string promptText = "Apanhar garrafa";
     [SerializeField] private AnimationClip drinkIntroClip;
     [SerializeField] private AnimationClip drinkLoopClip;
     [SerializeField] private AnimationClip collapseClip;
@@ -90,9 +90,10 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         }
 
         EnsureStyle();
-        Vector2 size = _promptStyle.CalcSize(new GUIContent(promptText));
+        string fullPrompt = BuildPromptText();
+        Vector2 size = _promptStyle.CalcSize(new GUIContent(fullPrompt));
         Rect rect = new Rect(screen.x - size.x * 0.5f, Screen.height - screen.y - size.y * 0.5f, size.x, size.y);
-        GUI.Label(rect, promptText, _promptStyle);
+        GUI.Label(rect, fullPrompt, _promptStyle);
     }
 
     private void StartTransition()
@@ -225,11 +226,18 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         _promptStyle.alignment = TextAnchor.MiddleCenter;
     }
 
+    private string BuildPromptText()
+    {
+        string cleanPrompt = promptText ?? string.Empty;
+        cleanPrompt = cleanPrompt.Replace("F - ", string.Empty).Replace("E - ", string.Empty).Trim();
+        return MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - " + cleanPrompt;
+    }
+
     private static bool GetInteractPressed()
     {
 #if ENABLE_INPUT_SYSTEM
-        Keyboard kb = Keyboard.current;
-        return kb != null && kb.fKey.wasPressedThisFrame;
+        MovementKeyBindings.EnsureLoaded();
+        return MovementKeyBindings.WasPressedThisFrame(MovementKeyBindings.GameAction.Interact);
 #else
         return Input.GetKeyDown(KeyCode.F);
 #endif

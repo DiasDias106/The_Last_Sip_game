@@ -9,8 +9,10 @@ public class PortalSceneInteractable : MonoBehaviour
     [SerializeField] private string targetSceneName = "level_1";
     [SerializeField] private float interactionDistance = 5f;
     [SerializeField] private Vector3 promptOffset = new Vector3(0f, 1.7f, 0f);
-    [SerializeField] private string promptText = "F - Entrar portal";
+    [SerializeField] private string promptText = "Entrar portal";
     [SerializeField] private bool lockPortalWhenLevelCompleted = true;
+    [SerializeField] private bool requireAllPrimaryLevelsCompleted;
+    [SerializeField] private bool hideVortexWhenLocked = true;
     [SerializeField] private string lockedPromptText = "Nivel concluido";
     [SerializeField] private Color completedPortalColor = new Color(0.15f, 0.95f, 0.35f, 1f);
     [SerializeField] private Color completedEmissionColor = new Color(0.1f, 1f, 0.25f, 1f);
@@ -21,6 +23,7 @@ public class PortalSceneInteractable : MonoBehaviour
     private bool _isPlayerNear;
     private bool _transitionStarted;
     private bool _isLocked;
+    private static readonly string[] PrimaryLevelScenes = { "level_1", "level_2", "level_3" };
 
     private void Awake()
     {
@@ -81,7 +84,7 @@ public class PortalSceneInteractable : MonoBehaviour
         }
 
         EnsureStyle();
-        string currentPrompt = _isLocked ? lockedPromptText : promptText;
+        string currentPrompt = _isLocked ? lockedPromptText : BuildPromptText();
         Vector2 size = _promptStyle.CalcSize(new GUIContent(currentPrompt));
         Rect rect = new Rect(screen.x - size.x * 0.5f, Screen.height - screen.y - size.y * 0.5f, size.x, size.y);
         GUI.Label(rect, currentPrompt, _promptStyle);
@@ -132,13 +135,63 @@ public class PortalSceneInteractable : MonoBehaviour
 
     private void RefreshCompletionState()
     {
-        _isLocked = lockPortalWhenLevelCompleted
-            && !string.IsNullOrWhiteSpace(targetSceneName)
-            && PlayerPrefs.GetInt(LevelCompletionState.GetKey(targetSceneName), 0) == 1;
-
-        if (_isLocked)
+        bool gateByAllLevels = requireAllPrimaryLevelsCompleted || IsFinalBossPortal();
+        if (gateByAllLevels)
         {
-            ApplyCompletedVisual();
+            _isLocked = !ArePrimaryLevelsCompleted();
+            ApplyBossPortalLockVisual(_isLocked);
+        }
+        else
+        {
+            _isLocked = lockPortalWhenLevelCompleted
+                && !string.IsNullOrWhiteSpace(targetSceneName)
+                && LevelCompletionState.IsCompleted(targetSceneName);
+            if (_isLocked)
+            {
+                ApplyCompletedVisual();
+            }
+        }
+    }
+
+    private bool IsFinalBossPortal()
+    {
+        return !string.IsNullOrWhiteSpace(targetSceneName)
+               && targetSceneName.Trim().ToLowerInvariant() == "boss_room";
+    }
+
+    private static bool ArePrimaryLevelsCompleted()
+    {
+        for (int i = 0; i < PrimaryLevelScenes.Length; i++)
+        {
+            if (!LevelCompletionState.IsCompleted(PrimaryLevelScenes[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void ApplyBossPortalLockVisual(bool locked)
+    {
+        if (!hideVortexWhenLocked)
+        {
+            return;
+        }
+
+        Transform portalCenter = transform.Find("Portal.obj.cleaner.materialmerger.gles/centro_vortice");
+        if (portalCenter == null)
+        {
+            return;
+        }
+
+        Renderer[] renderers = portalCenter.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+            {
+                renderers[i].enabled = !locked;
+            }
         }
     }
 
@@ -209,11 +262,18 @@ public class PortalSceneInteractable : MonoBehaviour
         return null;
     }
 
+    private string BuildPromptText()
+    {
+        string cleanPrompt = promptText ?? string.Empty;
+        cleanPrompt = cleanPrompt.Replace("F - ", string.Empty).Replace("E - ", string.Empty).Trim();
+        return MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - " + cleanPrompt;
+    }
+
     private static bool GetInteractPressed()
     {
 #if ENABLE_INPUT_SYSTEM
-        Keyboard kb = Keyboard.current;
-        return kb != null && kb.fKey.wasPressedThisFrame;
+        MovementKeyBindings.EnsureLoaded();
+        return MovementKeyBindings.WasPressedThisFrame(MovementKeyBindings.GameAction.Interact);
 #else
         return Input.GetKeyDown(KeyCode.F);
 #endif

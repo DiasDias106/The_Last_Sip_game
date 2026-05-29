@@ -45,7 +45,7 @@ public class ShopInteractable : MonoBehaviour
         }
 
         EnsureStyle();
-        const string text = "E - Abrir Loja";
+        string text = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - Abrir Loja";
         Vector2 size = _promptStyle.CalcSize(new GUIContent(text));
         
         Vector2 screenPos;
@@ -85,10 +85,10 @@ public class ShopInteractable : MonoBehaviour
     private static bool GetInteractPressed()
     {
 #if ENABLE_INPUT_SYSTEM
-        Keyboard kb = Keyboard.current;
-        return kb != null && kb.eKey.wasPressedThisFrame;
+        MovementKeyBindings.EnsureLoaded();
+        return MovementKeyBindings.WasPressedThisFrame(MovementKeyBindings.GameAction.Interact);
 #else
-        return Input.GetKeyDown(KeyCode.E);
+        return Input.GetKeyDown(KeyCode.F);
 #endif
     }
 }

@@ -501,6 +501,11 @@ public sealed class MainMenuController : MonoBehaviour
 
     private string ResolveSceneName(string sceneName)
     {
+        if (string.IsNullOrWhiteSpace(sceneName))
+        {
+            sceneName = defaultGameSceneName;
+        }
+
         if (Application.CanStreamedLevelBeLoaded(sceneName))
         {
             return sceneName;
@@ -516,6 +521,20 @@ public sealed class MainMenuController : MonoBehaviour
         if (Application.CanStreamedLevelBeLoaded(upper))
         {
             return upper;
+        }
+
+        // Scene aliases after beco split/rename.
+        if (lower == "beco")
+        {
+            if (Application.CanStreamedLevelBeLoaded("beco_noite"))
+            {
+                return "beco_noite";
+            }
+
+            if (Application.CanStreamedLevelBeLoaded("beco_dia"))
+            {
+                return "beco_dia";
+            }
         }
 
         return sceneName;

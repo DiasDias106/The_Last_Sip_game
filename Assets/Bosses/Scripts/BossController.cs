@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 [RequireComponent(typeof(NavMeshAgent))]
@@ -256,7 +257,11 @@ public abstract class BossController : MonoBehaviour, IDamageable
             var spawnPos = transform.position + Vector3.up * 1f;
             var mem = Instantiate(memoryPrefab, spawnPos, Quaternion.identity);
             var pickup = mem.GetComponent<MemoryPickup>();
-            if (pickup != null) pickup.videoIndex = videoIndex;
+            if (pickup != null)
+            {
+                pickup.videoIndex = videoIndex;
+                pickup.completedLevelSceneName = SceneManager.GetActiveScene().name;
+            }
         }
 
         Destroy(gameObject);
