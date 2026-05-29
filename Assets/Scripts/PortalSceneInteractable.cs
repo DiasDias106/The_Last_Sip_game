@@ -24,6 +24,7 @@ public class PortalSceneInteractable : MonoBehaviour
     private bool _transitionStarted;
     private bool _isLocked;
     private static readonly string[] PrimaryLevelScenes = { "level_1", "level_2", "level_3" };
+    private const float PromptMaxWidth = 220f;
 
     private void Awake()
     {
@@ -85,8 +86,10 @@ public class PortalSceneInteractable : MonoBehaviour
 
         EnsureStyle();
         string currentPrompt = _isLocked ? lockedPromptText : BuildPromptText();
-        Vector2 size = _promptStyle.CalcSize(new GUIContent(currentPrompt));
-        Rect rect = new Rect(screen.x - size.x * 0.5f, Screen.height - screen.y - size.y * 0.5f, size.x, size.y);
+        GUIContent content = new GUIContent(currentPrompt);
+        float width = Mathf.Min(PromptMaxWidth, Mathf.Max(120f, _promptStyle.CalcSize(content).x));
+        float height = _promptStyle.CalcHeight(content, width);
+        Rect rect = new Rect(screen.x - width * 0.5f, Screen.height - screen.y - height * 0.5f, width, height);
         GUI.Label(rect, currentPrompt, _promptStyle);
     }
 
@@ -102,6 +105,7 @@ public class PortalSceneInteractable : MonoBehaviour
         _promptStyle.fontStyle = FontStyle.Bold;
         _promptStyle.normal.textColor = Color.white;
         _promptStyle.alignment = TextAnchor.MiddleCenter;
+        _promptStyle.wordWrap = true;
     }
 
     private void LoadTargetScene()

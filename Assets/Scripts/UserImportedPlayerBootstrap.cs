@@ -15,7 +15,13 @@ public static class UserImportedPlayerBootstrap
     private const string BecoDiaSceneName = "beco_dia";
     private const string DungeonSpawnSceneName = "masmorra_spawn";
     private const string TavernSpawnFloorName = "P_MOD_Floor_01_O_straight_med (171)";
-    private const string CharacterResourcePath = "UserImportedCharacter/Paladin WProp J Nordstrom";
+    private const string CharacterResourcePath = "Runtime/PaladinPlayerVisual";
+    private const string RuntimeScavengerResourcePath = "Runtime/Scavenger Variant";
+    private const string RuntimeBottleResourcePath = "Runtime/P_PROP_bottle_dungeon_05";
+    private const string RuntimeBodyMaterialResourcePath = "RuntimeMaterials/Paladin_Body_Textured";
+    private const string RuntimeMetalMaterialResourcePath = "RuntimeMaterials/Paladin_Metal_Textured";
+    private const string RuntimeShieldMaterialResourcePath = "RuntimeMaterials/Paladin_Shield_Textured";
+    private const string RuntimeWeaponMaterialResourcePath = "RuntimeMaterials/Paladin_Weapon_Textured";
     private const string ScavengerPrefabPath = "Assets/Homeless_people/Free_Scavenger/Prefab/Scavenger Variant.prefab";
     private const string BottlePrefabPath = "Assets/Fantastic Dungeon Pack/prefabs/PROPS/containers/bottles/P_PROP_bottle_dungeon_05.prefab";
     private static readonly Vector3 FallbackSpawn = new Vector3(-8.48f, 2.2f, 69.553f);
@@ -63,25 +69,42 @@ public static class UserImportedPlayerBootstrap
         EnsurePlayerSpawned();
         EnsureHUDStateForScene(sceneName);
 
-#if UNITY_EDITOR
         if (IsBecoScene(sceneName))
         {
             SetupBecoEncounter();
         }
-#endif
     }
 
     private static void EnsureLevel1Colliders()
     {
         // level_1 relies on auto-generated colliders for its floor/walls.
-        MeshFilter[] meshes = Object.FindObjectsOfType<MeshFilter>();
+        Scene activeScene = SceneManager.GetActiveScene();
+        MeshFilter[] meshes = Object.FindObjectsByType<MeshFilter>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (MeshFilter mf in meshes)
         {
-            if (mf.gameObject.GetComponent<Collider>() == null)
+            if (mf == null || mf.sharedMesh == null)
             {
-                mf.gameObject.AddComponent<MeshCollider>();
+                continue;
             }
+
+            if (mf.gameObject.scene != activeScene)
+            {
+                continue;
+            }
+
+            Collider existingCollider = mf.gameObject.GetComponent<Collider>();
+            if (existingCollider != null)
+            {
+                existingCollider.enabled = true;
+                continue;
+            }
+
+            MeshCollider meshCollider = mf.gameObject.AddComponent<MeshCollider>();
+            meshCollider.sharedMesh = mf.sharedMesh;
+            meshCollider.convex = false;
         }
+
+        Physics.SyncTransforms();
     }
 
     private static void EnsureTrapBasesConfigured()
@@ -131,7 +154,7 @@ public static class UserImportedPlayerBootstrap
         {
             Debug.LogError(useScavengerVisual
                 ? "Could not load Free Scavenger prefab."
-                : "Could not load Paladin model from Resources/UserImportedCharacter.");
+                : "Could not load Paladin model from Resources/Runtime/PaladinPlayerVisual.");
             return;
         }
 
@@ -204,6 +227,12 @@ public static class UserImportedPlayerBootstrap
             return Resources.Load<GameObject>(CharacterResourcePath);
         }
 
+        GameObject scavengerPrefab = Resources.Load<GameObject>(RuntimeScavengerResourcePath);
+        if (scavengerPrefab != null)
+        {
+            return scavengerPrefab;
+        }
+
 #if UNITY_EDITOR
         return AssetDatabase.LoadAssetAtPath<GameObject>(ScavengerPrefabPath);
 #else
@@ -256,6 +285,11 @@ public static class UserImportedPlayerBootstrap
         }
 #endif
 
+        if (ApplyRuntimeTexturedMaterials(visualRoot))
+        {
+            return;
+        }
+
         Shader urpLit = Shader.Find("Universal Render Pipeline/Lit");
         if (urpLit == null)
         {
@@ -295,6 +329,45 @@ public static class UserImportedPlayerBootstrap
             }
             renderer.materials = mats;
         }
+    }
+
+    private static bool ApplyRuntimeTexturedMaterials(GameObject visualRoot)
+    {
+        Material body = Resources.Load<Material>(RuntimeBodyMaterialResourcePath);
+        Material metal = Resources.Load<Material>(RuntimeMetalMaterialResourcePath);
+        Material shield = Resources.Load<Material>(RuntimeShieldMaterialResourcePath);
+        Material sword = Resources.Load<Material>(RuntimeWeaponMaterialResourcePath);
+        if (body == null || metal == null || shield == null || sword == null)
+        {
+            return false;
+        }
+
+        foreach (Renderer renderer in visualRoot.GetComponentsInChildren<Renderer>(true))
+        {
+            Material chosen = body;
+            string n = renderer.name.ToLowerInvariant();
+            if (n.Contains("helmet"))
+            {
+                chosen = metal;
+            }
+            else if (n.Contains("shield"))
+            {
+                chosen = shield;
+            }
+            else if (n.Contains("sword"))
+            {
+                chosen = sword;
+            }
+
+            Material[] mats = renderer.materials;
+            for (int i = 0; i < mats.Length; i++)
+            {
+                mats[i] = chosen;
+            }
+            renderer.materials = mats;
+        }
+
+        return true;
     }
 
 #if UNITY_EDITOR
@@ -381,17 +454,10 @@ public static class UserImportedPlayerBootstrap
             rot = Quaternion.Euler(0, 180, 0); // Default to 180 if requested
         }
 
-        GameObject baseObj = FindInactiveObjectByName("Base");
-        if (baseObj != null)
-        {
-            fromBase = true;
-            return baseObj.transform.position + Vector3.up * 0.1f;
-        }
-
         if (preview != null)
         {
             fromBase = true;
-            return preview.transform.position + Vector3.up * 0.1f;
+            return preview.transform.position;
         }
 
         if (sceneName == DungeonSpawnSceneName && TryGetTavernSpawnPoint(out Vector3 tavernSpawn, out Quaternion tavernRot))
@@ -399,6 +465,13 @@ public static class UserImportedPlayerBootstrap
             fromBase = false;
             rot = tavernRot;
             return tavernSpawn;
+        }
+
+        GameObject baseObj = FindInactiveObjectByName("Base");
+        if (baseObj != null)
+        {
+            fromBase = true;
+            return baseObj.transform.position + Vector3.up * 0.1f;
         }
 
         if (IsBecoScene(sceneName) && TryGetSpawnFromMainCamera(out Vector3 cameraSpawn, out Quaternion cameraRotation))
@@ -598,7 +671,6 @@ public static class UserImportedPlayerBootstrap
             || sceneName == BecoDiaSceneName;
     }
 
-#if UNITY_EDITOR
     private static void SetupBecoEncounter()
     {
         if (!IsBecoScene(SceneManager.GetActiveScene().name))
@@ -611,7 +683,13 @@ public static class UserImportedPlayerBootstrap
             return;
         }
 
-        GameObject bottlePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BottlePrefabPath);
+        GameObject bottlePrefab = Resources.Load<GameObject>(RuntimeBottleResourcePath);
+#if UNITY_EDITOR
+        if (bottlePrefab == null)
+        {
+            bottlePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BottlePrefabPath);
+        }
+#endif
 
         if (bottlePrefab == null)
         {
@@ -630,7 +708,19 @@ public static class UserImportedPlayerBootstrap
 
         Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
 
-        GameObject bottle = PrefabUtility.InstantiatePrefab(bottlePrefab) as GameObject;
+        GameObject bottle;
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            bottle = PrefabUtility.InstantiatePrefab(bottlePrefab) as GameObject;
+        }
+        else
+        {
+            bottle = Object.Instantiate(bottlePrefab);
+        }
+#else
+        bottle = Object.Instantiate(bottlePrefab);
+#endif
         if (bottle != null)
         {
             bottle.name = "BottlePickup_Beco";
@@ -666,5 +756,4 @@ public static class UserImportedPlayerBootstrap
 
         return null;
     }
-#endif
 }

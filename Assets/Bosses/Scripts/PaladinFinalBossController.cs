@@ -60,14 +60,24 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
     private bool graphCreated;
     private bool isTransitioning;
     private float transitionTime;
+    private Vector3 visualBaseLocalPosition;
+    private Quaternion visualBaseLocalRotation;
+    private Vector3 visualBaseLocalScale;
     private const float TransitionDuration = 0.2f;
     private const string AnimBase = "Assets/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/";
+    private const string RuntimeBossClipsFolder = "RuntimePaladinClips";
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         bodyCollider = GetComponent<CapsuleCollider>();
         visualRoot = transform.Find("Visual");
+        if (visualRoot != null)
+        {
+            visualBaseLocalPosition = visualRoot.localPosition;
+            visualBaseLocalRotation = visualRoot.localRotation;
+            visualBaseLocalScale = visualRoot.localScale;
+        }
         currentHealth = maxHealth;
         currentArmor = maxArmor;
 
@@ -82,6 +92,8 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         bodyCollider.radius = 0.35f;
         bodyCollider.height = 1.85f;
         bodyCollider.center = new Vector3(0f, 0.92f, 0f);
+
+        SnapBossToGround();
 
         gameObject.layer = LayerMask.NameToLayer("Enemy") >= 0 ? LayerMask.NameToLayer("Enemy") : gameObject.layer;
 
@@ -103,6 +115,44 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
             memoryPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/memories/Prefabs/MemoryPickup.prefab");
         }
 #endif
+    }
+
+    private void SnapBossToGround()
+    {
+        RaycastHit[] hits = Physics.RaycastAll(transform.position + Vector3.up * 8f, Vector3.down, 30f);
+        float bestDistance = float.MaxValue;
+        Vector3 bestPoint = transform.position;
+        bool found = false;
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            RaycastHit hit = hits[i];
+            if (hit.collider == null)
+            {
+                continue;
+            }
+
+            if (hit.collider.transform == transform || hit.collider.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            if (hit.distance < bestDistance)
+            {
+                bestDistance = hit.distance;
+                bestPoint = hit.point;
+                found = true;
+            }
+        }
+
+        if (found)
+        {
+            transform.position = new Vector3(transform.position.x, bestPoint.y, transform.position.z);
+            if (agent != null && agent.enabled)
+            {
+                agent.Warp(transform.position);
+            }
+        }
     }
 
     private void Update()
@@ -352,6 +402,13 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         Override("death", deathPath);
 #endif
 
+        LoadRuntimeBossClip("idle", "2Hand-Sword-Idle");
+        LoadRuntimeBossClip("walk", "2Hand-Sword-Strafe-Forward");
+        LoadRuntimeBossClip("run", "2Hand-Sword-Strafe-Forward");
+        LoadRuntimeBossClip("attack1", "RPG-Character@2Hand-Sword-Attack1");
+        LoadRuntimeBossClip("getHit", "2Hand-Sword-GetHit-F1");
+        LoadRuntimeBossClip("death", "2Hand-Sword-Knockdown1");
+
         foreach (AnimationClip clip in Resources.LoadAll<AnimationClip>(resourcesFolder))
         {
             if (clip == null || clip.name.StartsWith("__preview__"))
@@ -371,6 +428,31 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         Fallback("attack1", "idle");
         Fallback("getHit", "idle");
         Fallback("death", "getHit");
+    }
+
+    private void LoadRuntimeBossClip(string key, string clipName)
+    {
+        if (clips.ContainsKey(key))
+        {
+            return;
+        }
+
+        AnimationClip[] loaded = Resources.LoadAll<AnimationClip>(RuntimeBossClipsFolder);
+        for (int i = 0; i < loaded.Length; i++)
+        {
+            AnimationClip clip = loaded[i];
+            if (clip == null || clip.name.StartsWith("__preview__"))
+            {
+                continue;
+            }
+
+            if (string.Equals(clip.name, clipName, System.StringComparison.OrdinalIgnoreCase)
+                || string.Equals("RPG-Character@" + clip.name, clipName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                clips[key] = clip;
+                return;
+            }
+        }
     }
 
 #if UNITY_EDITOR
@@ -535,10 +617,13 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         }
 
         playableGraph.Evaluate();
+        RestoreVisualRootTransform();
     }
 
     private void LateUpdate()
     {
+        RestoreVisualRootTransform();
+
         if (!graphCreated || !currentPlayable.IsValid() || currentClip == null)
         {
             return;
@@ -560,6 +645,18 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         {
             currentPlayable.SetTime(time % clipLength);
         }
+    }
+
+    private void RestoreVisualRootTransform()
+    {
+        if (visualRoot == null)
+        {
+            return;
+        }
+
+        visualRoot.localPosition = visualBaseLocalPosition;
+        visualRoot.localRotation = visualBaseLocalRotation;
+        visualRoot.localScale = visualBaseLocalScale;
     }
 
     private static bool IsLoopingClip(string key)

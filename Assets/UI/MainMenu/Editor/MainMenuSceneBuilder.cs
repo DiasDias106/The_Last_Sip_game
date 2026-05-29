@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +19,7 @@ public static class MainMenuSceneBuilder
     private const string MusicPath = "Assets/Audio/ImportedFromZip/Audio/";
     private const bool CreateDecorationsByDefault = false;
 
-    // O ecrã está finalizado, ferramenta removida do menu para evitar cliques acidentais
+    // O ecrÃ£ estÃ¡ finalizado, ferramenta removida do menu para evitar cliques acidentais
     // [MenuItem("Tools/The Last Sip/Build Main Menu Scene")]
     public static void BuildMainMenuScene()
     {
@@ -221,7 +221,7 @@ public static class MainMenuSceneBuilder
 
         newGameButton = CreateMenuButton(buttonContainerGo.transform, "NewGameButton", "NOVO JOGO", iconNew, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
         continueButton = CreateMenuButton(buttonContainerGo.transform, "ContinueButton", "CONTINUAR", iconNew, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
-        optionsButton = CreateMenuButton(buttonContainerGo.transform, "OptionsButton", "OPÇÕES", iconOptions, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
+        optionsButton = CreateMenuButton(buttonContainerGo.transform, "OptionsButton", "OPÃ‡Ã•ES", iconOptions, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
         creditsButton = CreateMenuButton(buttonContainerGo.transform, "CreditsButton", "CREDITOS", iconCredits, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
         exitButton = CreateMenuButton(buttonContainerGo.transform, "ExitButton", "SAIR", iconExit, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
 
@@ -356,7 +356,7 @@ public static class MainMenuSceneBuilder
 
         GameObject hintGo = CreateUIObject("HintText", parent);
         SetRect(RectOf(hintGo), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), hasBakedScreen ? new Vector2(0f, 140f) : new Vector2(0f, 62f), new Vector2(920f, 36f));
-        TMP_Text hintText = AddText(hintGo, "DICA: Ouve os sons à tua volta. Cada detalhe pode esconder uma pista.", tmpFont, 22, FontStyles.SmallCaps, TextAlignmentOptions.Center, new Color32(198, 183, 152, 255));
+        TMP_Text hintText = AddText(hintGo, "DICA: Ouve os sons Ã  tua volta. Cada detalhe pode esconder uma pista.", tmpFont, 22, FontStyles.SmallCaps, TextAlignmentOptions.Center, new Color32(198, 183, 152, 255));
         hintText.characterSpacing = 2f;
         AddShadow(hintGo, new Color(0f, 0f, 0f, 0.36f), new Vector2(0f, -2f));
     }
@@ -437,8 +437,8 @@ public static class MainMenuSceneBuilder
         tabLayout.childForceExpandWidth = false;
 
         GameObject gameTab = CreateSettingsTab(leftTabs.transform, "GameTab", "JOGO", false, tmpFont, tabSelectedSprite);
-        GameObject graphicsTab = CreateSettingsTab(leftTabs.transform, "GraphicsTab", "GRÁFICOS", false, tmpFont, tabSelectedSprite);
-        GameObject audioTab = CreateSettingsTab(leftTabs.transform, "AudioTab", "ÁUDIO", true, tmpFont, tabSelectedSprite);
+        GameObject graphicsTab = CreateSettingsTab(leftTabs.transform, "GraphicsTab", "GRÃFICOS", false, tmpFont, tabSelectedSprite);
+        GameObject audioTab = CreateSettingsTab(leftTabs.transform, "AudioTab", "ÃUDIO", true, tmpFont, tabSelectedSprite);
         GameObject controlsTab = CreateSettingsTab(leftTabs.transform, "ControlsTab", "CONTROLOS", false, tmpFont, tabSelectedSprite);
         GameObject languageTab = CreateSettingsTab(leftTabs.transform, "LanguageTab", "IDIOMA", false, tmpFont, tabSelectedSprite);
 
@@ -447,7 +447,7 @@ public static class MainMenuSceneBuilder
 
         GameObject sectionTitleGo = CreateUIObject("SectionTitle", rightContent.transform);
         SetRect(RectOf(sectionTitleGo), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), Vector2.zero, new Vector2(860f, 44f));
-        TMP_Text sectionTitle = AddText(sectionTitleGo, "ÁUDIO", tmpFont, 34, FontStyles.SmallCaps | FontStyles.Bold, TextAlignmentOptions.MidlineLeft, new Color32(241, 226, 194, 255));
+        TMP_Text sectionTitle = AddText(sectionTitleGo, "ÃUDIO", tmpFont, 34, FontStyles.SmallCaps | FontStyles.Bold, TextAlignmentOptions.MidlineLeft, new Color32(241, 226, 194, 255));
         sectionTitle.characterSpacing = 6f;
         ConfigureSingleLineText(sectionTitle, 24f, 34f, TextOverflowModes.Ellipsis);
 
@@ -462,22 +462,22 @@ public static class MainMenuSceneBuilder
         StretchFull(RectOf(gameSection));
         GameObject gamePlaceholder = CreateUIObject("PlaceholderText", gameSection.transform);
         SetRect(RectOf(gamePlaceholder), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(780f, 70f));
-        TMP_Text gameText = AddText(gamePlaceholder, "Nenhuma opção disponível por agora.", tmpFont, 24, FontStyles.Italic, TextAlignmentOptions.MidlineLeft, new Color32(174, 160, 140, 255));
+        TMP_Text gameText = AddText(gamePlaceholder, "Nenhuma opÃ§Ã£o disponÃ­vel por agora.", tmpFont, 24, FontStyles.Italic, TextAlignmentOptions.MidlineLeft, new Color32(174, 160, 140, 255));
         ConfigureSingleLineText(gameText, 18f, 24f, TextOverflowModes.Ellipsis);
 
         GameObject graphicsSection = CreateUIObject("GraphicsSection", sectionsRoot.transform);
         StretchFull(RectOf(graphicsSection));
         GameObject graphicsPlaceholder = CreateUIObject("PlaceholderText", graphicsSection.transform);
         SetRect(RectOf(graphicsPlaceholder), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(780f, 70f));
-        TMP_Text graphicsText = AddText(graphicsPlaceholder, "Nenhuma opção disponível por agora.", tmpFont, 24, FontStyles.Italic, TextAlignmentOptions.MidlineLeft, new Color32(174, 160, 140, 255));
+        TMP_Text graphicsText = AddText(graphicsPlaceholder, "Nenhuma opÃ§Ã£o disponÃ­vel por agora.", tmpFont, 24, FontStyles.Italic, TextAlignmentOptions.MidlineLeft, new Color32(174, 160, 140, 255));
         ConfigureSingleLineText(graphicsText, 18f, 24f, TextOverflowModes.Ellipsis);
 
         GameObject audioSection = CreateUIObject("AudioSection", sectionsRoot.transform);
         StretchFull(RectOf(audioSection));
         CreateAudioSliderRow(audioSection.transform, "MasterRow", "VOLUME GERAL", 0, tmpFont, out Slider masterSlider, out TMP_Text masterValueText);
-        CreateAudioSliderRow(audioSection.transform, "MusicRow", "VOLUME DA MÚSICA", 1, tmpFont, out Slider musicSlider, out TMP_Text musicValueText);
+        CreateAudioSliderRow(audioSection.transform, "MusicRow", "VOLUME DA MÃšSICA", 1, tmpFont, out Slider musicSlider, out TMP_Text musicValueText);
         CreateAudioSliderRow(audioSection.transform, "SfxRow", "VOLUME DOS EFEITOS", 2, tmpFont, out Slider sfxSlider, out TMP_Text sfxValueText);
-        CreateSelectorRow(audioSection.transform, "AudioModeRow", "MODO DE ÁUDIO", "ESTÉREO", 3, tmpFont, out Button audioModeButton, out TMP_Text audioModeValueText);
+        CreateSelectorRow(audioSection.transform, "AudioModeRow", "MODO DE ÃUDIO", "ESTÃ‰REO", 3, tmpFont, out Button audioModeButton, out TMP_Text audioModeValueText);
         CreateSelectorRow(audioSection.transform, "SubtitlesRow", "LEGENDAS", "LIGADO", 4, tmpFont, out Button subtitlesButton, out TMP_Text subtitlesValueText);
 
         GameObject controlsSection = CreateUIObject("ControlsSection", sectionsRoot.transform);
@@ -487,7 +487,7 @@ public static class MainMenuSceneBuilder
 
         GameObject languageSection = CreateUIObject("LanguageSection", sectionsRoot.transform);
         StretchFull(RectOf(languageSection));
-        CreateSelectorRow(languageSection.transform, "LanguageRow", "IDIOMA", "PORTUGUÊS", 0, tmpFont, out Button languageButton, out TMP_Text languageValueText);
+        CreateSelectorRow(languageSection.transform, "LanguageRow", "IDIOMA", "PORTUGUÃŠS", 0, tmpFont, out Button languageButton, out TMP_Text languageValueText);
 
         GameObject bottomButtons = CreateUIObject("BottomButtonsArea", frameGo.transform);
         SetRect(RectOf(bottomButtons), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(54f, 34f), new Vector2(-54f, 96f));
@@ -528,7 +528,7 @@ public static class MainMenuSceneBuilder
         SetObjectArrayField(view, "tabLabels", new UnityEngine.Object[] { FindInChildren<TMP_Text>(gameTab.transform, "Label"), FindInChildren<TMP_Text>(graphicsTab.transform, "Label"), FindInChildren<TMP_Text>(audioTab.transform, "Label"), FindInChildren<TMP_Text>(controlsTab.transform, "Label"), FindInChildren<TMP_Text>(languageTab.transform, "Label") });
         SetObjectArrayField(view, "selectedMarkers", new UnityEngine.Object[] { FindInChildren<Transform>(gameTab.transform, "SelectedMarker")?.gameObject, FindInChildren<Transform>(graphicsTab.transform, "SelectedMarker")?.gameObject, FindInChildren<Transform>(audioTab.transform, "SelectedMarker")?.gameObject, FindInChildren<Transform>(controlsTab.transform, "SelectedMarker")?.gameObject, FindInChildren<Transform>(languageTab.transform, "SelectedMarker")?.gameObject });
         SetObjectArrayField(view, "sections", new UnityEngine.Object[] { gameSection, graphicsSection, audioSection, controlsSection, languageSection });
-        SetStringArrayField(view, "sectionTitles", new[] { "JOGO", "GRÁFICOS", "ÁUDIO", "CONTROLOS", "IDIOMA" });
+        SetStringArrayField(view, "sectionTitles", new[] { "JOGO", "GRÃFICOS", "ÃUDIO", "CONTROLOS", "IDIOMA" });
 
         panelController.HideImmediate();
         return root;
@@ -783,9 +783,9 @@ public static class MainMenuSceneBuilder
     private static void BuildCreditsPaper(GameObject bodyRoot, TMP_FontAsset tmpFont)
     {
         RectTransform bodyRect = RectOf(bodyRoot);
-        // Centralizar bem e manter um tamanho adequado para o texto rolar no meio do ecrã
+        // Centralizar bem e manter um tamanho adequado para o texto rolar no meio do ecrÃ£
         SetRect(bodyRect, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(692f, 782f));
-        // Sem caixa não faz sentido ter o texto inclinado, vamos colocar a direito (0 graus)
+        // Sem caixa nÃ£o faz sentido ter o texto inclinado, vamos colocar a direito (0 graus)
         bodyRect.localRotation = Quaternion.identity;
 
         Image bodyImage = bodyRoot.GetComponent<Image>();
@@ -809,23 +809,23 @@ public static class MainMenuSceneBuilder
             shadeImage.enabled = false;
         }
 
-        // --- ECRÃ DE CRÉDITOS ROLANTE (SCROLL) ---
+        // --- ECRÃƒ DE CRÃ‰DITOS ROLANTE (SCROLL) ---
         
-        // 1. Criar o Viewport (Área de visão visível com máscara)
+        // 1. Criar o Viewport (Ãrea de visÃ£o visÃ­vel com mÃ¡scara)
         GameObject viewport = CreateUIObject("Viewport", bodyRoot.transform);
         StretchFull(RectOf(viewport));
-        // Margens simétricas e equilibradas para o texto não ficar colado às bordas do papel
+        // Margens simÃ©tricas e equilibradas para o texto nÃ£o ficar colado Ã s bordas do papel
         RectOf(viewport).offsetMin = new Vector2(40f, 60f); 
         RectOf(viewport).offsetMax = new Vector2(-40f, -40f);
         
-        // Usar RectMask2D em vez de Mask+Image para não criar quadrados de fundo feios
+        // Usar RectMask2D em vez de Mask+Image para nÃ£o criar quadrados de fundo feios
         viewport.AddComponent<UnityEngine.UI.RectMask2D>();
         
         // Adicionar um Image transparente apenas para apanhar os eventos do rato (scroll)
         UnityEngine.UI.Image viewportImage = AddImage(viewport, null, new Color(0, 0, 0, 0), false);
         viewportImage.raycastTarget = true;
 
-        // 2. Criar o Content (O recipiente elástico onde ficam os nomes)
+        // 2. Criar o Content (O recipiente elÃ¡stico onde ficam os nomes)
         GameObject contentGo = CreateUIObject("CreditsContent", viewport.transform);
         // Ancorar ao topo para crescer para baixo
         SetRect(RectOf(contentGo), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 0f), new Vector2(0f, 0f));
@@ -839,7 +839,7 @@ public static class MainMenuSceneBuilder
         layoutGroup.childControlWidth = true;
         layoutGroup.childForceExpandHeight = false;
         layoutGroup.childForceExpandWidth = true;
-        // Padding inferior mais pequeno para garantir que o scroll pára quando a última linha atinge o fundo
+        // Padding inferior mais pequeno para garantir que o scroll pÃ¡ra quando a Ãºltima linha atinge o fundo
         layoutGroup.padding = new RectOffset(20, 20, 80, 100); 
         layoutGroup.spacing = 16f;
 
@@ -852,14 +852,14 @@ public static class MainMenuSceneBuilder
         scrollRect.scrollSensitivity = 35f;
         scrollRect.movementType = ScrollRect.MovementType.Clamped;
 
-        // 4. Adicionar o novo Script de Animação (AutoScroll)
+        // 4. Adicionar o novo Script de AnimaÃ§Ã£o (AutoScroll)
         AutoScrollCredits autoScroll = viewport.AddComponent<AutoScrollCredits>();
         
-        // --- CONTEÚDO TIPOGRÁFICO ---
+        // --- CONTEÃšDO TIPOGRÃFICO ---
         
-        // Título Principal (Agora em tons dourados/claros para ler na madeira escura)
+        // TÃ­tulo Principal (Agora em tons dourados/claros para ler na madeira escura)
         GameObject titleGo = CreateUIObject("CreditsTitle", contentGo.transform);
-        TMP_Text titleText = AddText(titleGo, "CRÉDITOS", tmpFont, 44, FontStyles.SmallCaps | FontStyles.Bold, TextAlignmentOptions.Center, new Color32(241, 226, 194, 255));
+        TMP_Text titleText = AddText(titleGo, "CRÃ‰DITOS", tmpFont, 44, FontStyles.SmallCaps | FontStyles.Bold, TextAlignmentOptions.Center, new Color32(241, 226, 194, 255));
         titleText.characterSpacing = 8f;
         titleGo.AddComponent<LayoutElement>().minHeight = 60f;
 
@@ -872,26 +872,16 @@ public static class MainMenuSceneBuilder
         SetRect(RectOf(dividerLine), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(300f, 2f));
         AddImage(dividerLine, null, new Color(0.86f, 0.74f, 0.54f, 0.38f), false).raycastTarget = false;
         
-        // Espaço de Respiração
+        // EspaÃ§o de RespiraÃ§Ã£o
         GameObject spacer1 = CreateUIObject("Spacer", contentGo.transform);
         spacer1.AddComponent<LayoutElement>().minHeight = 60f;
 
-        // Texto dos Créditos (Cores claras ajustadas para madeira escura)
+        // Texto dos CrÃ©ditos (Cores claras ajustadas para madeira escura)
         string richText = 
             "<size=20><color=#a89678><b>DESENVOLVIDO POR</b></color></size>\n" +
-            "<size=32><color=#f3e4c2>Rafa Team</color></size>\n\n\n" +
-            
-            "<size=20><color=#a89678><b>DESIGN</b></color></size>\n" +
-            "<size=32><color=#f3e4c2>Rafa Silva</color></size>\n\n\n" +
-            
-            "<size=20><color=#a89678><b>PROGRAMAÇÃO</b></color></size>\n" +
-            "<size=32><color=#f3e4c2>Rafa Silva</color></size>\n\n\n" +
-            
-            "<size=20><color=#a89678><b>ARTE</b></color></size>\n" +
-            "<size=32><color=#f3e4c2>Rafa Silva</color></size>\n\n\n" +
-            
-            "<size=20><color=#a89678><b>MÚSICA</b></color></size>\n" +
-            "<size=32><color=#f3e4c2>Biblioteca de Áudio do Unity</color></size>\n\n\n" +
+            "<size=32><color=#f3e4c2>Mário Bicho</color></size>\n" +
+            "<size=32><color=#f3e4c2>Ricardo Fernandes</color></size>\n" +
+            "<size=32><color=#f3e4c2>Francisco Dias</color></size>\n\n\n" +
             
             "<size=20><color=#a89678><b>AGRADECIMENTOS</b></color></size>\n" +
             "<size=32><color=#f3e4c2>A todos que apoiaram este projeto.</color></size>\n\n\n\n\n" +
@@ -1032,7 +1022,7 @@ public static class MainMenuSceneBuilder
 
         CreateSelectorRow(contentGo.transform, "ForwardRow", "ANDAR PARA A FRENTE", "W", 0, tmpFont, out _, out _);
         CreateSelectorRow(contentGo.transform, "LeftRow", "ANDAR PARA A ESQUERDA", "A", 1, tmpFont, out _, out _);
-        CreateSelectorRow(contentGo.transform, "BackRow", "ANDAR PARA TRÃS", "S", 2, tmpFont, out _, out _);
+        CreateSelectorRow(contentGo.transform, "BackRow", "ANDAR PARA TRÃƒÂS", "S", 2, tmpFont, out _, out _);
         CreateSelectorRow(contentGo.transform, "RightRow", "ANDAR PARA A DIREITA", "D", 3, tmpFont, out _, out _);
         CreateSelectorRow(contentGo.transform, "RunRow", "CORRER", "SHIFT", 4, tmpFont, out _, out _);
         CreateSelectorRow(contentGo.transform, "InteractRow", "INTERACAO", "F", 5, tmpFont, out _, out _);
@@ -1669,3 +1659,5 @@ public static class MainMenuSceneBuilder
     }
 }
 #endif
+
+

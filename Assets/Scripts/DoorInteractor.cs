@@ -10,6 +10,7 @@ public class DoorInteractor : MonoBehaviour
 
     private DoorInteractable _nearestDoor;
     private GUIStyle _promptStyle;
+    private const float PromptMaxWidth = 220f;
 
     private void Start()
     {
@@ -82,8 +83,10 @@ public class DoorInteractor : MonoBehaviour
 
         EnsureStyle();
         string text = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - Interagir";
-        Vector2 size = _promptStyle.CalcSize(new GUIContent(text));
-        Rect rect = new Rect(screen.x - size.x * 0.5f, Screen.height - screen.y - size.y * 0.5f, size.x, size.y);
+        GUIContent content = new GUIContent(text);
+        float width = Mathf.Min(PromptMaxWidth, Mathf.Max(120f, _promptStyle.CalcSize(content).x));
+        float height = _promptStyle.CalcHeight(content, width);
+        Rect rect = new Rect(screen.x - width * 0.5f, Screen.height - screen.y - height * 0.5f, width, height);
         GUI.Label(rect, text, _promptStyle);
     }
 
@@ -99,6 +102,7 @@ public class DoorInteractor : MonoBehaviour
         _promptStyle.fontStyle = FontStyle.Bold;
         _promptStyle.normal.textColor = Color.white;
         _promptStyle.alignment = TextAnchor.MiddleCenter;
+        _promptStyle.wordWrap = true;
     }
 
     private static bool GetInteractPressed()
