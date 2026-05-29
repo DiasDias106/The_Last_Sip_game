@@ -11,6 +11,8 @@ public class PortalSceneInteractable : MonoBehaviour
     [SerializeField] private Vector3 promptOffset = new Vector3(0f, 1.7f, 0f);
     [SerializeField] private string promptText = "Entrar portal";
     [SerializeField] private bool lockPortalWhenLevelCompleted = true;
+    [SerializeField] private bool requireAllPrimaryLevelsCompleted;
+    [SerializeField] private bool hideVortexWhenLocked = true;
     [SerializeField] private string lockedPromptText = "Nivel concluido";
     [SerializeField] private Color completedPortalColor = new Color(0.15f, 0.95f, 0.35f, 1f);
     [SerializeField] private Color completedEmissionColor = new Color(0.1f, 1f, 0.25f, 1f);
@@ -21,6 +23,7 @@ public class PortalSceneInteractable : MonoBehaviour
     private bool _isPlayerNear;
     private bool _transitionStarted;
     private bool _isLocked;
+    private static readonly string[] PrimaryLevelScenes = { "level_1", "level_2", "level_3" };
 
     private void Awake()
     {
@@ -132,13 +135,63 @@ public class PortalSceneInteractable : MonoBehaviour
 
     private void RefreshCompletionState()
     {
-        _isLocked = lockPortalWhenLevelCompleted
-            && !string.IsNullOrWhiteSpace(targetSceneName)
-            && LevelCompletionState.IsCompleted(targetSceneName);
-
-        if (_isLocked)
+        bool gateByAllLevels = requireAllPrimaryLevelsCompleted || IsFinalBossPortal();
+        if (gateByAllLevels)
         {
-            ApplyCompletedVisual();
+            _isLocked = !ArePrimaryLevelsCompleted();
+            ApplyBossPortalLockVisual(_isLocked);
+        }
+        else
+        {
+            _isLocked = lockPortalWhenLevelCompleted
+                && !string.IsNullOrWhiteSpace(targetSceneName)
+                && LevelCompletionState.IsCompleted(targetSceneName);
+            if (_isLocked)
+            {
+                ApplyCompletedVisual();
+            }
+        }
+    }
+
+    private bool IsFinalBossPortal()
+    {
+        return !string.IsNullOrWhiteSpace(targetSceneName)
+               && targetSceneName.Trim().ToLowerInvariant() == "boss_room";
+    }
+
+    private static bool ArePrimaryLevelsCompleted()
+    {
+        for (int i = 0; i < PrimaryLevelScenes.Length; i++)
+        {
+            if (!LevelCompletionState.IsCompleted(PrimaryLevelScenes[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void ApplyBossPortalLockVisual(bool locked)
+    {
+        if (!hideVortexWhenLocked)
+        {
+            return;
+        }
+
+        Transform portalCenter = transform.Find("Portal.obj.cleaner.materialmerger.gles/centro_vortice");
+        if (portalCenter == null)
+        {
+            return;
+        }
+
+        Renderer[] renderers = portalCenter.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+            {
+                renderers[i].enabled = !locked;
+            }
         }
     }
 

@@ -8,6 +8,7 @@ public class BossHUDController : MonoBehaviour
 
     private CanvasGroup _group;
     private RectTransform _fillRect;
+    private RectTransform _armorFillRect;
 
     private void Awake()
     {
@@ -62,6 +63,22 @@ public class BossHUDController : MonoBehaviour
         if (_fillRect == null) return;
         float pct = max > 0f ? Mathf.Clamp01(current / max) : 0f;
         _fillRect.anchorMax = new Vector2(pct, 1f);
+        if (_armorFillRect != null)
+        {
+            _armorFillRect.anchorMax = new Vector2(0f, 1f);
+        }
+    }
+
+    public void RefreshWithArmor(float currentHealth, float maxHealth, float currentArmor, float maxArmor)
+    {
+        if (_fillRect == null) return;
+
+        float hpPct = maxHealth > 0f ? Mathf.Clamp01(currentHealth / maxHealth) : 0f;
+        _fillRect.anchorMax = new Vector2(hpPct, 1f);
+
+        if (_armorFillRect == null) return;
+        float armorPct = maxArmor > 0f ? Mathf.Clamp01(currentArmor / maxArmor) : 0f;
+        _armorFillRect.anchorMax = new Vector2(armorPct, 1f);
     }
 
     private void BuildHUD()
@@ -111,5 +128,16 @@ public class BossHUDController : MonoBehaviour
         _fillRect.anchorMax = new Vector2(1f, 1f);
         _fillRect.offsetMin = new Vector2(6f, 6f);
         _fillRect.offsetMax = new Vector2(-6f, -6f);
+
+        var armorFill = new GameObject("BossArmorFill");
+        armorFill.transform.SetParent(track.transform, false);
+        var armorFillImage = armorFill.AddComponent<Image>();
+        armorFillImage.color = new Color(0.95f, 0.52f, 0.12f, 0.95f);
+        _armorFillRect = armorFill.GetComponent<RectTransform>();
+        _armorFillRect.anchorMin = new Vector2(0f, 0f);
+        _armorFillRect.anchorMax = new Vector2(1f, 1f);
+        _armorFillRect.offsetMin = new Vector2(6f, 6f);
+        _armorFillRect.offsetMax = new Vector2(-6f, -6f);
+        armorFill.transform.SetAsLastSibling();
     }
 }

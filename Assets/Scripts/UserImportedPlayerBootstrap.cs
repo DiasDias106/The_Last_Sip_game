@@ -14,11 +14,13 @@ public static class UserImportedPlayerBootstrap
     private const string BecoNoiteSceneName = "beco_noite";
     private const string BecoDiaSceneName = "beco_dia";
     private const string DungeonSpawnSceneName = "masmorra_spawn";
+    private const string TavernSpawnFloorName = "P_MOD_Floor_01_O_straight_med (171)";
     private const string CharacterResourcePath = "UserImportedCharacter/Paladin WProp J Nordstrom";
     private const string ScavengerPrefabPath = "Assets/Homeless_people/Free_Scavenger/Prefab/Scavenger Variant.prefab";
     private const string BottlePrefabPath = "Assets/Fantastic Dungeon Pack/prefabs/PROPS/containers/bottles/P_PROP_bottle_dungeon_05.prefab";
     private static readonly Vector3 FallbackSpawn = new Vector3(-8.48f, 2.2f, 69.553f);
     private static readonly Vector3 BecoFallbackSpawn = new Vector3(0f, 1.2f, 0f);
+    private static readonly Vector3 TavernSpawnFallback = new Vector3(4.5f, 1.2f, -2.5f);
     private static bool _levelCollidersEnsured;
     private static bool _sceneHookRegistered;
 
@@ -392,6 +394,13 @@ public static class UserImportedPlayerBootstrap
             return preview.transform.position + Vector3.up * 0.1f;
         }
 
+        if (sceneName == DungeonSpawnSceneName && TryGetTavernSpawnPoint(out Vector3 tavernSpawn, out Quaternion tavernRot))
+        {
+            fromBase = false;
+            rot = tavernRot;
+            return tavernSpawn;
+        }
+
         if (IsBecoScene(sceneName) && TryGetSpawnFromMainCamera(out Vector3 cameraSpawn, out Quaternion cameraRotation))
         {
             fromBase = false;
@@ -400,7 +409,41 @@ public static class UserImportedPlayerBootstrap
         }
 
         fromBase = false;
+        if (sceneName == DungeonSpawnSceneName)
+        {
+            return TavernSpawnFallback;
+        }
+
         return IsBecoScene(sceneName) ? BecoFallbackSpawn : FallbackSpawn;
+    }
+
+    private static bool TryGetTavernSpawnPoint(out Vector3 spawn, out Quaternion rot)
+    {
+        GameObject spawnFloor = GameObject.Find(TavernSpawnFloorName);
+        if (spawnFloor != null)
+        {
+            spawn = spawnFloor.transform.position + Vector3.up * 0.1f;
+            rot = Quaternion.Euler(0f, 180f, 0f);
+            return true;
+        }
+
+        GameObject shop = GameObject.Find("Cylinder.155");
+        if (shop == null)
+        {
+            spawn = TavernSpawnFallback;
+            rot = Quaternion.Euler(0f, 180f, 0f);
+            return false;
+        }
+
+        Vector3 forward = Vector3.ProjectOnPlane(shop.transform.forward, Vector3.up).normalized;
+        if (forward.sqrMagnitude < 0.001f)
+        {
+            forward = Vector3.forward;
+        }
+
+        spawn = shop.transform.position + forward * 2.2f + Vector3.up * 0.1f;
+        rot = Quaternion.LookRotation(forward, Vector3.up);
+        return true;
     }
 
     private static bool TryGetSpawnFromMainCamera(out Vector3 spawn, out Quaternion rot)
@@ -544,6 +587,15 @@ public static class UserImportedPlayerBootstrap
         {
             Debug.LogWarning("[UserImportedPlayerBootstrap] Cylinder.155 not found in masmorra_spawn!");
         }
+
+        // Portal is now authored directly in scene by level design.
+    }
+
+    private static bool IsBecoScene(string sceneName)
+    {
+        return sceneName == BecoSceneName
+            || sceneName == BecoNoiteSceneName
+            || sceneName == BecoDiaSceneName;
     }
 
 #if UNITY_EDITOR
@@ -594,13 +646,6 @@ public static class UserImportedPlayerBootstrap
         }
 
         Debug.Log("[UserImportedPlayerBootstrap] Bottle pickup created in beco.");
-    }
-
-    private static bool IsBecoScene(string sceneName)
-    {
-        return sceneName == BecoSceneName
-            || sceneName == BecoNoiteSceneName
-            || sceneName == BecoDiaSceneName;
     }
 
     private static System.Type FindTypeByName(string typeName)
