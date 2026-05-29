@@ -15,9 +15,6 @@ EditorBuildSettings:
     path: Assets/Scenes/beco_noite.unity
     guid: 0c9e2a6448332ba41aad4d47d476a6de
   - enabled: 1
-    path: Assets/Scenes/beco_dia.unity
-    guid: 6af7876e2d366af4f9379f1a18451744
-  - enabled: 1
     path: Assets/Scenes/masmorra_spawn.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
@@ -32,5 +29,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/boss_room.unity
     guid: d8755c7137843fe4c94d793b124c9e66
+  - enabled: 1
+    path: Assets/Scenes/beco_dia.unity
+    guid: 6af7876e2d366af4f9379f1a18451744
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

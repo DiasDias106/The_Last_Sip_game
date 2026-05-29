@@ -13493,7 +13493,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: D
+  m_text: "<size=34><b>CR\xC9DITOS</b></size>\n\n<size=21><b>DESENVOLVIDO POR</b></size>\n<size=24>M\xE1rio
+    Bicho</size>\n<size=24>Ricardo Fernandes</size>\n<size=24>Francisco Dias</size>\n\n<size=21><b>AGRADECIMENTOS</b></size>\n<size=23>A
+    todos que apoiaram este projeto.</size>\n\n<size=28><i>Obrigado por jogar!</i></size>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

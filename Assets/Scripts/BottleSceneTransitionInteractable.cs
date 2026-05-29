@@ -22,6 +22,7 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     private GUIStyle _promptStyle;
     private bool _isPlayerNear;
     private bool _transitionStarted;
+    private const float PromptMaxWidth = 220f;
 
 #if UNITY_EDITOR
     private const string DrinkIntroClipAssetPath = "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Stand_Trans_Moonshine.FBX";
@@ -91,8 +92,10 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
 
         EnsureStyle();
         string fullPrompt = BuildPromptText();
-        Vector2 size = _promptStyle.CalcSize(new GUIContent(fullPrompt));
-        Rect rect = new Rect(screen.x - size.x * 0.5f, Screen.height - screen.y - size.y * 0.5f, size.x, size.y);
+        GUIContent content = new GUIContent(fullPrompt);
+        float width = Mathf.Min(PromptMaxWidth, Mathf.Max(120f, _promptStyle.CalcSize(content).x));
+        float height = _promptStyle.CalcHeight(content, width);
+        Rect rect = new Rect(screen.x - width * 0.5f, Screen.height - screen.y - height * 0.5f, width, height);
         GUI.Label(rect, fullPrompt, _promptStyle);
     }
 
@@ -154,6 +157,7 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     private void BeginScreenTransition()
     {
         DisableVisualsAndColliders();
+        SaveManager.SaveActiveSlotFromCurrentScene(targetSceneName);
         RuntimeSceneTransitionOverlay.BeginTransition(targetSceneName, blackScreenDuration);
     }
 
@@ -224,6 +228,7 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         _promptStyle.fontStyle = FontStyle.Bold;
         _promptStyle.normal.textColor = Color.white;
         _promptStyle.alignment = TextAnchor.MiddleCenter;
+        _promptStyle.wordWrap = true;
     }
 
     private string BuildPromptText()

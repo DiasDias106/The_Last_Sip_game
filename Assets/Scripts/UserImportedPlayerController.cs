@@ -16,6 +16,7 @@ public class UserImportedPlayerController : MonoBehaviour
     private const string BecoSceneName = "beco";
     private const string BecoNoiteSceneName = "beco_noite";
     private const string BecoDiaSceneName = "beco_dia";
+    private const string RuntimePaladinClipsResourceFolder = "RuntimePaladinClips";
     // ── Inspector ────────────────────────────────────────────────────────────────
     [SerializeField] private float walkSpeed          = 2.25f;
     [SerializeField] private float runSpeed           = 4.5f;
@@ -734,6 +735,9 @@ public class UserImportedPlayerController : MonoBehaviour
 #endif
 
         if (_clips.Count == 0)
+            LoadRuntimePaladinClipOverrides();
+
+        if (_clips.Count == 0)
             LoadFromResources("UserImportedCharacterPro");
 
         // Fallbacks
@@ -846,6 +850,43 @@ public class UserImportedPlayerController : MonoBehaviour
             if (c == null || c.name.StartsWith("__preview__")) continue;
             string k = ResolveKey(c.name);
             if (!_clips.ContainsKey(k)) _clips[k] = c;
+        }
+    }
+
+    void LoadRuntimePaladinClipOverrides()
+    {
+        AnimationClip[] runtimeClips = Resources.LoadAll<AnimationClip>(RuntimePaladinClipsResourceFolder);
+        if (runtimeClips == null || runtimeClips.Length == 0)
+        {
+            return;
+        }
+
+        OverrideRuntimeClip(runtimeClips, "idle", "Unarmed-Idle");
+        OverrideRuntimeClip(runtimeClips, "walk", "Unarmed-Strafe-Forward");
+        OverrideRuntimeClip(runtimeClips, "run", "Unarmed-Run-Forward");
+        OverrideRuntimeClip(runtimeClips, "roll", "Unarmed-DiveRoll-Forward1");
+        OverrideRuntimeClip(runtimeClips, "walkCombat", "2Hand-Sword-Strafe-Forward");
+        OverrideRuntimeClip(runtimeClips, "attack1", "2Hand-Sword-Attack1");
+        OverrideRuntimeClip(runtimeClips, "attack2", "2Hand-Sword-Attack2");
+        OverrideRuntimeClip(runtimeClips, "attack3", "2Hand-Sword-Attack3");
+        OverrideRuntimeClip(runtimeClips, "attack4", "2Hand-Sword-Attack4");
+        OverrideRuntimeClip(runtimeClips, "block", "2Hand-Sword-Idle");
+        OverrideRuntimeClip(runtimeClips, "getHit", "2Hand-Sword-GetHit-F1");
+        OverrideRuntimeClip(runtimeClips, "knockdown", "2Hand-Sword-Knockdown1");
+    }
+
+    void OverrideRuntimeClip(AnimationClip[] clips, string key, string clipName)
+    {
+        for (int i = 0; i < clips.Length; i++)
+        {
+            AnimationClip clip = clips[i];
+            if (clip == null || clip.name != clipName || clip.name.StartsWith("__preview__"))
+            {
+                continue;
+            }
+
+            _clips[key] = clip;
+            return;
         }
     }
 

@@ -9,6 +9,7 @@ public class ShopInteractable : MonoBehaviour
 
     private bool _isPlayerNear;
     private GUIStyle _promptStyle;
+    private const float PromptMaxWidth = 220f;
 
     private void Update()
     {
@@ -46,7 +47,9 @@ public class ShopInteractable : MonoBehaviour
 
         EnsureStyle();
         string text = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - Abrir Loja";
-        Vector2 size = _promptStyle.CalcSize(new GUIContent(text));
+        GUIContent content = new GUIContent(text);
+        float width = Mathf.Min(PromptMaxWidth, Mathf.Max(120f, _promptStyle.CalcSize(content).x));
+        float height = _promptStyle.CalcHeight(content, width);
         
         Vector2 screenPos;
         GameObject targetObj = GameObject.Find("leather (1)");
@@ -59,15 +62,15 @@ public class ShopInteractable : MonoBehaviour
             if (sp.z < 0) return;
             
             // GUI coordinates have Y=0 at the top, but ScreenPoint has Y=0 at the bottom.
-            screenPos = new Vector2(sp.x - size.x / 2f, Screen.height - sp.y - size.y / 2f);
+            screenPos = new Vector2(sp.x - width / 2f, Screen.height - sp.y - height / 2f);
         }
         else
         {
             // Fallback to center screen
-            screenPos = new Vector2(Screen.width / 2f - size.x / 2f, Screen.height / 2f + 50f);
+            screenPos = new Vector2(Screen.width / 2f - width / 2f, Screen.height / 2f + 50f);
         }
 
-        Rect rect = new Rect(screenPos.x, screenPos.y, size.x, size.y);
+        Rect rect = new Rect(screenPos.x, screenPos.y, width, height);
         GUI.Label(rect, text, _promptStyle);
     }
 
@@ -80,6 +83,7 @@ public class ShopInteractable : MonoBehaviour
         _promptStyle.fontStyle = FontStyle.Bold;
         _promptStyle.normal.textColor = Color.white;
         _promptStyle.alignment = TextAnchor.MiddleCenter;
+        _promptStyle.wordWrap = true;
     }
 
     private static bool GetInteractPressed()

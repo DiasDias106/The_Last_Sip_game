@@ -7,7 +7,7 @@ public class RuntimeSceneTransitionOverlay : MonoBehaviour
 {
     private const string OverlayObjectName = "RuntimeSceneTransitionOverlay";
     private const string LoadingSceneName = "MainMenuScene";
-    private const float LoadingControllerTimeout = 5f;
+    private const string PendingSceneKey = "__PENDING_LOAD_SCENE__";
 
     private Canvas _canvas;
     private Image _background;
@@ -79,34 +79,12 @@ public class RuntimeSceneTransitionOverlay : MonoBehaviour
             SceneManager.LoadScene(targetSceneName);
             yield break;
         }
-
-        Scene loadingScene = SceneManager.GetSceneByName(LoadingSceneName);
-        if (!loadingScene.isLoaded)
-        {
-            AsyncOperation loadMenuOp = SceneManager.LoadSceneAsync(LoadingSceneName, LoadSceneMode.Additive);
-            while (loadMenuOp != null && !loadMenuOp.isDone)
-            {
-                yield return null;
-            }
-        }
-
-        float elapsed = 0f;
-        LoadingScreenController controller = null;
-        while (controller == null && elapsed < LoadingControllerTimeout)
-        {
-            controller = FindAnyObjectByType<LoadingScreenController>(FindObjectsInactive.Include);
-            elapsed += Time.unscaledDeltaTime;
-            yield return null;
-        }
-
-        if (controller == null)
-        {
-            Debug.LogWarning("Could not find LoadingScreenController in MainMenuScene. Falling back to direct scene load.");
-            SceneManager.LoadScene(targetSceneName);
-            yield break;
-        }
-
-        controller.ShowLoadingThenLoadScene(targetSceneName);
+        
+        GlobalSceneTransitionRequest.PendingSceneName = targetSceneName;
+        PlayerPrefs.SetString(PendingSceneKey, targetSceneName);
+        PlayerPrefs.Save();
+        SceneManager.LoadScene(LoadingSceneName);
+        yield break;
     }
 
     private void BuildRuntimeCanvas()
