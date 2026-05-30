@@ -64,11 +64,25 @@ public class RuntimeSceneTransitionOverlay : MonoBehaviour
             yield break;
         }
 
-        ShowBlackOnly();
+        yield return StartCoroutine(FadeToBlack(1f));
         yield return WaitForRealSeconds(blackScreenDuration);
         yield return StartCoroutine(ShowMainMenuLoadingThenLoad(targetSceneName));
         HideImmediate();
         _activeRoutine = null;
+    }
+
+    private IEnumerator FadeToBlack(float duration)
+    {
+        if (_canvas == null || _background == null) yield break;
+        _canvas.gameObject.SetActive(true);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            _background.color = new Color(0f, 0f, 0f, Mathf.Clamp01(elapsed / duration));
+            yield return null;
+        }
+        _background.color = Color.black;
     }
 
     private IEnumerator ShowMainMenuLoadingThenLoad(string targetSceneName)

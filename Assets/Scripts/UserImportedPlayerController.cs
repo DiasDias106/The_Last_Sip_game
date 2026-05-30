@@ -44,6 +44,9 @@ public class UserImportedPlayerController : MonoBehaviour
     // ── Combat ───────────────────────────────────────────────────────────────────
     private bool  _inCombat;
     private float _combatTimer;
+    private float _fallTimer;
+    private float _airTime;
+    private const float FallDeathTime = 5f;
     private int   _comboStep;    // 0,1,2  →  attack1/2/3
     private bool  _comboQueued;
     private bool  _hitDealt;
@@ -156,6 +159,26 @@ public class UserImportedPlayerController : MonoBehaviour
         bool grounded = _controller.isGrounded;
         if (grounded && _verticalVelocity < 0f) _verticalVelocity = -1f;
 
+        if (!grounded) _airTime += Time.deltaTime;
+        else _airTime = 0f;
+
+        // Detetar queda prolongada do mapa — ragdoll + morte ao fim de 5s
+        if (!grounded && _verticalVelocity < -3f && _moveState != MoveState.Dead)
+        {
+            _fallTimer += Time.deltaTime;
+            if (_fallTimer >= FallDeathTime)
+            {
+                _fallTimer = 0f;
+                PlayClip("knockdown");
+                if (_playerHealth != null && !_playerHealth.IsDead)
+                    _playerHealth.TakeDamage(_playerHealth.maxHealth);
+            }
+        }
+        else
+        {
+            _fallTimer = 0f;
+        }
+
         switch (_moveState)
         {
             case MoveState.Locomotion: UpdateLocomotion(grounded); break;
@@ -204,7 +227,7 @@ public class UserImportedPlayerController : MonoBehaviour
         if (drinkIntroClip != null)
         {
             PlayDirectClip(drinkIntroClip);
-            yield return WaitForClipSeconds(drinkIntroClip, 0.95f, 2.25f);
+            yield return WaitForClipSeconds(drinkIntroClip, 0.95f, 4f); // deixar tocar
         }
 
         if (drinkLoopClip != null)
@@ -223,10 +246,10 @@ public class UserImportedPlayerController : MonoBehaviour
         if (collapseClip != null)
         {
             PlayDirectClip(collapseClip);
-            yield return WaitForClipSeconds(collapseClip, 1f, 1.7f);
+            yield return WaitForClipSeconds(collapseClip, 1f, 8f); // espera o clip todo
         }
 
-        yield return WaitForSecondsRoutine(0.45f);
+        yield return WaitForSecondsRoutine(0.3f);
 
         _isScriptedSequencePlaying = false;
         _activeScriptedSequence = null;
@@ -403,8 +426,12 @@ public class UserImportedPlayerController : MonoBehaviour
             transform.rotation = Quaternion.Slerp(
                 transform.rotation, Quaternion.LookRotation(hVel.normalized), turnSpeed * Time.deltaTime);
 
-        // Animation (input-based — no velocity lag on idle)
-        if (input.sqrMagnitude < 0.01f)
+        // Animation
+        if (!grounded && _verticalVelocity > 0.5f)
+            PlayClip("jump");
+        else if (!grounded && _verticalVelocity < -1f && _airTime > 0.3f)
+            PlayClip("fall");
+        else if (input.sqrMagnitude < 0.01f)
             PlayClip("idle");
         else if (run)
             PlayClip("run");
@@ -715,11 +742,16 @@ public class UserImportedPlayerController : MonoBehaviour
         string ua = AnimBase + "Unarmed/RPG-Character@Unarmed-";
         string s2 = AnimBase + "2Hand-Sword/RPG-Character@2Hand-Sword-";
 
-        // Exploration (unarmed — no weapon visible)
-        Override("idle",       ua + "Idle.FBX");
-        Override("walk",       ua + "Strafe-Forward.FBX");
-        Override("run",        ua + "Run-Forward.FBX");
+        string ki = "Assets/Kevin Iglesias/Human Animations/Animations/Male/";
+
+        // Exploration (Kevin Iglesias — natural locomotion)
+        Override("idle",       ki + "Idles/HumanM@Idle01.fbx");
+        Override("idleStatic", ki + "Idles/HumanM@Idle01.fbx");
+        Override("walk",       ki + "Movement/Walk/HumanM@Walk01_Forward.fbx");
+        Override("run",        ki + "Movement/Run/HumanM@Run01_Forward.fbx");
         Override("roll",       ua + "DiveRoll-Forward1.FBX");
+        Override("jump",       ki + "Movement/Jump/HumanM@Jump01.fbx");
+        Override("fall",       ki + "Movement/Jump/HumanM@Fall01.fbx");
 
         // Combat locomotion (2Hand-Sword)
         Override("walkCombat", s2 + "Strafe-Forward.FBX");
@@ -744,7 +776,10 @@ public class UserImportedPlayerController : MonoBehaviour
         Fallback("walk",       "run");
         Fallback("walkCombat", "walk");
         Fallback("idle",       "walk");
+        Fallback("idleStatic", "idle");
         Fallback("run",        "walk");
+        Fallback("jump",       "run");
+        Fallback("fall",       "run");
         Fallback("attack1",    "idle");
         Fallback("attack2",    "attack1");
         Fallback("attack3",    "attack2");

@@ -179,8 +179,18 @@ public abstract class BossController : MonoBehaviour, IDamageable
         patrolTarget = transform.position + transform.forward * patrolRadius * 0.5f;
     }
 
+    [Header("Arena")]
+    public bool requireArenaActivation = true;
+    private bool _arenaActive = false;
+
+    public void ActivateArena()
+    {
+        _arenaActive = true;
+    }
+
     void DetectPlayer()
     {
+        if (requireArenaActivation && !_arenaActive) return;
         if (player != null) return;
         var cols = Physics.OverlapSphere(transform.position, detectionRange);
         foreach (var col in cols)
