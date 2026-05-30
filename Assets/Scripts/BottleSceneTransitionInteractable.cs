@@ -25,9 +25,12 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     private const float PromptMaxWidth = 220f;
 
 #if UNITY_EDITOR
-    private const string DrinkIntroClipAssetPath = "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Stand_Trans_Moonshine.FBX";
-    private const string DrinkLoopClipAssetPath = "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Moonshine_01_Drink_Loop.FBX";
-    private const string FallClipAssetPath = "Assets/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/Unarmed/RPG-Character@Unarmed-Knockdown1.FBX";
+    // Drink intro: Stunned do ExplosiveLLC (funciona no player) → simula embriaguez
+    private const string DrinkIntroClipAssetPath = "Assets/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/Unarmed/RPG-Character@Unarmed-Stunned.FBX";
+    // Drink loop: MoCap Central moonshine
+    private const string DrinkLoopClipAssetPath  = "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Moonshine_01_Drink_Loop.FBX";
+    // Collapse: animação de cair do MoCap Central Injured
+    private const string FallClipAssetPath       = "Assets/MoCapCentral/MC_Sample/Animations/Injured/MCU_am_InjuredBelly_DropToFloor.FBX";
 #endif
 
     private void Awake()
@@ -163,41 +166,30 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
 
     private void EnsureSequenceClips()
     {
-        if (collapseClip != null && collapseClip.name == "Unarmed-Fall")
-        {
+        // Reset clips antigos incompatíveis
+        if (drinkIntroClip != null && drinkIntroClip.name == "MCU_am_Stand_Trans_Moonshine")
+            drinkIntroClip = null;
+        if (collapseClip != null && (collapseClip.name == "Unarmed-Fall" || collapseClip.name == "Unarmed-Knockdown1"))
             collapseClip = null;
-        }
 
         if (drinkIntroClip == null)
-        {
-            drinkIntroClip = FindRuntimeClip("MCU_am_Stand_Trans_Moonshine");
-        }
+            drinkIntroClip = FindRuntimeClip("Unarmed-Stunned");
 
         if (drinkLoopClip == null)
-        {
             drinkLoopClip = FindRuntimeClip("MCU_am_Moonshine_01_Drink_Loop");
-        }
 
         if (collapseClip == null)
-        {
-            collapseClip = FindRuntimeClip("Unarmed-Knockdown1");
-        }
+            collapseClip = FindRuntimeClip("MCU_am_InjuredBelly_DropToFloor");
 
 #if UNITY_EDITOR
         if (drinkIntroClip == null)
-        {
-            drinkIntroClip = FindClipAtPath(DrinkIntroClipAssetPath, "MCU_am_Stand_Trans_Moonshine");
-        }
+            drinkIntroClip = FindClipAtPath(DrinkIntroClipAssetPath, "Unarmed-Stunned");
 
         if (drinkLoopClip == null)
-        {
             drinkLoopClip = FindClipAtPath(DrinkLoopClipAssetPath, "MCU_am_Moonshine_01_Drink_Loop");
-        }
 
         if (collapseClip == null)
-        {
-            collapseClip = FindClipAtPath(FallClipAssetPath, "Unarmed-Knockdown1");
-        }
+            collapseClip = FindClipAtPath(FallClipAssetPath, "MCU_am_InjuredBelly_DropToFloor");
 #endif
     }
 
