@@ -75,8 +75,13 @@ public class Level2PuzzleManager : MonoBehaviour
             GetFireFx("COMP_PROP_brazier_dungeon_03 (3)"),
         };
 
-        var middleDoor = GetOrAddDoorOpener("door1", new Vector3(0f, 4f, 0f), 1.5f);
-        if (middleDoor != null) middleDoor.hideOnOpen = true;
+        var middleDoor = GetOrAddDoorOpener("door1", Vector3.zero, 6.5f);
+        if (middleDoor != null)
+        {
+            middleDoor.useAbsoluteLocalPosition = true;
+            middleDoor.targetLocalPosition = new Vector3(middleDoor.transform.localPosition.x, middleDoor.transform.localPosition.y, 5.59f);
+            middleDoor.disableColliderOnOpen = false;
+        }
 
         for (int i = 0; i < middleFires.Length; i++)
             SetBrazierLit(middleFires[i], false);
@@ -113,8 +118,13 @@ public class Level2PuzzleManager : MonoBehaviour
             GetFireFx("COMP_PROP_brazier_dungeon_03 (5)"),
         };
 
-        var door2 = GetOrAddDoorOpener("door2", new Vector3(0f, 4f, 0f), 1.5f);
-        if (door2 != null) door2.hideOnOpen = true;
+        var door2 = GetOrAddDoorOpener("door2", Vector3.zero, 1.5f);
+        if (door2 != null) 
+        {
+            door2.hideOnOpen = false;
+            door2.useRotation = true;
+            door2.targetRotationEuler = new Vector3(door2.transform.eulerAngles.x, -135.468f, door2.transform.eulerAngles.z);
+        }
 
         for (int i = 0; i < bigDoorFires.Length; i++)
             SetBrazierLit(bigDoorFires[i], false);
