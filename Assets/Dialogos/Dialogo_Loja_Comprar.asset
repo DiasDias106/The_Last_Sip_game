@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68e19cf2c0a105c40a281f82d309ec86, type: 3}
+  m_Name: Dialogo_Loja_Comprar
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - textEN: Use this only as a last resort. Promise?
+    textPT: "Usa isto apenas em \xFAltimo caso. Prometes?"
+    audioClip: {fileID: 8300000, guid: 885c8373decfe2f44b5191b0a8352809, type: 3}
+  - textEN: A toast to your weakness. Come back anytime.
+    textPT: "Um brinde \xE0 tua fraqueza. Volta sempre."
+    audioClip: {fileID: 8300000, guid: fd4c318711840f24688475d208433fcd, type: 3}
+  - textEN: Quick relief, but you know well the price isn't just paid in coin.
+    textPT: "Um al\xEDvio r\xE1pido, mas sabes bem que o pre\xE7o n\xE3o se paga
+      s\xF3 em moedas."
+    audioClip: {fileID: 8300000, guid: 090980114ba23b949b6cd65be722ab40, type: 3}
+  playRandomLine: 1

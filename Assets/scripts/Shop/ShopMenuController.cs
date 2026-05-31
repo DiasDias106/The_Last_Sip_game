@@ -23,6 +23,13 @@ public class ShopMenuController : MonoBehaviour
     private bool _wasCursorVisible;
     private CursorLockMode _previousLockMode;
 
+    [Header("Dialogos da Loja")]
+    public DialogueData dialogoInventarioCheio;
+    public DialogueData dialogoComprar;
+    public DialogueData dialogoSairSemComprar;
+
+    private bool _comprouAlgo;
+
     [System.Serializable]
     private struct DrinkData
     {
@@ -389,6 +396,10 @@ public class ShopMenuController : MonoBehaviour
         if (!hasSpace)
         {
             SetStatus("Ja tens o maximo de 5 dessa garrafa.");
+            if (dialogoInventarioCheio != null) 
+            {
+                DialogueUIManager.Instance.StartDialogue(dialogoInventarioCheio);
+            }
             return;
         }
 
@@ -410,6 +421,12 @@ public class ShopMenuController : MonoBehaviour
 
         SetStatus("Compraste: " + drink.Name);
         RefreshShopRows();
+        
+        if (dialogoComprar != null) 
+        {
+            DialogueUIManager.Instance.StartDialogue(dialogoComprar);
+        }
+        _comprouAlgo = true;
     }
 
     private void SetStatus(string message)
@@ -456,6 +473,7 @@ public class ShopMenuController : MonoBehaviour
         RefreshShopRows();
         SetStatus("Cada garrafa pode ir ate 5 no inventario.");
         Time.timeScale = 0f;
+        _comprouAlgo = false;
 
         _wasCursorVisible = Cursor.visible;
         _previousLockMode = Cursor.lockState;
@@ -474,6 +492,11 @@ public class ShopMenuController : MonoBehaviour
 
         Cursor.visible = _wasCursorVisible;
         Cursor.lockState = _previousLockMode;
+
+        if (!_comprouAlgo && dialogoSairSemComprar != null)
+        {
+            DialogueUIManager.Instance.StartDialogue(dialogoSairSemComprar);
+        }
     }
 
     private void Update()

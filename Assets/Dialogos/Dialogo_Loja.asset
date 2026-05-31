@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68e19cf2c0a105c40a281f82d309ec86, type: 3}
+  m_Name: Dialogo_Loja
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - textEN: Blessed are those who find happiness outside of alcohol, my friend.
+    textPT: bem aventurados sejam os que encontram a felicidade fora da bebida meu
+      amigo.
+    audioClip: {fileID: 8300000, guid: 4bfb9c4e282a47b4ea0d3d18706d24e0, type: 3}
+  - textEN: Ironic, isn't it? You fight them out there, yet you come here looking
+      for what feeds them.
+    textPT: "\xC9 ir\xF3nico, n\xE3o \xE9? Lutas contra eles l\xE1 fora, mas vens
+      aqui procurar o que os alimenta."
+    audioClip: {fileID: 8300000, guid: 9a122ea6c746d404f9f0449a35abeb41, type: 3}
+  - textEN: I've only got bottles left. Be careful not to drown in the 'cure'.
+    textPT: "S\xF3 me restam garrafas. Tem cuidado para n\xE3o te afogares na 'cura'."
+    audioClip: {fileID: 8300000, guid: 83eca1c1659994842998f73fb84d2df8, type: 3}
+  playRandomLine: 1

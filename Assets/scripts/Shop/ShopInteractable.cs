@@ -7,6 +7,11 @@ public class ShopInteractable : MonoBehaviour
 {
     [SerializeField] private float interactionDistance = 2.5f;
 
+    [Header("Dialogos da Loja")]
+    public DialogueData dialogoInventarioCheio;
+    public DialogueData dialogoComprar;
+    public DialogueData dialogoSairSemComprar;
+
     private bool _isPlayerNear;
     private GUIStyle _promptStyle;
     private const float PromptMaxWidth = 220f;
@@ -34,6 +39,10 @@ public class ShopInteractable : MonoBehaviour
             var go = new GameObject("ShopMenuController");
             go.AddComponent<ShopMenuController>();
         }
+
+        ShopMenuController.Instance.dialogoInventarioCheio = dialogoInventarioCheio;
+        ShopMenuController.Instance.dialogoComprar = dialogoComprar;
+        ShopMenuController.Instance.dialogoSairSemComprar = dialogoSairSemComprar;
 
         ShopMenuController.Instance.Show();
     }

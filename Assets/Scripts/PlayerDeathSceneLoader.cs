@@ -265,6 +265,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         if (_deathCanvas != null) Destroy(_deathCanvas);
 
         PlayerPrefs.SetInt(DeathRetryKey, 1);
+        PlayerPrefs.SetInt("JustRespawned", 1);
         PlayerPrefs.Save();
 
         var loaderGo = new GameObject("__PostDeathFader__");
