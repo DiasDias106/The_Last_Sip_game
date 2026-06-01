@@ -7,7 +7,7 @@ public class PlayerLavaRespawn : MonoBehaviour
     [SerializeField] private string lavaTag = "Lava";
     [SerializeField] private string trapBaseNameContains = "base_armadilha";
     [SerializeField] private float sinkSpeed    = 1.2f;
-    [SerializeField] private float sinkDuration = 1.5f;
+    [SerializeField] private float sinkDuration = 4f;
 
     private PlayerHealth                _playerHealth;
     private UserImportedPlayerController _playerController;
@@ -64,22 +64,23 @@ public class PlayerLavaRespawn : MonoBehaviour
     {
         _isDying = true;
 
-        // Desativa o controller do player para controlar o movimento manualmente
+        // Desativa ambos para evitar conflitos
         if (_playerController != null) _playerController.enabled = false;
+        if (_characterController != null) _characterController.enabled = false;
 
         float elapsed = 0f;
         while (elapsed < sinkDuration)
         {
             elapsed += Time.deltaTime;
-            // Afunda o player progressivamente
-            if (_characterController != null && _characterController.enabled)
-                _characterController.Move(Vector3.down * sinkSpeed * Time.deltaTime);
-            else
-                transform.position += Vector3.down * sinkSpeed * Time.deltaTime;
+            transform.position += Vector3.down * sinkSpeed * Time.deltaTime;
             yield return null;
         }
 
-        // Mata o player após afundar
+        // Corpo desaparece ao fim dos 4 segundos
+        foreach (var r in GetComponentsInChildren<Renderer>(true))
+            r.enabled = false;
+
+        // Mata o player
         if (_playerHealth != null && !_playerHealth.IsDead)
             _playerHealth.TakeDamage(_playerHealth.maxHealth);
     }

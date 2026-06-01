@@ -1,17 +1,20 @@
 using UnityEngine;
+using System.Collections;
 
 public sealed class GameMusicManager : MonoBehaviour
 {
     public static GameMusicManager Instance { get; private set; }
 
+    [SerializeField] private float fadeInDuration  = 2f;
+    [SerializeField] private float fadeOutDuration = 1.5f;
+
     private AudioSource _source;
     private AudioClip   _ambientClip;
     private AudioClip   _combatClip;
     private AudioClip   _bossClip;
-
     private int  _combatCount;
     private bool _bossActive;
-    private float _volumeTimer;
+    private Coroutine _fadeRoutine;
 
     private const string MasterKey = "MainMenu.MasterVolume";
     private const string MusicKey  = "MainMenu.MusicVolume";
@@ -32,82 +35,154 @@ public sealed class GameMusicManager : MonoBehaviour
         _source = gameObject.AddComponent<AudioSource>();
         _source.loop = true;
         _source.playOnAwake = false;
-        RefreshVolume();
+        _source.volume = 0f;
     }
 
-    private void OnDestroy()
-    {
-        if (Instance == this) Instance = null;
-    }
-
-    private void Update()
-    {
-        _volumeTimer += Time.unscaledDeltaTime;
-        if (_volumeTimer >= 2f) { _volumeTimer = 0f; RefreshVolume(); }
-    }
+    private void OnDestroy() { if (Instance == this) Instance = null; }
 
     public void SetupForScene(AudioClip ambient, AudioClip combat, AudioClip boss)
     {
-        _ambientClip  = ambient;
-        _combatClip   = combat;
-        _bossClip     = boss;
-        _combatCount  = 0;
-        _bossActive   = false;
-        PlayClip(_ambientClip);
+        _ambientClip = ambient;
+        _combatClip  = combat;
+        _bossClip    = boss;
+        _combatCount = 0;
+        _bossActive  = false;
+
+        // Pré-carregar todos os clips para evitar stutter quando mudam
+        PreloadClip(ambient);
+        PreloadClip(combat);
+        PreloadClip(boss);
+
+        StartMusicFadeIn(ambient);
     }
+
+    private static void PreloadClip(AudioClip clip)
+    {
+        if (clip != null && clip.loadState == AudioDataLoadState.Unloaded)
+            clip.LoadAudioData();
+    }
+
+    /// <summary>True quando inimigos estão a perseguir/atacar o player.</summary>
+    public bool IsInCombat => _combatCount > 0 || _bossActive;
 
     public void StopAll()
     {
-        _source.Stop();
-        _ambientClip = null;
-        _combatClip  = null;
-        _bossClip    = null;
-        _combatCount = 0;
-        _bossActive  = false;
+        _ambientClip = _combatClip = _bossClip = null;
+        _combatCount = 0; _bossActive = false;
+        FadeOutAndStop();
     }
 
     public void EnterCombat()
     {
         _combatCount++;
         if (_combatCount == 1 && !_bossActive && _combatClip != null)
-            PlayClip(_combatClip);
+            CrossFadeTo(_combatClip);
     }
 
     public void ExitCombat()
     {
         _combatCount = Mathf.Max(0, _combatCount - 1);
         if (_combatCount == 0 && !_bossActive)
-            PlayClip(_ambientClip);
+            CrossFadeTo(_ambientClip);
     }
 
     public void EnterBoss()
     {
         _bossActive = true;
-        PlayClip(_bossClip != null ? _bossClip : _ambientClip);
+        CrossFadeTo(_bossClip != null ? _bossClip : _ambientClip);
     }
 
     public void ExitBoss()
     {
         _bossActive = false;
-        if (_combatCount > 0 && _combatClip != null)
-            PlayClip(_combatClip);
-        else
-            PlayClip(_ambientClip);
+        CrossFadeTo(_combatCount > 0 && _combatClip != null ? _combatClip : _ambientClip);
     }
 
-    private void PlayClip(AudioClip clip)
+    // ── Privado ───────────────────────────────────────────────────────────────
+    private void StartMusicFadeIn(AudioClip clip)
+    {
+        if (clip == null) return;
+        if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
+        _source.Stop();
+        _source.clip  = clip;
+        _source.volume = 0f;
+        _source.Play();
+        _fadeRoutine = StartCoroutine(FadeVolume(0f, TargetVolume(), fadeInDuration));
+    }
+
+    private void CrossFadeTo(AudioClip clip)
     {
         if (clip == null) return;
         if (_source.clip == clip && _source.isPlaying) return;
-        RefreshVolume();
-        _source.clip = clip;
-        _source.Play();
+        if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
+        _fadeRoutine = StartCoroutine(CrossFadeRoutine(clip));
     }
 
-    private void RefreshVolume()
+    private IEnumerator CrossFadeRoutine(AudioClip newClip)
+    {
+        // Fade out
+        float startVol = _source.volume;
+        float elapsed  = 0f;
+        while (elapsed < fadeOutDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            _source.volume = Mathf.Lerp(startVol, 0f, elapsed / fadeOutDuration);
+            yield return null;
+        }
+        _source.volume = 0f;
+        _source.clip = newClip;
+        _source.Play();
+        // Fade in
+        elapsed = 0f;
+        float target = TargetVolume();
+        while (elapsed < fadeInDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            _source.volume = Mathf.Lerp(0f, target, elapsed / fadeInDuration);
+            yield return null;
+        }
+        _source.volume = target;
+        _fadeRoutine = null;
+    }
+
+    private void FadeOutAndStop()
+    {
+        if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
+        _fadeRoutine = StartCoroutine(FadeOutStopRoutine());
+    }
+
+    private IEnumerator FadeOutStopRoutine()
+    {
+        float startVol = _source.volume;
+        float elapsed  = 0f;
+        while (elapsed < fadeOutDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            _source.volume = Mathf.Lerp(startVol, 0f, elapsed / fadeOutDuration);
+            yield return null;
+        }
+        _source.Stop();
+        _source.volume = 0f;
+        _fadeRoutine = null;
+    }
+
+    private IEnumerator FadeVolume(float from, float to, float duration)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            _source.volume = Mathf.Lerp(from, to, Mathf.Clamp01(elapsed / duration));
+            yield return null;
+        }
+        _source.volume = to;
+        _fadeRoutine = null;
+    }
+
+    private float TargetVolume()
     {
         float master = PlayerPrefs.GetFloat(MasterKey, 0.8f);
         float music  = PlayerPrefs.GetFloat(MusicKey,  0.6f);
-        _source.volume = master * music;
+        return master * music;
     }
 }

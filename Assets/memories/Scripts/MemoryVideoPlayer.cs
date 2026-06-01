@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using System.Collections;
 
 public class MemoryVideoPlayer : MonoBehaviour
 {
@@ -10,9 +11,13 @@ public class MemoryVideoPlayer : MonoBehaviour
     [Tooltip("Slot 0 = video for boss 1, Slot 1 = boss 2, Slot 2 = boss 3")]
     public VideoClip[] videoClips = new VideoClip[3];
 
-    // UI references — assigned at runtime when the prefab is built
+    [Header("Fade")]
+    [SerializeField] private float fadeInDuration  = 1f;
+    [SerializeField] private float fadeOutDuration = 1f;
+
     private GameObject     videoPanel;
     private RawImage       videoDisplay;
+    private Image          fadeOverlay;   // overlay preto para fade in/out
     private Text           skipText;
     private VideoPlayer    videoPlayer;
     private RenderTexture  renderTexture;
@@ -31,7 +36,6 @@ public class MemoryVideoPlayer : MonoBehaviour
 
     void BuildUI()
     {
-        // Canvas
         var canvasGO = new GameObject("MemoryCanvas");
         canvasGO.transform.SetParent(transform);
         var canvas = canvasGO.AddComponent<Canvas>();
@@ -40,7 +44,7 @@ public class MemoryVideoPlayer : MonoBehaviour
         canvasGO.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         canvasGO.AddComponent<GraphicRaycaster>();
 
-        // Dark panel
+        // Dark panel background
         videoPanel = new GameObject("VideoPanel");
         videoPanel.transform.SetParent(canvasGO.transform, false);
         var panelImg = videoPanel.AddComponent<Image>();
@@ -75,6 +79,16 @@ public class MemoryVideoPlayer : MonoBehaviour
         skipRect.offsetMin = new Vector2(0, 0);
         skipRect.offsetMax = new Vector2(0, 30);
 
+        // Fade overlay — fica no topo, começa preto e faz fade
+        var fadeGO = new GameObject("FadeOverlay");
+        fadeGO.transform.SetParent(videoPanel.transform, false);
+        fadeOverlay = fadeGO.AddComponent<Image>();
+        fadeOverlay.color = Color.black;
+        var fadeRect = fadeGO.GetComponent<RectTransform>();
+        fadeRect.anchorMin = Vector2.zero;
+        fadeRect.anchorMax = Vector2.one;
+        fadeRect.offsetMin = fadeRect.offsetMax = Vector2.zero;
+
         videoPanel.SetActive(false);
     }
 
@@ -84,7 +98,7 @@ public class MemoryVideoPlayer : MonoBehaviour
         videoPlayer.playOnAwake   = false;
         videoPlayer.renderMode    = VideoRenderMode.RenderTexture;
         videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
-        videoPlayer.timeReference = VideoTimeReference.Freerun; // Ignora o timeScale = 0
+        videoPlayer.timeReference = VideoTimeReference.Freerun;
 
         var audioSource = gameObject.AddComponent<AudioSource>();
         videoPlayer.SetTargetAudioSource(0, audioSource);
@@ -93,7 +107,7 @@ public class MemoryVideoPlayer : MonoBehaviour
         videoPlayer.targetTexture = renderTexture;
         if (videoDisplay != null) videoDisplay.texture = renderTexture;
 
-        videoPlayer.loopPointReached += _ => CloseVideo();
+        videoPlayer.loopPointReached += _ => StartCoroutine(FadeOutAndClose());
     }
 
     void ClearRenderTexture()
@@ -111,42 +125,57 @@ public class MemoryVideoPlayer : MonoBehaviour
         int slot = index - 1;
         if (slot < 0 || slot >= videoClips.Length || videoClips[slot] == null)
         {
-            Debug.LogWarning($"[MemoryVideoPlayer] No video clip assigned for boss {index}. Add clips in the Inspector.");
+            Debug.LogWarning($"[MemoryVideoPlayer] No video clip assigned for boss {index}.");
             return;
         }
 
         ClearRenderTexture();
-
         videoPlayer.source = VideoSource.VideoClip;
         videoPlayer.clip = videoClips[slot];
         videoDisplay.texture = renderTexture;
-        videoPanel.SetActive(true);
-        isPlaying = true;
-        Time.timeScale = 0f;
-        videoPlayer.Play();
+        StartCoroutine(PlayWithFade());
     }
 
     public void PlayVideoByName(string videoFileName, System.Action onComplete = null)
     {
         onVideoFinishedCallback = onComplete;
-        
         ClearRenderTexture();
 
         string pathStr = System.IO.Path.Combine(Application.dataPath, "videos", videoFileName + ".mp4");
         videoPlayer.source = VideoSource.Url;
         videoPlayer.url = pathStr;
-        
         videoDisplay.texture = renderTexture;
+        StartCoroutine(PlayWithFade());
+    }
+
+    private IEnumerator PlayWithFade()
+    {
+        // Mostrar painel com overlay preto
+        SetOverlayAlpha(1f);
         videoPanel.SetActive(true);
         isPlaying = true;
         Time.timeScale = 0f;
         videoPlayer.Play();
+
+        // Fade in — overlay vai de preto para transparente
+        yield return StartCoroutine(FadeOverlay(1f, 0f, fadeInDuration));
     }
 
     void Update()
     {
-        if (isPlaying && UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame)
-            CloseVideo();
+        if (isPlaying && UnityEngine.InputSystem.Keyboard.current != null &&
+            UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame)
+            StartCoroutine(FadeOutAndClose());
+    }
+
+    private IEnumerator FadeOutAndClose()
+    {
+        if (!isPlaying) yield break;
+
+        // Fade out — overlay vai de transparente para preto
+        yield return StartCoroutine(FadeOverlay(0f, 1f, fadeOutDuration));
+
+        CloseVideo();
     }
 
     void CloseVideo()
@@ -160,5 +189,24 @@ public class MemoryVideoPlayer : MonoBehaviour
         var callback = onVideoFinishedCallback;
         onVideoFinishedCallback = null;
         callback?.Invoke();
+    }
+
+    private IEnumerator FadeOverlay(float from, float to, float duration)
+    {
+        float elapsed = 0f;
+        SetOverlayAlpha(from);
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            SetOverlayAlpha(Mathf.Lerp(from, to, Mathf.Clamp01(elapsed / duration)));
+            yield return null;
+        }
+        SetOverlayAlpha(to);
+    }
+
+    private void SetOverlayAlpha(float alpha)
+    {
+        if (fadeOverlay != null)
+            fadeOverlay.color = new Color(0f, 0f, 0f, alpha);
     }
 }
