@@ -1,5 +1,4 @@
 using System.Collections;
-using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -383,17 +382,7 @@ public sealed class PauseMenuController : MonoBehaviour
         pausePanel?.HideImmediate();
         SetOverlayVisible(false);
         yield return null;
-        yield return new WaitForEndOfFrame();
-
-        int activeSlot = SaveManager.GetActiveSlot();
-        string screenshotPath = SaveManager.GetSlotScreenshotPath(activeSlot);
-
-        if (!TryCaptureScreenshot(screenshotPath))
-        {
-            screenshotPath = string.Empty;
-        }
-
-        SaveManager.SaveActiveSlotFromCurrentScene(SceneManager.GetActiveScene().name, screenshotPath);
+        yield return SaveManager.SaveActiveSlotFromCurrentSceneRoutine(SceneManager.GetActiveScene().name);
 
         SetOverlayVisible(true);
         if (settingsWasVisible)
@@ -414,50 +403,6 @@ public sealed class PauseMenuController : MonoBehaviour
             ShowSaveFeedback("JOGO GUARDADO");
         }
         isSaving = false;
-    }
-
-    private bool TryCaptureScreenshot(string screenshotPath)
-    {
-        if (string.IsNullOrWhiteSpace(screenshotPath))
-        {
-            return false;
-        }
-
-        string directory = Path.GetDirectoryName(screenshotPath);
-        if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
-
-        Texture2D shot = null;
-        try
-        {
-            shot = ScreenCapture.CaptureScreenshotAsTexture();
-            if (shot == null)
-            {
-                return false;
-            }
-
-            byte[] png = shot.EncodeToPNG();
-            if (png == null || png.Length == 0)
-            {
-                return false;
-            }
-
-            File.WriteAllBytes(screenshotPath, png);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-        finally
-        {
-            if (shot != null)
-            {
-                Destroy(shot);
-            }
-        }
     }
 
     private static bool IsEscapePressedThisFrame()

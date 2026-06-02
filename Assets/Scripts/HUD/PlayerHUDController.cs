@@ -20,9 +20,15 @@ public class PlayerHUDController : MonoBehaviour
     private Text _coinsText, _gemsText;
     private Text _interactionPrompt;
     private Text _statusMessage;
+    private RectTransform _resourcesContainerRT;
+    private RectTransform _autosaveIndicatorRoot;
+    private Image _autosaveIndicatorImage;
+    private Coroutine _autosaveIndicatorRoutine;
     private readonly List<(Text title, Text desc)> _objRows = new List<(Text, Text)>();
     private PlayerHealth _subscribedHealth;
     private Coroutine _statusMessageRoutine;
+
+    public RectTransform ResourcesContainerRect => _resourcesContainerRT;
 
     void Update()
     {
@@ -40,6 +46,11 @@ public class PlayerHUDController : MonoBehaviour
 
             if (_subscribedHealth != null)
                 SetHealthFill(_subscribedHealth.CurrentHealth, _subscribedHealth.maxHealth);
+        }
+
+        if (_autosaveIndicatorRoot != null && _autosaveIndicatorImage != null && _autosaveIndicatorImage.enabled)
+        {
+            _autosaveIndicatorRoot.Rotate(0f, 0f, 160f * Time.unscaledDeltaTime);
         }
     }
 
@@ -211,6 +222,41 @@ public class PlayerHUDController : MonoBehaviour
         }
 
         _statusMessageRoutine = StartCoroutine(ShowTemporaryMessageRoutine(message, duration));
+    }
+
+    public void ShowAutosaveIndicator(float duration = 2f)
+    {
+        if (_autosaveIndicatorImage == null || _autosaveIndicatorRoot == null)
+        {
+            return;
+        }
+
+        if (_autosaveIndicatorRoutine != null)
+        {
+            StopCoroutine(_autosaveIndicatorRoutine);
+        }
+
+        _autosaveIndicatorRoutine = StartCoroutine(ShowAutosaveIndicatorRoutine(duration));
+    }
+
+    IEnumerator ShowAutosaveIndicatorRoutine(float duration)
+    {
+        _autosaveIndicatorRoot.localRotation = Quaternion.identity;
+        _autosaveIndicatorImage.enabled = true;
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (_autosaveIndicatorImage != null)
+        {
+            _autosaveIndicatorImage.enabled = false;
+        }
+
+        _autosaveIndicatorRoutine = null;
     }
 
     IEnumerator ShowTemporaryMessageRoutine(string message, float duration)
@@ -445,6 +491,7 @@ public class PlayerHUDController : MonoBehaviour
         var container = new GameObject("ResourcesContainer");
         container.transform.SetParent(root, false);
         var cRT = container.AddComponent<RectTransform>();
+        _resourcesContainerRT = cRT;
         cRT.anchorMin = new Vector2(1, 1); cRT.anchorMax = new Vector2(1, 1);
         cRT.pivot = new Vector2(1, 1);
         cRT.sizeDelta = new Vector2(160, 48);
@@ -484,6 +531,36 @@ public class PlayerHUDController : MonoBehaviour
         ctRT.pivot = new Vector2(1, 0.5f);
         ctRT.sizeDelta = new Vector2(100, 30);
         ctRT.anchoredPosition = new Vector2(-16, 0);
+
+        var autosaveGo = new GameObject("AutosaveIndicator");
+        autosaveGo.transform.SetParent(container.transform, false);
+        _autosaveIndicatorRoot = autosaveGo.GetComponent<RectTransform>();
+        _autosaveIndicatorRoot.anchorMin = new Vector2(0.5f, 0f);
+        _autosaveIndicatorRoot.anchorMax = new Vector2(0.5f, 0f);
+        _autosaveIndicatorRoot.pivot = new Vector2(0.5f, 1f);
+        _autosaveIndicatorRoot.anchoredPosition = new Vector2(0f, -10f);
+        _autosaveIndicatorRoot.sizeDelta = new Vector2(42f, 42f);
+
+        var ringGo = new GameObject("WineRing");
+        ringGo.transform.SetParent(autosaveGo.transform, false);
+        _autosaveIndicatorImage = ringGo.AddComponent<Image>();
+        _autosaveIndicatorImage.raycastTarget = false;
+        _autosaveIndicatorImage.enabled = false;
+
+        Sprite ringSprite = Resources.Load<Sprite>("loading_wine_ring");
+        if (ringSprite != null)
+        {
+            _autosaveIndicatorImage.sprite = ringSprite;
+            _autosaveIndicatorImage.preserveAspect = true;
+            _autosaveIndicatorImage.color = new Color(1f, 1f, 1f, 0.95f);
+        }
+
+        var ringRT = ringGo.GetComponent<RectTransform>();
+        ringRT.anchorMin = new Vector2(0.5f, 0.5f);
+        ringRT.anchorMax = new Vector2(0.5f, 0.5f);
+        ringRT.pivot = new Vector2(0.5f, 0.5f);
+        ringRT.anchoredPosition = Vector2.zero;
+        ringRT.sizeDelta = new Vector2(36f, 36f);
     }
 
     void Borders(Transform parent, Color col, float t)

@@ -40,6 +40,17 @@ public class RuntimeSceneTransitionOverlay : MonoBehaviour
         }
     }
 
+    public static bool IsOverlayVisible()
+    {
+        var existing = FindAnyObjectByType<RuntimeSceneTransitionOverlay>();
+        if (existing == null || existing._canvas == null || existing._background == null)
+        {
+            return false;
+        }
+
+        return existing._canvas.gameObject.activeSelf && existing._background.color.a > 0.01f;
+    }
+
     /// <summary>Mantém o ícone a rodar, aguarda o player aparecer + 1s, depois esconde o loading panel.</summary>
     public static void WaitForPlayerAndHidePanel(UnityEngine.GameObject panel, float spinSpeed, UnityEngine.RectTransform icon)
     {
