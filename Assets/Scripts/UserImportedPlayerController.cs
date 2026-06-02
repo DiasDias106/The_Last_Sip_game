@@ -148,6 +148,7 @@ public class UserImportedPlayerController : MonoBehaviour
         if (_controller == null || _visualRoot == null) return;
         if (_isScriptedSequencePlaying)
         {
+            UpdateAnimationTransition();
             SampleCurrentClip();
             return;
         }
@@ -222,38 +223,51 @@ public class UserImportedPlayerController : MonoBehaviour
         _verticalVelocity = -1f;
 
         AttachBottleToRightHand(bottleTransform);
-        yield return WaitForSecondsRoutine(0.18f);
+        yield return WaitForSecondsRoutine(0.1f);
 
         if (drinkIntroClip != null)
         {
-            PlayDirectClip(drinkIntroClip);
-            yield return WaitForClipSeconds(drinkIntroClip, 0.95f, 4f); // deixar tocar
+            PlayDirectClipImmediate(drinkIntroClip, 0f, 1f);
+            yield return WaitForClipSeconds(drinkIntroClip, 1f, 5f);
         }
 
         if (drinkLoopClip != null)
         {
-            PlayDirectClip(drinkLoopClip);
-            yield return WaitForClipSeconds(drinkLoopClip, 0.38f, 1.5f);
+            PlayDirectClipImmediate(drinkLoopClip, 0f, 1f);
+            yield return WaitForClipSeconds(drinkLoopClip, 1f, 4f);
         }
-
-        yield return WaitForSecondsRoutine(0.15f);
 
         if (bottleTransform != null)
         {
             bottleTransform.gameObject.SetActive(false);
         }
 
+        yield return WaitForSecondsRoutine(0.1f);
+
         if (collapseClip != null)
         {
-            PlayDirectClip(collapseClip);
-            yield return WaitForClipSeconds(collapseClip, 1f, 8f); // espera o clip todo
+            PlayDirectClipImmediate(collapseClip, 0f, 1f);
+            yield return WaitForClipSeconds(collapseClip, 1f, 8f);
+            // Congelar no último frame (evita loop da animação)
+            float lastFrame = Mathf.Max(0f, collapseClip.length - 0.02f);
+            _clipTime = lastFrame;
+            _currentClipSpeed = 0f;
+            if (_graphCreated && _clipPlayable.IsValid())
+            {
+                _clipPlayable.SetTime(lastFrame);
+                _clipPlayable.SetSpeed(0);
+                _playableGraph.Evaluate();
+            }
         }
 
-        yield return WaitForSecondsRoutine(0.3f);
-
-        _isScriptedSequencePlaying = false;
+        // Invocar transição sem desativar _isScriptedSequencePlaying
+        // O player fica deitado enquanto o ecrã faz fade to black
         _activeScriptedSequence = null;
         onComplete?.Invoke();
+
+        // Segurança: caso a transição de cena falhe, desbloquear ao fim de 5s
+        yield return WaitForSecondsRoutine(5f);
+        _isScriptedSequencePlaying = false;
     }
 
     private IEnumerator PlayConsumableDrinkSequenceRoutine(Action onDrinkMoment)
