@@ -88,7 +88,7 @@ public sealed class SaveSlotButton : MonoBehaviour
 
         if (statusText != null)
         {
-            statusText.text = hasSave ? "Jogo guardado" : "Slot vazio";
+            statusText.text = hasSave ? UiText.LocalizeKnownText("Jogo guardado") : UiText.LocalizeKnownText("Slot vazio");
         }
 
         if (detailsText != null)
@@ -98,11 +98,11 @@ public sealed class SaveSlotButton : MonoBehaviour
                 string sceneName = string.IsNullOrWhiteSpace(data.currentScene) ? "Beco" : data.currentScene;
                 string date = string.IsNullOrWhiteSpace(data.lastPlayedDate) ? "-" : data.lastPlayedDate;
                 float playTime = SaveManager.GetLivePlayTimeForSlot(slotIndex);
-                detailsText.text = $"Data: {date}\nScene: {sceneName}\nTempo: {FormatPlayTime(playTime)}";
+                detailsText.text = $"{UiText.LocalizeKnownText("Data:")} {date}\n{UiText.LocalizeKnownText("Scene:")} {sceneName}\n{UiText.LocalizeKnownText("Tempo:")} {FormatPlayTime(playTime)}";
             }
             else
             {
-                detailsText.text = continueMode ? "Vazio" : "Novo Jogo";
+                detailsText.text = continueMode ? UiText.LocalizeKnownText("Vazio") : UiText.LocalizeKnownText("Novo Jogo");
             }
         }
 
@@ -115,11 +115,11 @@ public sealed class SaveSlotButton : MonoBehaviour
             {
                 if (hasSave)
                 {
-                    footerText.text = "Continuar";
+                    footerText.text = UiText.LocalizeKnownText("CONTINUAR");
                 }
                 else
                 {
-                    footerText.text = continueMode ? "Vazio" : "Novo Jogo";
+                    footerText.text = continueMode ? UiText.LocalizeKnownText("Vazio") : UiText.LocalizeKnownText("Novo Jogo");
                 }
             }
         }
@@ -210,7 +210,7 @@ public sealed class SaveSlotButton : MonoBehaviour
             deleteButtonText = deleteRoot.GetComponentInChildren<TMP_Text>(true);
             if (deleteButtonText != null)
             {
-                deleteButtonText.text = "APAGAR";
+                deleteButtonText.text = UiText.GetMainMenuButtonLabel("delete");
             }
 
             deleteRoot.transform.SetAsLastSibling();
@@ -281,7 +281,7 @@ public sealed class SaveSlotButton : MonoBehaviour
         labelRect.offsetMax = Vector2.zero;
 
         deleteButtonText = labelGo.AddComponent<TextMeshProUGUI>();
-        deleteButtonText.text = "APAGAR";
+        deleteButtonText.text = UiText.GetMainMenuButtonLabel("delete");
         deleteButtonText.fontSize = 18f;
         deleteButtonText.alignment = TextAlignmentOptions.Center;
         deleteButtonText.color = new Color32(233, 217, 190, 255);

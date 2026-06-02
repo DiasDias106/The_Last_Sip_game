@@ -68,8 +68,12 @@ public sealed class SlotSelectionController : MonoBehaviour
         CurrentMode = mode;
         if (titleText != null)
         {
-            titleText.text = mode == SlotSelectionMode.NewGame ? "NOVO JOGO" : "CONTINUAR JOGO";
+            titleText.text = mode == SlotSelectionMode.NewGame
+                ? UiText.LocalizeKnownText("NOVO JOGO")
+                : UiText.LocalizeKnownText("CONTINUAR JOGO");
         }
+
+        backButton?.SetLabel(UiText.GetMainMenuButtonLabel("back"));
 
         panel?.Show();
         Refresh();

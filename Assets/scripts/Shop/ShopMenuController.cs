@@ -126,7 +126,7 @@ public class ShopMenuController : MonoBehaviour
         GameObject titleGo = new GameObject("Title");
         titleGo.transform.SetParent(bgGo.transform, false);
         Text titleText = titleGo.AddComponent<Text>();
-        titleText.text = "Taverna do Baco";
+        titleText.text = UiText.LocalizeKnownText("Taverna do Baco");
         titleText.font = fontBold;
         titleText.fontSize = 58;
         titleText.fontStyle = FontStyle.Normal;
@@ -142,7 +142,7 @@ public class ShopMenuController : MonoBehaviour
         GameObject subGo = new GameObject("Subtitle");
         subGo.transform.SetParent(bgGo.transform, false);
         Text subText = subGo.AddComponent<Text>();
-        subText.text = "Comida, Bebida e Boas Historias";
+        subText.text = UiText.LocalizeKnownText("Comida, Bebida e Boas Historias");
         subText.font = fontRegular;
         subText.fontSize = 24;
         subText.fontStyle = FontStyle.Italic;
@@ -164,9 +164,9 @@ public class ShopMenuController : MonoBehaviour
         headerRect.offsetMin = new Vector2(60, -180);
         headerRect.offsetMax = new Vector2(-60, -140);
 
-        CreateText(headerGo.transform, "HeaderItem", "Item", fontRegular, 28, new Color(0.7f, 0.65f, 0.5f), TextAnchor.MiddleLeft, new Vector2(0, 0), new Vector2(0.2f, 1));
-        CreateText(headerGo.transform, "HeaderDesc", "Descricao", fontRegular, 28, new Color(0.7f, 0.65f, 0.5f), TextAnchor.MiddleCenter, new Vector2(0.2f, 0), new Vector2(0.8f, 1));
-        CreateText(headerGo.transform, "HeaderPrice", "Preco", fontRegular, 28, new Color(0.7f, 0.65f, 0.5f), TextAnchor.MiddleRight, new Vector2(0.8f, 0), new Vector2(1, 1), new Vector2(-60, 0));
+        CreateText(headerGo.transform, "HeaderItem", UiText.LocalizeKnownText("Item"), fontRegular, 28, new Color(0.7f, 0.65f, 0.5f), TextAnchor.MiddleLeft, new Vector2(0, 0), new Vector2(0.2f, 1));
+        CreateText(headerGo.transform, "HeaderDesc", UiText.LocalizeKnownText("Descricao"), fontRegular, 28, new Color(0.7f, 0.65f, 0.5f), TextAnchor.MiddleCenter, new Vector2(0.2f, 0), new Vector2(0.8f, 1));
+        CreateText(headerGo.transform, "HeaderPrice", UiText.LocalizeKnownText("Preco"), fontRegular, 28, new Color(0.7f, 0.65f, 0.5f), TextAnchor.MiddleRight, new Vector2(0.8f, 0), new Vector2(1, 1), new Vector2(-60, 0));
 
         CreateLine(bgGo.transform, new Vector2(60, -190), new Vector2(-60, -192));
 
@@ -207,7 +207,7 @@ public class ShopMenuController : MonoBehaviour
         GameObject closeTextGo = new GameObject("Text");
         closeTextGo.transform.SetParent(closeBtnGo.transform, false);
         Text closeText = closeTextGo.AddComponent<Text>();
-        closeText.text = "[ESC] Voltar";
+        closeText.text = UiText.LocalizeKnownText("[ESC] Voltar");
         closeText.font = fontRegular;
         closeText.fontSize = 24;
         closeText.fontStyle = FontStyle.Normal;
@@ -320,11 +320,11 @@ public class ShopMenuController : MonoBehaviour
         iconRect.sizeDelta = new Vector2(80, 80);
         iconRect.anchoredPosition = new Vector2(20, 0);
 
-        CreateText(itemGo.transform, "Name", drink.Name, fontRegular, 26, drink.Available ? activeTitleCol : inactiveTitleCol, TextAnchor.MiddleLeft, new Vector2(0, 0), new Vector2(0.35f, 1), new Vector2(0, 0));
+        CreateText(itemGo.transform, "Name", UiText.LocalizeKnownText(drink.Name), fontRegular, 26, drink.Available ? activeTitleCol : inactiveTitleCol, TextAnchor.MiddleLeft, new Vector2(0, 0), new Vector2(0.35f, 1), new Vector2(0, 0));
         RectTransform nameRt = itemGo.transform.Find("Name").GetComponent<RectTransform>();
         nameRt.offsetMin = new Vector2(120, 0);
 
-        CreateText(itemGo.transform, "Desc", drink.Description, fontRegular, 18, drink.Available ? activeDescCol : inactiveDescCol, TextAnchor.MiddleLeft, new Vector2(0.35f, 0), new Vector2(0.85f, 1), new Vector2(0, 0));
+        CreateText(itemGo.transform, "Desc", UiText.LocalizeKnownText(drink.Description), fontRegular, 18, drink.Available ? activeDescCol : inactiveDescCol, TextAnchor.MiddleLeft, new Vector2(0.35f, 0), new Vector2(0.85f, 1), new Vector2(0, 0));
         CreateText(itemGo.transform, "Price", drink.Price.ToString(), fontRegular, 28, drink.Available ? activePriceCol : inactivePriceCol, TextAnchor.MiddleRight, new Vector2(0.85f, 0), new Vector2(1, 1), new Vector2(-60, 0));
         Text priceText = itemGo.transform.Find("Price").GetComponent<Text>();
 
@@ -382,7 +382,7 @@ public class ShopMenuController : MonoBehaviour
         PlayerInventory inventory = PlayerInventory.Instance;
         if (inventory == null)
         {
-            SetStatus("Inventario nao encontrado.");
+            SetStatus(UiText.LocalizeKnownText("Inventario nao encontrado."));
             return;
         }
 
@@ -395,7 +395,7 @@ public class ShopMenuController : MonoBehaviour
 
         if (!hasSpace)
         {
-            SetStatus("Ja tens o maximo de 5 dessa garrafa.");
+            SetStatus(UiText.LocalizeKnownText("Ja tens o maximo de 5 dessa garrafa."));
             if (dialogoInventarioCheio != null) 
             {
                 DialogueUIManager.Instance.StartDialogue(dialogoInventarioCheio);
@@ -405,7 +405,7 @@ public class ShopMenuController : MonoBehaviour
 
         if (!inventory.SpendCoins(drink.Price))
         {
-            SetStatus("Nao tens moedas suficientes.");
+            SetStatus(UiText.LocalizeKnownText("Nao tens moedas suficientes."));
             return;
         }
 
@@ -419,7 +419,7 @@ public class ShopMenuController : MonoBehaviour
                 break;
         }
 
-        SetStatus("Compraste: " + drink.Name);
+        SetStatus(UiText.Choose("Compraste: ", "Purchased: ") + UiText.LocalizeKnownText(drink.Name));
         RefreshShopRows();
         
         if (dialogoComprar != null) 
@@ -445,7 +445,7 @@ public class ShopMenuController : MonoBehaviour
             bool isFull = inventory != null && IsItemFull(inventory, row.Drink.ItemKind);
             if (row.PriceText != null)
             {
-                row.PriceText.text = isFull ? "CHEIO" : row.Drink.Price.ToString();
+                row.PriceText.text = isFull ? UiText.LocalizeKnownText("CHEIO") : row.Drink.Price.ToString();
             }
 
             if (row.CoinImage != null)
@@ -471,7 +471,7 @@ public class ShopMenuController : MonoBehaviour
 
         _shopPanel.SetActive(true);
         RefreshShopRows();
-        SetStatus("Cada garrafa pode ir ate 5 no inventario.");
+        SetStatus(UiText.LocalizeKnownText("Cada garrafa pode ir ate 5 no inventario."));
         Time.timeScale = 0f;
         _comprouAlgo = false;
 

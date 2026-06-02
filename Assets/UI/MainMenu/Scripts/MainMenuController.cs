@@ -16,6 +16,7 @@ public sealed class MainMenuController : MonoBehaviour
 
     [Header("Scene Flow")]
     [SerializeField] private string defaultGameSceneName = "Beco";
+    [SerializeField] private string newGameIntroSceneName = "new_game_controls";
     [SerializeField] private SceneFadeController sceneFadeController;
     [SerializeField] private LoadingScreenController loadingScreenController;
 
@@ -130,6 +131,7 @@ public sealed class MainMenuController : MonoBehaviour
         }
 
         RefreshContinueVisibility();
+        ApplyLocalizedLabels();
         UpdateMainMenuPresentation();
 
     }
@@ -160,6 +162,11 @@ public sealed class MainMenuController : MonoBehaviour
         if (loadingScreenController != null)
         {
             loadingScreenController.SequenceFinished += HandleLoadingSequenceFinished;
+        }
+
+        if (LanguageManager.Instance != null)
+        {
+            LanguageManager.Instance.OnLanguageChanged += HandleLanguageChanged;
         }
 
     }
@@ -198,6 +205,11 @@ public sealed class MainMenuController : MonoBehaviour
         if (loadingScreenController != null)
         {
             loadingScreenController.SequenceFinished -= HandleLoadingSequenceFinished;
+        }
+
+        if (LanguageManager.Instance != null)
+        {
+            LanguageManager.Instance.OnLanguageChanged -= HandleLanguageChanged;
         }
     }
 
@@ -434,7 +446,7 @@ public sealed class MainMenuController : MonoBehaviour
             }
 
             confirmOverwritePanel?.Show(
-                "Este slot ja tem um jogo guardado. Queres apagar este progresso e comecar um novo jogo?",
+                UiText.LocalizeKnownText("Este slot já tem um jogo guardado. Queres apagar este progresso e começar um novo jogo?"),
                 () => StartNewGameInSlot(slotIndex),
                 () => slotSelectionController?.Refresh());
             return;
@@ -454,7 +466,8 @@ public sealed class MainMenuController : MonoBehaviour
         SaveManager.CreateNewGame(slotIndex);
         SaveManager.SetActiveSlot(slotIndex);
         RefreshContinueVisibility();
-        StartLoadingToScene(defaultGameSceneName);
+        string introScene = string.IsNullOrWhiteSpace(newGameIntroSceneName) ? defaultGameSceneName : newGameIntroSceneName;
+        StartLoadingToScene(introScene);
     }
 
     private void ContinueFromSlot(int slotIndex)
@@ -472,7 +485,7 @@ public sealed class MainMenuController : MonoBehaviour
         }
 
         confirmOverwritePanel?.Show(
-            "Queres apagar este jogo guardado deste slot?",
+            UiText.LocalizeKnownText("Queres apagar este jogo guardado deste slot?"),
             () =>
             {
                 SaveManager.DeleteSlot(slotIndex);
@@ -596,6 +609,7 @@ public sealed class MainMenuController : MonoBehaviour
 
     private void RefreshContinueVisibility()
     {
+        ApplyLocalizedLabels();
         if (continueButton == null)
         {
             return;
@@ -614,6 +628,22 @@ public sealed class MainMenuController : MonoBehaviour
     {
         isMainMenuInputBlocked = blocked;
         UpdateMainMenuPresentation();
+    }
+
+    private void HandleLanguageChanged()
+    {
+        ApplyLocalizedLabels();
+        slotSelectionController?.Refresh();
+        RuntimeTextLocalizer.RequestRefresh();
+    }
+
+    private void ApplyLocalizedLabels()
+    {
+        newGameButton?.SetLabel(UiText.GetMainMenuButtonLabel("new"));
+        continueButton?.SetLabel(UiText.GetMainMenuButtonLabel("continue"));
+        optionsButton?.SetLabel(UiText.GetMainMenuButtonLabel("options"));
+        creditsButton?.SetLabel(UiText.GetMainMenuButtonLabel("credits"));
+        exitButton?.SetLabel(UiText.GetMainMenuButtonLabel("exit"));
     }
 
     private static void BindButton(AnimatedMenuButton button, System.Action action)

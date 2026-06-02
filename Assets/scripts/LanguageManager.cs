@@ -1,8 +1,11 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 
 public class LanguageManager : MonoBehaviour
 {
+    private const string SelectedLanguageKey = "SelectedLanguage";
+    private const string LegacyLanguageIndexKey = "MainMenu.Language";
+
     public static LanguageManager Instance { get; private set; }
 
     public enum Language { EN, PT }
@@ -12,9 +15,9 @@ public class LanguageManager : MonoBehaviour
     public Action OnLanguageChanged;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    static void AutoCreate()
+    private static void AutoCreate()
     {
-        if (FindObjectOfType<LanguageManager>() == null)
+        if (FindAnyObjectByType<LanguageManager>() == null)
         {
             GameObject go = new GameObject("LanguageManager_Auto");
             go.AddComponent<LanguageManager>();
@@ -31,29 +34,32 @@ public class LanguageManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-
         LoadLanguage();
     }
 
     private void LoadLanguage()
     {
-        string langStr = PlayerPrefs.GetString("SelectedLanguage", "EN"); // Padrão é Inglês
-        if (Enum.TryParse(langStr, out Language parsed))
+        if (PlayerPrefs.HasKey(SelectedLanguageKey))
         {
-            CurrentLanguage = parsed;
+            string langStr = PlayerPrefs.GetString(SelectedLanguageKey, "PT");
+            if (Enum.TryParse(langStr, out Language parsed))
+            {
+                CurrentLanguage = parsed;
+                return;
+            }
         }
-        else
-        {
-            CurrentLanguage = Language.EN;
-        }
+
+        int legacyLanguageIndex = PlayerPrefs.GetInt(LegacyLanguageIndexKey, 0);
+        CurrentLanguage = legacyLanguageIndex <= 0 ? Language.PT : Language.EN;
     }
 
     public void SetLanguage(Language newLanguage)
     {
         CurrentLanguage = newLanguage;
-        PlayerPrefs.SetString("SelectedLanguage", CurrentLanguage.ToString());
+        PlayerPrefs.SetString(SelectedLanguageKey, CurrentLanguage.ToString());
+        PlayerPrefs.SetInt(LegacyLanguageIndexKey, CurrentLanguage == Language.PT ? 0 : 1);
         PlayerPrefs.Save();
-        
+
         OnLanguageChanged?.Invoke();
     }
 }

@@ -272,6 +272,7 @@ public class PortalSceneInteractable : MonoBehaviour
     {
         string cleanPrompt = promptText ?? string.Empty;
         cleanPrompt = cleanPrompt.Replace("F - ", string.Empty).Replace("E - ", string.Empty).Trim();
+        cleanPrompt = UiText.LocalizeKnownText(cleanPrompt);
         return MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - " + cleanPrompt;
     }
 

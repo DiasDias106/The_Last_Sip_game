@@ -124,6 +124,7 @@ public sealed class PauseMenuController : MonoBehaviour
 
     private void OnEnable()
     {
+        ApplyLocalizedLabels();
         BindButton(continueButton, ResumeGame);
         BindButton(saveButton, SaveGame);
         BindButton(settingsButton, OpenSettings);
@@ -133,6 +134,11 @@ public sealed class PauseMenuController : MonoBehaviour
         if (fullscreenToggle != null)
         {
             fullscreenToggle.onValueChanged.AddListener(SetFullscreen);
+        }
+
+        if (LanguageManager.Instance != null)
+        {
+            LanguageManager.Instance.OnLanguageChanged += HandleLanguageChanged;
         }
     }
 
@@ -147,6 +153,11 @@ public sealed class PauseMenuController : MonoBehaviour
         if (fullscreenToggle != null)
         {
             fullscreenToggle.onValueChanged.RemoveListener(SetFullscreen);
+        }
+
+        if (LanguageManager.Instance != null)
+        {
+            LanguageManager.Instance.OnLanguageChanged -= HandleLanguageChanged;
         }
     }
 
@@ -231,7 +242,7 @@ public sealed class PauseMenuController : MonoBehaviour
         if (optionsPanelView != null && optionsPanelView.HasUnsavedChanges())
         {
             confirmLeaveSettingsPanel?.Show(
-                "Existem alteracoes por guardar. Deseja sair sem guardar as alteracoes?",
+                UiText.LocalizeKnownText("Existem alteracoes por guardar. Deseja sair sem guardar as alteracoes?"),
                 () =>
                 {
                     optionsPanelView.RevertToAppliedSettings();
@@ -396,11 +407,11 @@ public sealed class PauseMenuController : MonoBehaviour
 
         if (saveSuccessPanel != null)
         {
-            saveSuccessPanel.Show("JOGO GUARDADO COM SUCESSO.");
+            saveSuccessPanel.Show(UiText.LocalizeKnownText("JOGO GUARDADO COM SUCESSO."));
         }
         else
         {
-            ShowSaveFeedback("JOGO GUARDADO");
+            ShowSaveFeedback(UiText.LocalizeKnownText("JOGO GUARDADO"));
         }
         isSaving = false;
     }
@@ -428,5 +439,20 @@ public sealed class PauseMenuController : MonoBehaviour
         {
             button.Clicked -= action;
         }
+    }
+
+    private void HandleLanguageChanged()
+    {
+        ApplyLocalizedLabels();
+        RuntimeTextLocalizer.RequestRefresh();
+    }
+
+    private void ApplyLocalizedLabels()
+    {
+        continueButton?.SetLabel(UiText.GetMainMenuButtonLabel("continue"));
+        saveButton?.SetLabel(UiText.LocalizeKnownText("GUARDAR"));
+        settingsButton?.SetLabel(UiText.LocalizeKnownText("DEFINICOES"));
+        exitButton?.SetLabel(UiText.GetMainMenuButtonLabel("exit"));
+        settingsBackButton?.SetLabel(UiText.GetMainMenuButtonLabel("back"));
     }
 }

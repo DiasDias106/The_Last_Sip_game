@@ -13,7 +13,10 @@ public class PlayerInteractionDetector : MonoBehaviour
         if (closest != null)
         {
             string keyName = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact);
-            PlayerHUDController.Instance?.ShowInteractionPrompt("Pressiona " + keyName + " para interagir");
+            string prompt = UiText.IsPortuguese
+                ? "Pressiona " + keyName + " para interagir"
+                : "Press " + keyName + " to interact";
+            PlayerHUDController.Instance?.ShowInteractionPrompt(prompt);
         }
         else
         {

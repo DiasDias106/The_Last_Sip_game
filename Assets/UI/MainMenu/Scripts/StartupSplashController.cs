@@ -40,7 +40,7 @@ public sealed class StartupSplashController : MonoBehaviour
 
         if (promptText != null)
         {
-            promptText.text = promptMessage;
+            promptText.text = UiText.LocalizeKnownText(promptMessage);
         }
 
         if (skipSplashForSceneTransition)

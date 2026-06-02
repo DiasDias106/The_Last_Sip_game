@@ -8,6 +8,7 @@ public sealed class AutoSceneSaveController : MonoBehaviour
 {
     private const string ControllerObjectName = "AutoSceneSaveController";
     private const string MainMenuSceneName = "MainMenuScene";
+    private const string NewGameControlsSceneName = "new_game_controls";
 
     private static AutoSceneSaveController instance;
 
@@ -156,7 +157,6 @@ public sealed class AutoSceneSaveController : MonoBehaviour
             indicatorCanvas = canvasGo.AddComponent<Canvas>();
             indicatorCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
             indicatorCanvas.sortingOrder = 250;
-            DontDestroyOnLoad(canvasGo);
 
             CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -204,12 +204,19 @@ public sealed class AutoSceneSaveController : MonoBehaviour
 
     private static bool IsGameplayScene(string sceneName)
     {
-        return !string.IsNullOrWhiteSpace(sceneName) && !IsMainMenuScene(sceneName);
+        return !string.IsNullOrWhiteSpace(sceneName)
+            && !IsMainMenuScene(sceneName)
+            && !IsNewGameControlsScene(sceneName);
     }
 
     private static bool IsMainMenuScene(string sceneName)
     {
         return string.Equals(sceneName, MainMenuSceneName, System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsNewGameControlsScene(string sceneName)
+    {
+        return string.Equals(sceneName, NewGameControlsSceneName, System.StringComparison.OrdinalIgnoreCase);
     }
 
     private void ShowIndicator()
