@@ -9,7 +9,8 @@ using UnityEngine.InputSystem.Controls;
 
 public sealed class StartupSplashController : MonoBehaviour
 {
-    private const string SplashAlreadyShownKey = "StartupSplash.AlreadyShown";
+    private const string PendingSceneKey = "__PENDING_LOAD_SCENE__";
+    private static bool hasShownSplashThisSession;
 
     [Header("References")]
     [SerializeField] private GameObject splashPanel;
@@ -27,18 +28,22 @@ public sealed class StartupSplashController : MonoBehaviour
     [SerializeField] private string promptMessage = "CLIQUE EM QUALQUER TELA PARA COMECAR";
 
     private bool waitingForInput;
-    private bool shouldSkipSplash;
+    private bool skipSplashForSceneTransition;
 
     private void Awake()
     {
-        shouldSkipSplash = PlayerPrefs.GetInt(SplashAlreadyShownKey, 0) == 1;
+        skipSplashForSceneTransition =
+            hasShownSplashThisSession ||
+            !string.IsNullOrWhiteSpace(GlobalSceneTransitionRequest.PendingSceneName) ||
+            !string.IsNullOrWhiteSpace(PlayerPrefs.GetString(PendingSceneKey, string.Empty)) ||
+            PlayerPrefs.GetInt("__DR__", 0) == 1;
 
         if (promptText != null)
         {
             promptText.text = promptMessage;
         }
 
-        if (shouldSkipSplash)
+        if (skipSplashForSceneTransition)
         {
             if (splashPanel != null)
             {
@@ -94,7 +99,7 @@ public sealed class StartupSplashController : MonoBehaviour
 
     private void Start()
     {
-        if (shouldSkipSplash)
+        if (skipSplashForSceneTransition)
         {
             return;
         }
@@ -115,6 +120,8 @@ public sealed class StartupSplashController : MonoBehaviour
 
     private IEnumerator PlaySequence()
     {
+        hasShownSplashThisSession = true;
+
         if (initialDelay > 0f)
         {
             yield return new WaitForSecondsRealtime(initialDelay);
@@ -136,8 +143,6 @@ public sealed class StartupSplashController : MonoBehaviour
         }
 
         waitingForInput = false;
-        PlayerPrefs.SetInt(SplashAlreadyShownKey, 1);
-        PlayerPrefs.Save();
         yield return FadeCanvasGroup(splashCanvasGroup, splashCanvasGroup != null ? splashCanvasGroup.alpha : 1f, 0f, fadeOutDuration);
 
         if (splashPanel != null)
