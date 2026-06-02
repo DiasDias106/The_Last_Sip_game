@@ -17,6 +17,7 @@ public sealed class SlotSelectionController : MonoBehaviour
     [SerializeField] private AnimatedMenuButton backButton;
 
     public event Action<int, SlotSelectionMode, bool> SlotChosen;
+    public event Action<int, SlotSelectionMode, bool> SlotDeleteRequested;
     public event Action BackRequested;
 
     public bool IsVisible => panel != null && panel.IsVisible;
@@ -31,6 +32,7 @@ public sealed class SlotSelectionController : MonoBehaviour
                 if (slotButtons[i] != null)
                 {
                     slotButtons[i].Clicked += HandleSlotClicked;
+                    slotButtons[i].DeleteClicked += HandleSlotDeleteClicked;
                 }
             }
         }
@@ -50,6 +52,7 @@ public sealed class SlotSelectionController : MonoBehaviour
                 if (slotButtons[i] != null)
                 {
                     slotButtons[i].Clicked -= HandleSlotClicked;
+                    slotButtons[i].DeleteClicked -= HandleSlotDeleteClicked;
                 }
             }
         }
@@ -68,8 +71,8 @@ public sealed class SlotSelectionController : MonoBehaviour
             titleText.text = mode == SlotSelectionMode.NewGame ? "NOVO JOGO" : "CONTINUAR JOGO";
         }
 
-        Refresh();
         panel?.Show();
+        Refresh();
     }
 
     public void HideImmediate()
@@ -104,6 +107,12 @@ public sealed class SlotSelectionController : MonoBehaviour
     {
         SaveSlotData data = SaveManager.LoadSlot(slotIndex);
         SlotChosen?.Invoke(slotIndex, CurrentMode, data.hasSave);
+    }
+
+    private void HandleSlotDeleteClicked(int slotIndex)
+    {
+        SaveSlotData data = SaveManager.LoadSlot(slotIndex);
+        SlotDeleteRequested?.Invoke(slotIndex, CurrentMode, data.hasSave);
     }
 
     private void HandleBackClicked()

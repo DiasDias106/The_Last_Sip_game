@@ -153,6 +153,7 @@ public sealed class MainMenuController : MonoBehaviour
         if (slotSelectionController != null)
         {
             slotSelectionController.SlotChosen += HandleSlotChosen;
+            slotSelectionController.SlotDeleteRequested += HandleSlotDeleteRequested;
             slotSelectionController.BackRequested += ReturnFromSlotSelection;
         }
 
@@ -190,6 +191,7 @@ public sealed class MainMenuController : MonoBehaviour
         if (slotSelectionController != null)
         {
             slotSelectionController.SlotChosen -= HandleSlotChosen;
+            slotSelectionController.SlotDeleteRequested -= HandleSlotDeleteRequested;
             slotSelectionController.BackRequested -= ReturnFromSlotSelection;
         }
 
@@ -460,6 +462,24 @@ public sealed class MainMenuController : MonoBehaviour
         SaveManager.SetActiveSlot(slotIndex);
         string scene = SaveManager.GetNextSceneForSlot(slotIndex);
         StartLoadingToScene(string.IsNullOrWhiteSpace(scene) ? defaultGameSceneName : scene);
+    }
+
+    private void HandleSlotDeleteRequested(int slotIndex, SlotSelectionController.SlotSelectionMode mode, bool hasSave)
+    {
+        if (isTransitioning || mode != SlotSelectionController.SlotSelectionMode.NewGame || !hasSave)
+        {
+            return;
+        }
+
+        confirmOverwritePanel?.Show(
+            "Queres apagar este jogo guardado deste slot?",
+            () =>
+            {
+                SaveManager.DeleteSlot(slotIndex);
+                slotSelectionController?.Refresh();
+                RefreshContinueVisibility();
+            },
+            () => slotSelectionController?.Refresh());
     }
 
     private void StartLoadingToScene(string sceneName)

@@ -81,7 +81,7 @@ public static class SaveManager
         data.slotIndex = ClampSlot(data.slotIndex);
         string path = GetSlotPath(data.slotIndex);
         Directory.CreateDirectory(Path.GetDirectoryName(path) ?? Application.persistentDataPath);
-        string json = JsonUtility.ToJson(data, true);
+        string json = JsonUtility.ToJson(data, false);
         File.WriteAllText(path, json);
     }
 
@@ -153,7 +153,7 @@ public static class SaveManager
         return Path.Combine(Application.persistentDataPath, $"save_slot_{clamped}_preview.png");
     }
 
-    public static IEnumerator SaveActiveSlotFromCurrentSceneRoutine(string currentScene, bool captureScreenshot = true)
+    public static IEnumerator SaveActiveSlotFromCurrentSceneRoutine(string currentScene, bool captureScreenshot = true, bool deferredScreenshot = false)
     {
         string screenshotPath = string.Empty;
 
@@ -162,11 +162,18 @@ public static class SaveManager
             int slotIndex = GetActiveSlot();
             screenshotPath = GetSlotScreenshotPath(slotIndex);
 
-            yield return new WaitForEndOfFrame();
-
-            if (!TryCaptureScreenshot(screenshotPath))
+            if (deferredScreenshot)
             {
-                screenshotPath = string.Empty;
+                ScreenCapture.CaptureScreenshot(screenshotPath, 1);
+            }
+            else
+            {
+                yield return new WaitForEndOfFrame();
+
+                if (!TryCaptureScreenshot(screenshotPath))
+                {
+                    screenshotPath = string.Empty;
+                }
             }
         }
 
@@ -299,7 +306,6 @@ public static class SaveManager
         {
             PlayerPrefs.SetInt(SessionSlotKey, slotIndex);
             PlayerPrefs.SetString(SessionStartUtcTicksKey, DateTime.UtcNow.Ticks.ToString());
-            PlayerPrefs.Save();
             return 0f;
         }
 
@@ -307,7 +313,6 @@ public static class SaveManager
         if (!long.TryParse(ticksRaw, out long ticks))
         {
             PlayerPrefs.SetString(SessionStartUtcTicksKey, DateTime.UtcNow.Ticks.ToString());
-            PlayerPrefs.Save();
             return 0f;
         }
 
@@ -323,7 +328,6 @@ public static class SaveManager
         }
 
         PlayerPrefs.SetString(SessionStartUtcTicksKey, DateTime.UtcNow.Ticks.ToString());
-        PlayerPrefs.Save();
         return elapsed;
     }
 }
