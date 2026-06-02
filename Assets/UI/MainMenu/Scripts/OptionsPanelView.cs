@@ -50,6 +50,8 @@ public sealed class OptionsPanelView : MonoBehaviour
     private const string AudioModeKey = "MainMenu.AudioMode";
     private const string SubtitlesKey = "MainMenu.Subtitles";
     private const string LanguageKey = "MainMenu.Language";
+    private const float ControlsRowHeight = 60f;
+    private const float ControlsContentWidth = 780f;
 
     private static readonly ControlBindingDefinition[] BindingDefinitions =
     {
@@ -58,7 +60,7 @@ public sealed class OptionsPanelView : MonoBehaviour
         new(MovementKeyBindings.GameAction.Backward, "BackRow", "ANDAR PARA TRAS"),
         new(MovementKeyBindings.GameAction.Right, "RightRow", "ANDAR PARA A DIREITA"),
         new(MovementKeyBindings.GameAction.Run, "RunRow", "CORRER"),
-        new(MovementKeyBindings.GameAction.Interact, "InteractRow", "INTERACAO"),
+        new(MovementKeyBindings.GameAction.Interact, "InteractRow", "INTERAGIR"),
         new(MovementKeyBindings.GameAction.Attack, "AttackRow", "ATAQUE"),
         new(MovementKeyBindings.GameAction.HeavyAttack, "HeavyAttackRow", "ATAQUE PESADO"),
         new(MovementKeyBindings.GameAction.Defend, "DefendRow", "DEFENDER"),
@@ -541,7 +543,7 @@ public sealed class OptionsPanelView : MonoBehaviour
         controlsContentRoot.anchorMax = new Vector2(0f, 1f);
         controlsContentRoot.pivot = new Vector2(0f, 1f);
         controlsContentRoot.anchoredPosition = Vector2.zero;
-        controlsContentRoot.sizeDelta = new Vector2(780f, 70f * BindingDefinitions.Length);
+        controlsContentRoot.sizeDelta = new Vector2(ControlsContentWidth, ControlsRowHeight * BindingDefinitions.Length);
 
         ScrollRect scrollRect = controlsSectionRoot.GetComponent<ScrollRect>();
         if (scrollRect == null)
@@ -565,18 +567,9 @@ public sealed class OptionsPanelView : MonoBehaviour
 
     private void RebuildAllBindingRows()
     {
-        Transform templateRow = FindTemplateRow();
         if (controlsContentRoot == null)
         {
             return;
-        }
-
-        GameObject templatePrefab = null;
-        if (templateRow != null)
-        {
-            templatePrefab = Instantiate(templateRow.gameObject);
-            templatePrefab.name = "__ControlsRowTemplateRuntime";
-            templatePrefab.SetActive(false);
         }
 
         for (int i = 0; i < BindingDefinitions.Length; i++)
@@ -597,17 +590,7 @@ public sealed class OptionsPanelView : MonoBehaviour
         for (int i = 0; i < BindingDefinitions.Length; i++)
         {
             ControlBindingDefinition definition = BindingDefinitions[i];
-            Transform row;
-            if (templatePrefab != null)
-            {
-                row = Instantiate(templatePrefab, controlsContentRoot).transform;
-                row.name = definition.RowName;
-                row.gameObject.SetActive(true);
-            }
-            else
-            {
-                row = CreateFallbackRow(definition, controlsContentRoot);
-            }
+            Transform row = CreateFallbackRow(definition, controlsContentRoot);
 
             RectTransform rowRect = row as RectTransform;
             if (rowRect != null)
@@ -615,18 +598,13 @@ public sealed class OptionsPanelView : MonoBehaviour
                 rowRect.anchorMin = new Vector2(0f, 1f);
                 rowRect.anchorMax = new Vector2(0f, 1f);
                 rowRect.pivot = new Vector2(0f, 1f);
-                rowRect.anchoredPosition = new Vector2(0f, -i * 70f);
-                rowRect.sizeDelta = new Vector2(780f, 70f);
+                rowRect.anchoredPosition = new Vector2(0f, -i * ControlsRowHeight);
+                rowRect.sizeDelta = new Vector2(ControlsContentWidth, ControlsRowHeight);
                 rowRect.localScale = Vector3.one;
             }
         }
 
-        controlsContentRoot.sizeDelta = new Vector2(780f, 70f * BindingDefinitions.Length);
-
-        if (templatePrefab != null)
-        {
-            Destroy(templatePrefab);
-        }
+        controlsContentRoot.sizeDelta = new Vector2(ControlsContentWidth, ControlsRowHeight * BindingDefinitions.Length);
     }
 
     private Transform FindTemplateRow()
@@ -671,7 +649,7 @@ public sealed class OptionsPanelView : MonoBehaviour
         labelRect.anchorMax = new Vector2(0f, 0.5f);
         labelRect.pivot = new Vector2(0f, 0.5f);
         labelRect.anchoredPosition = new Vector2(0f, 0f);
-        labelRect.sizeDelta = new Vector2(330f, 70f);
+        labelRect.sizeDelta = new Vector2(330f, ControlsRowHeight);
         TMP_Text labelText = labelGo.GetComponent<TMP_Text>();
         labelText.font = font;
         labelText.fontSize = 20f;
@@ -704,7 +682,7 @@ public sealed class OptionsPanelView : MonoBehaviour
         valueText.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
         valueText.color = new Color32(225, 212, 188, 255);
         valueText.alignment = TextAlignmentOptions.Center;
-        valueText.text = "KEY";
+        valueText.text = GetBindingLabelFallback(definition.Action);
 
         GameObject arrowGo = new("Arrow", typeof(RectTransform), typeof(TextMeshProUGUI));
         arrowGo.transform.SetParent(selectorGo.transform, false);
@@ -941,7 +919,6 @@ public sealed class OptionsPanelView : MonoBehaviour
 
     private void RefreshBindingLabels()
     {
-#if ENABLE_INPUT_SYSTEM
         foreach (ControlBindingDefinition definition in BindingDefinitions)
         {
             if (!bindingWidgets.TryGetValue(definition.Action, out ControlBindingWidgets widgets) || widgets.valueText == null)
@@ -949,30 +926,68 @@ public sealed class OptionsPanelView : MonoBehaviour
                 continue;
             }
 
+#if ENABLE_INPUT_SYSTEM
             if (widgets.button != null)
             {
                 widgets.button.interactable = true;
             }
-
-            widgets.valueText.text = listeningAction.HasValue && listeningAction.Value == definition.Action
-                ? "PRIME UMA TECLA"
-                : GetBindingDisplayLabel(definition.Action);
-        }
 #endif
+            widgets.valueText.text = GetBindingLabelForDisplay(definition.Action);
+        }
     }
 
-#if ENABLE_INPUT_SYSTEM
-    private string GetBindingDisplayLabel(MovementKeyBindings.GameAction action)
+    private string GetBindingLabelForDisplay(MovementKeyBindings.GameAction action)
     {
-        string keyName = MovementKeyBindings.GetDisplayName(GetPendingKey(action));
+#if ENABLE_INPUT_SYSTEM
+        if (listeningAction.HasValue && listeningAction.Value == action)
+        {
+            return "PRIME UMA TECLA";
+        }
+
+        string keyName = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GetKey(action));
         return action switch
         {
             MovementKeyBindings.GameAction.Attack => "MOUSE LEFT",
             MovementKeyBindings.GameAction.HeavyAttack => "MOUSE RIGHT",
             _ => keyName
         };
-    }
+#else
+        return action switch
+        {
+            MovementKeyBindings.GameAction.Forward => "W",
+            MovementKeyBindings.GameAction.Left => "A",
+            MovementKeyBindings.GameAction.Backward => "S",
+            MovementKeyBindings.GameAction.Right => "D",
+            MovementKeyBindings.GameAction.Run => "SHIFT",
+            MovementKeyBindings.GameAction.Interact => "F",
+            MovementKeyBindings.GameAction.Attack => "MOUSE LEFT",
+            MovementKeyBindings.GameAction.HeavyAttack => "MOUSE RIGHT",
+            MovementKeyBindings.GameAction.Defend => "R",
+            MovementKeyBindings.GameAction.Jump => "SPACE",
+            MovementKeyBindings.GameAction.Roll => "C",
+            _ => "-"
+        };
 #endif
+    }
+
+    private static string GetBindingLabelFallback(MovementKeyBindings.GameAction action)
+    {
+        return action switch
+        {
+            MovementKeyBindings.GameAction.Forward => "W",
+            MovementKeyBindings.GameAction.Left => "A",
+            MovementKeyBindings.GameAction.Backward => "S",
+            MovementKeyBindings.GameAction.Right => "D",
+            MovementKeyBindings.GameAction.Run => "SHIFT",
+            MovementKeyBindings.GameAction.Interact => "F",
+            MovementKeyBindings.GameAction.Attack => "MOUSE LEFT",
+            MovementKeyBindings.GameAction.HeavyAttack => "MOUSE RIGHT",
+            MovementKeyBindings.GameAction.Defend => "R",
+            MovementKeyBindings.GameAction.Jump => "SPACE",
+            MovementKeyBindings.GameAction.Roll => "C",
+            _ => "-"
+        };
+    }
 
 #if ENABLE_INPUT_SYSTEM
     private void BeginListeningForBinding(MovementKeyBindings.GameAction action)

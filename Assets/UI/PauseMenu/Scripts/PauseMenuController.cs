@@ -115,10 +115,10 @@ public sealed class PauseMenuController : MonoBehaviour
         var rt = panel.GetComponent<RectTransform>();
         if (rt != null)
         {
-            rt.anchorMin = new Vector2(0, 0.5f);
-            rt.anchorMax = new Vector2(0, 0.5f);
-            rt.pivot = new Vector2(0, 0.5f);
-            rt.anchoredPosition = new Vector2(250, 0);
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero;
             panel.SetShownPosition(rt.anchoredPosition);
         }
     }

@@ -404,6 +404,12 @@ public static class PauseMenuBuilder
         CreateSelectorRow(controlsSection.transform, "BackRow", "ANDAR PARA TRAS", "S", 2, tmpFont, out _, out _);
         CreateSelectorRow(controlsSection.transform, "RightRow", "ANDAR PARA A DIREITA", "D", 3, tmpFont, out _, out _);
         CreateSelectorRow(controlsSection.transform, "RunRow", "CORRER", "SHIFT", 4, tmpFont, out _, out _);
+        CreateSelectorRow(controlsSection.transform, "InteractRow", "INTERAGIR", "F", 5, tmpFont, out _, out _);
+        CreateSelectorRow(controlsSection.transform, "AttackRow", "ATAQUE", "MOUSE LEFT", 6, tmpFont, out _, out _);
+        CreateSelectorRow(controlsSection.transform, "HeavyAttackRow", "ATAQUE PESADO", "MOUSE RIGHT", 7, tmpFont, out _, out _);
+        CreateSelectorRow(controlsSection.transform, "DefendRow", "DEFENDER", "R", 8, tmpFont, out _, out _);
+        CreateSelectorRow(controlsSection.transform, "JumpRow", "SALTAR", "SPACE", 9, tmpFont, out _, out _);
+        CreateSelectorRow(controlsSection.transform, "RollRow", "REBOLAR", "C", 10, tmpFont, out _, out _);
 
         GameObject languageSection = CreateUIObject("LanguageSection", sectionsRoot.transform);
         StretchFull(RectOf(languageSection));
@@ -412,17 +418,17 @@ public static class PauseMenuBuilder
         GameObject bottomButtons = CreateUIObject("BottomButtonsArea", root.transform);
         SetRect(RectOf(bottomButtons), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(54f, 34f), new Vector2(-54f, 96f));
 
-        AnimatedMenuButton resetButton = CreateMenuButton(bottomButtons.transform, "ResetDefaultsButton", "R  REDEFINIR PADROES", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 300f, 52f);
-        SetRect(RectOf(resetButton.gameObject), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 4f), new Vector2(300f, 52f));
-        ConfigureMenuButtonLabel(resetButton, 10f, 18f);
+        AnimatedMenuButton resetButton = CreateMenuButton(bottomButtons.transform, "ResetDefaultsButton", "REPOR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 190f, 52f);
+        SetRect(RectOf(resetButton.gameObject), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-220f, 4f), new Vector2(190f, 52f));
+        ConfigureMenuButtonLabel(resetButton, 18f, 22f);
 
-        AnimatedMenuButton applyButton = CreateMenuButton(bottomButtons.transform, "ApplyButton", "APLICAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 180f, 52f);
-        SetRect(RectOf(applyButton.gameObject), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 4f), new Vector2(180f, 52f));
+        AnimatedMenuButton applyButton = CreateMenuButton(bottomButtons.transform, "ApplyButton", "APLICAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 190f, 52f);
+        SetRect(RectOf(applyButton.gameObject), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 4f), new Vector2(190f, 52f));
         ConfigureMenuButtonLabel(applyButton, 18f, 22f);
 
-        backButton = CreateMenuButton(bottomButtons.transform, "BackButton", "ESC  VOLTAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 190f, 52f);
-        SetRect(RectOf(backButton.gameObject), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0f, 4f), new Vector2(190f, 52f));
-        ConfigureMenuButtonLabel(backButton, 12f, 20f);
+        backButton = CreateMenuButton(bottomButtons.transform, "BackButton", "VOLTAR", null, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager, 190f, 52f);
+        SetRect(RectOf(backButton.gameObject), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(220f, 4f), new Vector2(190f, 52f));
+        ConfigureMenuButtonLabel(backButton, 18f, 22f);
 
         GameObject fullscreenToggleGo = CreateToggle("FullscreenToggle", root.transform, tmpFont, "Ecra Inteiro", new Vector2(40f, 26f));
         fullscreenToggle = fullscreenToggleGo.GetComponent<Toggle>();
