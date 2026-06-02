@@ -12,6 +12,7 @@ public sealed class SaveSuccessPanel : MonoBehaviour
 
     private void OnEnable()
     {
+        backButton?.SetLabel(UiText.GetMainMenuButtonLabel("back"));
         if (backButton != null)
         {
             backButton.Clicked += Hide;

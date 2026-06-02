@@ -52,6 +52,11 @@ public sealed class OptionsPanelView : MonoBehaviour
     private const string LanguageKey = "MainMenu.Language";
     private const float ControlsRowHeight = 60f;
     private const float ControlsContentWidth = 780f;
+    private static readonly (string RowName, string Label, string Value)[] SupplementalControlRows =
+    {
+        ("SmallPotionRow", "POÇÃO DE CURA PEQUENA", "Q"),
+        ("BigPotionRow", "POÇÃO DE CURA GRANDE", "E")
+    };
 
     private static readonly ControlBindingDefinition[] BindingDefinitions =
     {
@@ -102,10 +107,6 @@ public sealed class OptionsPanelView : MonoBehaviour
     [SerializeField] private AnimatedMenuButton applyButton;
     [SerializeField] private AnimatedMenuButton resetDefaultsButton;
 
-    private readonly string[] audioModes = { "ESTEREO", "MONO" };
-    private readonly string[] subtitlesModes = { "LIGADO", "DESLIGADO" };
-    private readonly string[] languageModes = { "PORTUGUES", "ENGLISH" };
-
     private readonly Color activeTabColor = new(0.3f, 0.08f, 0.08f, 0.95f);
     private readonly Color hoverTabColor = new(0.2f, 0.11f, 0.1f, 0.94f);
     private readonly Color inactiveTabColor = new(0.11f, 0.085f, 0.08f, 0.92f);
@@ -134,12 +135,17 @@ public sealed class OptionsPanelView : MonoBehaviour
     {
         ResolveControlBindingReferences();
         LoadInitialState();
+        ApplyLocalizedStaticLabels();
         SelectSection(selectedSectionIndex);
     }
 
     private void OnEnable()
     {
         Bind();
+        if (LanguageManager.Instance != null)
+        {
+            LanguageManager.Instance.OnLanguageChanged += HandleLanguageChanged;
+        }
         RefreshAllLabels();
         SelectSection(selectedSectionIndex);
     }
@@ -147,6 +153,10 @@ public sealed class OptionsPanelView : MonoBehaviour
     private void OnDisable()
     {
         Unbind();
+        if (LanguageManager.Instance != null)
+        {
+            LanguageManager.Instance.OnLanguageChanged -= HandleLanguageChanged;
+        }
 #if ENABLE_INPUT_SYSTEM
         listeningAction = null;
 #endif
@@ -194,6 +204,10 @@ public sealed class OptionsPanelView : MonoBehaviour
         PlayerPrefs.SetInt(AudioModeKey, audioModeIndex);
         PlayerPrefs.SetInt(SubtitlesKey, subtitlesIndex);
         PlayerPrefs.SetInt(LanguageKey, languageIndex);
+        if (LanguageManager.Instance != null)
+        {
+            LanguageManager.Instance.SetLanguage(UiText.LanguageFromIndex(languageIndex));
+        }
 #if ENABLE_INPUT_SYSTEM
         foreach (ControlBindingDefinition definition in BindingDefinitions)
         {
@@ -204,6 +218,7 @@ public sealed class OptionsPanelView : MonoBehaviour
 #endif
         PlayerPrefs.Save();
         appliedSnapshot = CaptureCurrentSnapshot();
+        RuntimeTextLocalizer.RequestRefresh();
     }
 
     public void ResetDefaults()
@@ -228,6 +243,7 @@ public sealed class OptionsPanelView : MonoBehaviour
 #if ENABLE_INPUT_SYSTEM
         ResetPendingBindingsToDefaults();
 #endif
+        ApplyLocalizedStaticLabels();
         RefreshAllLabels();
     }
 
@@ -334,12 +350,13 @@ public sealed class OptionsPanelView : MonoBehaviour
             SetSliderWithoutNotify(sfxSlider, menuAudioManager.SfxVolume);
         }
 
-        audioModeIndex = Mathf.Clamp(PlayerPrefs.GetInt(AudioModeKey, 0), 0, audioModes.Length - 1);
-        subtitlesIndex = Mathf.Clamp(PlayerPrefs.GetInt(SubtitlesKey, 0), 0, subtitlesModes.Length - 1);
-        languageIndex = Mathf.Clamp(PlayerPrefs.GetInt(LanguageKey, 0), 0, languageModes.Length - 1);
+        audioModeIndex = Mathf.Clamp(PlayerPrefs.GetInt(AudioModeKey, 0), 0, 1);
+        subtitlesIndex = Mathf.Clamp(PlayerPrefs.GetInt(SubtitlesKey, 0), 0, 1);
+        languageIndex = UiText.IndexFromLanguage(UiText.CurrentLanguage);
 #if ENABLE_INPUT_SYSTEM
         SyncPendingBindingsFromRuntime();
 #endif
+        ApplyLocalizedStaticLabels();
         RefreshAllLabels();
         appliedSnapshot = CaptureCurrentSnapshot();
     }
@@ -364,19 +381,19 @@ public sealed class OptionsPanelView : MonoBehaviour
 
     private void CycleAudioMode()
     {
-        audioModeIndex = (audioModeIndex + 1) % audioModes.Length;
+        audioModeIndex = (audioModeIndex + 1) % 2;
         RefreshSelectorLabels();
     }
 
     private void CycleSubtitles()
     {
-        subtitlesIndex = (subtitlesIndex + 1) % subtitlesModes.Length;
+        subtitlesIndex = (subtitlesIndex + 1) % 2;
         RefreshSelectorLabels();
     }
 
     private void CycleLanguage()
     {
-        languageIndex = (languageIndex + 1) % languageModes.Length;
+        languageIndex = (languageIndex + 1) % 2;
         RefreshSelectorLabels();
     }
 
@@ -393,8 +410,29 @@ public sealed class OptionsPanelView : MonoBehaviour
 
         if (sectionTitleText != null && selectedSectionIndex < sectionTitles.Length)
         {
-            sectionTitleText.text = sectionTitles[selectedSectionIndex];
+            sectionTitleText.text = UiText.GetOptionsSectionTitle(selectedSectionIndex);
         }
+    }
+
+    private void HandleLanguageChanged()
+    {
+        languageIndex = UiText.IndexFromLanguage(UiText.CurrentLanguage);
+        RefreshAllLabels();
+        SelectSection(selectedSectionIndex);
+    }
+
+    private void ApplyLocalizedStaticLabels()
+    {
+        for (int i = 0; i < tabLabels.Length; i++)
+        {
+            if (tabLabels[i] != null)
+            {
+                tabLabels[i].text = UiText.GetOptionsSectionTitle(i);
+            }
+        }
+
+        applyButton?.SetLabel(UiText.GetMainMenuButtonLabel("apply"));
+        resetDefaultsButton?.SetLabel(UiText.GetMainMenuButtonLabel("reset"));
     }
 
     private void ApplyTabVisuals()
@@ -456,6 +494,7 @@ public sealed class OptionsPanelView : MonoBehaviour
 
     private void RefreshAllLabels()
     {
+        ApplyLocalizedStaticLabels();
         RefreshSliderLabels();
         RefreshSelectorLabels();
         RefreshBindingLabels();
@@ -470,9 +509,9 @@ public sealed class OptionsPanelView : MonoBehaviour
 
     private void RefreshSelectorLabels()
     {
-        if (audioModeValueText != null) audioModeValueText.text = audioModes[audioModeIndex];
-        if (subtitlesValueText != null) subtitlesValueText.text = subtitlesModes[subtitlesIndex];
-        if (languageValueText != null) languageValueText.text = languageModes[languageIndex];
+        if (audioModeValueText != null) audioModeValueText.text = UiText.GetSelectorLabel("audio", audioModeIndex);
+        if (subtitlesValueText != null) subtitlesValueText.text = UiText.GetSelectorLabel("subtitles", subtitlesIndex);
+        if (languageValueText != null) languageValueText.text = UiText.GetSelectorLabel("language", languageIndex);
     }
 
     private void ResolveControlBindingReferences()
@@ -543,7 +582,8 @@ public sealed class OptionsPanelView : MonoBehaviour
         controlsContentRoot.anchorMax = new Vector2(0f, 1f);
         controlsContentRoot.pivot = new Vector2(0f, 1f);
         controlsContentRoot.anchoredPosition = Vector2.zero;
-        controlsContentRoot.sizeDelta = new Vector2(ControlsContentWidth, ControlsRowHeight * BindingDefinitions.Length);
+        float totalRowCount = BindingDefinitions.Length + SupplementalControlRows.Length;
+        controlsContentRoot.sizeDelta = new Vector2(ControlsContentWidth, ControlsRowHeight * totalRowCount);
 
         ScrollRect scrollRect = controlsSectionRoot.GetComponent<ScrollRect>();
         if (scrollRect == null)
@@ -604,7 +644,25 @@ public sealed class OptionsPanelView : MonoBehaviour
             }
         }
 
-        controlsContentRoot.sizeDelta = new Vector2(ControlsContentWidth, ControlsRowHeight * BindingDefinitions.Length);
+        for (int i = 0; i < SupplementalControlRows.Length; i++)
+        {
+            var rowData = SupplementalControlRows[i];
+            Transform row = CreateStaticInfoRow(rowData.RowName, UiText.LocalizeKnownText(rowData.Label), rowData.Value, controlsContentRoot);
+            RectTransform rowRect = row as RectTransform;
+            if (rowRect != null)
+            {
+                int rowIndex = BindingDefinitions.Length + i;
+                rowRect.anchorMin = new Vector2(0f, 1f);
+                rowRect.anchorMax = new Vector2(0f, 1f);
+                rowRect.pivot = new Vector2(0f, 1f);
+                rowRect.anchoredPosition = new Vector2(0f, -rowIndex * ControlsRowHeight);
+                rowRect.sizeDelta = new Vector2(ControlsContentWidth, ControlsRowHeight);
+                rowRect.localScale = Vector3.one;
+            }
+        }
+
+        float totalRowCount = BindingDefinitions.Length + SupplementalControlRows.Length;
+        controlsContentRoot.sizeDelta = new Vector2(ControlsContentWidth, ControlsRowHeight * totalRowCount);
     }
 
     private Transform FindTemplateRow()
@@ -656,7 +714,7 @@ public sealed class OptionsPanelView : MonoBehaviour
         labelText.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
         labelText.color = new Color32(218, 205, 181, 255);
         labelText.alignment = TextAlignmentOptions.MidlineLeft;
-        labelText.text = definition.Label;
+        labelText.text = UiText.GetBindingActionLabel(definition.Action);
 
         GameObject selectorGo = new("SelectorButton", typeof(RectTransform), typeof(Image), typeof(Button));
         selectorGo.transform.SetParent(rowGo.transform, false);
@@ -699,6 +757,60 @@ public sealed class OptionsPanelView : MonoBehaviour
         arrowText.color = new Color32(185, 171, 148, 255);
         arrowText.alignment = TextAlignmentOptions.Center;
         arrowText.text = "^";
+
+        return rowGo.transform;
+    }
+
+    private Transform CreateStaticInfoRow(string rowName, string label, string value, Transform parent)
+    {
+        TMP_FontAsset font = sectionTitleText != null ? sectionTitleText.font : TMP_Settings.defaultFontAsset;
+
+        GameObject rowGo = new(rowName, typeof(RectTransform));
+        rowGo.transform.SetParent(parent, false);
+
+        GameObject labelGo = new("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+        labelGo.transform.SetParent(rowGo.transform, false);
+        RectTransform labelRect = labelGo.GetComponent<RectTransform>();
+        labelRect.anchorMin = new Vector2(0f, 0.5f);
+        labelRect.anchorMax = new Vector2(0f, 0.5f);
+        labelRect.pivot = new Vector2(0f, 0.5f);
+        labelRect.anchoredPosition = new Vector2(0f, 0f);
+        labelRect.sizeDelta = new Vector2(330f, ControlsRowHeight);
+        TMP_Text labelText = labelGo.GetComponent<TMP_Text>();
+        labelText.font = font;
+        labelText.fontSize = 20f;
+        labelText.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
+        labelText.color = new Color32(218, 205, 181, 255);
+        labelText.alignment = TextAlignmentOptions.MidlineLeft;
+        labelText.text = label;
+        ConfigureLabelText(labelText, true);
+
+        GameObject valuePanel = new("ValuePanel", typeof(RectTransform), typeof(Image));
+        valuePanel.transform.SetParent(rowGo.transform, false);
+        RectTransform panelRect = valuePanel.GetComponent<RectTransform>();
+        panelRect.anchorMin = new Vector2(0f, 0.5f);
+        panelRect.anchorMax = new Vector2(0f, 0.5f);
+        panelRect.pivot = new Vector2(0f, 0.5f);
+        panelRect.anchoredPosition = new Vector2(360f, 0f);
+        panelRect.sizeDelta = new Vector2(260f, 42f);
+        Image panelImage = valuePanel.GetComponent<Image>();
+        panelImage.color = new Color(0.09f, 0.075f, 0.07f, 0.94f);
+
+        GameObject valueGo = new("ValueText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        valueGo.transform.SetParent(valuePanel.transform, false);
+        RectTransform valueRect = valueGo.GetComponent<RectTransform>();
+        valueRect.anchorMin = new Vector2(0f, 0f);
+        valueRect.anchorMax = new Vector2(1f, 1f);
+        valueRect.offsetMin = new Vector2(8f, 0f);
+        valueRect.offsetMax = new Vector2(-8f, 0f);
+        TMP_Text valueText = valueGo.GetComponent<TMP_Text>();
+        valueText.font = font;
+        valueText.fontSize = 20f;
+        valueText.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
+        valueText.color = new Color32(225, 212, 188, 255);
+        valueText.alignment = TextAlignmentOptions.Center;
+        valueText.text = value;
+        ConfigureLabelText(valueText, false);
 
         return rowGo.transform;
     }
@@ -775,7 +887,7 @@ public sealed class OptionsPanelView : MonoBehaviour
             ControlBindingWidgets widgets = GetOrCreateWidgets(row);
             if (widgets.labelText != null)
             {
-                widgets.labelText.text = definition.Label;
+                widgets.labelText.text = UiText.GetBindingActionLabel(definition.Action);
                 ConfigureLabelText(widgets.labelText, true);
             }
 
@@ -857,9 +969,9 @@ public sealed class OptionsPanelView : MonoBehaviour
             menuAudioManager.SetSFXVolume(snapshot.sfx);
         }
 
-        audioModeIndex = Mathf.Clamp(snapshot.audioMode, 0, audioModes.Length - 1);
-        subtitlesIndex = Mathf.Clamp(snapshot.subtitles, 0, subtitlesModes.Length - 1);
-        languageIndex = Mathf.Clamp(snapshot.language, 0, languageModes.Length - 1);
+        audioModeIndex = Mathf.Clamp(snapshot.audioMode, 0, 1);
+        subtitlesIndex = Mathf.Clamp(snapshot.subtitles, 0, 1);
+        languageIndex = Mathf.Clamp(snapshot.language, 0, 1);
 
 #if ENABLE_INPUT_SYSTEM
         pendingBindings.Clear();
@@ -941,7 +1053,7 @@ public sealed class OptionsPanelView : MonoBehaviour
 #if ENABLE_INPUT_SYSTEM
         if (listeningAction.HasValue && listeningAction.Value == action)
         {
-            return "PRIME UMA TECLA";
+            return UiText.LocalizeKnownText("PRIME UMA TECLA");
         }
 
         string keyName = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GetKey(action));

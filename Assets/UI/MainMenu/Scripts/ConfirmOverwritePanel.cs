@@ -17,6 +17,9 @@ public sealed class ConfirmOverwritePanel : MonoBehaviour
 
     private void OnEnable()
     {
+        confirmButton?.SetLabel(UiText.GetMainMenuButtonLabel("confirm"));
+        cancelButton?.SetLabel(UiText.GetMainMenuButtonLabel("cancel"));
+
         if (confirmButton != null)
         {
             confirmButton.Clicked += HandleConfirm;

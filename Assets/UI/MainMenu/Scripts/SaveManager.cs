@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections;
 using UnityEngine;
 
 public static class SaveManager
@@ -80,7 +81,7 @@ public static class SaveManager
         data.slotIndex = ClampSlot(data.slotIndex);
         string path = GetSlotPath(data.slotIndex);
         Directory.CreateDirectory(Path.GetDirectoryName(path) ?? Application.persistentDataPath);
-        string json = JsonUtility.ToJson(data, true);
+        string json = JsonUtility.ToJson(data, false);
         File.WriteAllText(path, json);
     }
 
@@ -150,6 +151,33 @@ public static class SaveManager
     {
         int clamped = ClampSlot(slotIndex);
         return Path.Combine(Application.persistentDataPath, $"save_slot_{clamped}_preview.png");
+    }
+
+    public static IEnumerator SaveActiveSlotFromCurrentSceneRoutine(string currentScene, bool captureScreenshot = true, bool deferredScreenshot = false)
+    {
+        string screenshotPath = string.Empty;
+
+        if (captureScreenshot)
+        {
+            int slotIndex = GetActiveSlot();
+            screenshotPath = GetSlotScreenshotPath(slotIndex);
+
+            if (deferredScreenshot)
+            {
+                ScreenCapture.CaptureScreenshot(screenshotPath, 1);
+            }
+            else
+            {
+                yield return new WaitForEndOfFrame();
+
+                if (!TryCaptureScreenshot(screenshotPath))
+                {
+                    screenshotPath = string.Empty;
+                }
+            }
+        }
+
+        SaveActiveSlotFromCurrentScene(currentScene, screenshotPath);
     }
 
     public static void SaveActiveSlotFromCurrentScene(string currentScene, string screenshotPath = "")
@@ -227,6 +255,50 @@ public static class SaveManager
         };
     }
 
+    private static bool TryCaptureScreenshot(string screenshotPath)
+    {
+        if (string.IsNullOrWhiteSpace(screenshotPath))
+        {
+            return false;
+        }
+
+        string directory = Path.GetDirectoryName(screenshotPath);
+        if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        Texture2D shot = null;
+        try
+        {
+            shot = ScreenCapture.CaptureScreenshotAsTexture();
+            if (shot == null)
+            {
+                return false;
+            }
+
+            byte[] png = shot.EncodeToPNG();
+            if (png == null || png.Length == 0)
+            {
+                return false;
+            }
+
+            File.WriteAllBytes(screenshotPath, png);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+        finally
+        {
+            if (shot != null)
+            {
+                UnityEngine.Object.Destroy(shot);
+            }
+        }
+    }
+
     private static float ConsumeSessionElapsedSeconds(int slotIndex)
     {
         int sessionSlot = PlayerPrefs.GetInt(SessionSlotKey, slotIndex);
@@ -234,7 +306,6 @@ public static class SaveManager
         {
             PlayerPrefs.SetInt(SessionSlotKey, slotIndex);
             PlayerPrefs.SetString(SessionStartUtcTicksKey, DateTime.UtcNow.Ticks.ToString());
-            PlayerPrefs.Save();
             return 0f;
         }
 
@@ -242,7 +313,6 @@ public static class SaveManager
         if (!long.TryParse(ticksRaw, out long ticks))
         {
             PlayerPrefs.SetString(SessionStartUtcTicksKey, DateTime.UtcNow.Ticks.ToString());
-            PlayerPrefs.Save();
             return 0f;
         }
 
@@ -258,7 +328,6 @@ public static class SaveManager
         }
 
         PlayerPrefs.SetString(SessionStartUtcTicksKey, DateTime.UtcNow.Ticks.ToString());
-        PlayerPrefs.Save();
         return elapsed;
     }
 }

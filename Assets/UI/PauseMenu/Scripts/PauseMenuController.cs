@@ -1,5 +1,4 @@
 using System.Collections;
-using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -125,6 +124,7 @@ public sealed class PauseMenuController : MonoBehaviour
 
     private void OnEnable()
     {
+        ApplyLocalizedLabels();
         BindButton(continueButton, ResumeGame);
         BindButton(saveButton, SaveGame);
         BindButton(settingsButton, OpenSettings);
@@ -134,6 +134,11 @@ public sealed class PauseMenuController : MonoBehaviour
         if (fullscreenToggle != null)
         {
             fullscreenToggle.onValueChanged.AddListener(SetFullscreen);
+        }
+
+        if (LanguageManager.Instance != null)
+        {
+            LanguageManager.Instance.OnLanguageChanged += HandleLanguageChanged;
         }
     }
 
@@ -148,6 +153,11 @@ public sealed class PauseMenuController : MonoBehaviour
         if (fullscreenToggle != null)
         {
             fullscreenToggle.onValueChanged.RemoveListener(SetFullscreen);
+        }
+
+        if (LanguageManager.Instance != null)
+        {
+            LanguageManager.Instance.OnLanguageChanged -= HandleLanguageChanged;
         }
     }
 
@@ -232,7 +242,7 @@ public sealed class PauseMenuController : MonoBehaviour
         if (optionsPanelView != null && optionsPanelView.HasUnsavedChanges())
         {
             confirmLeaveSettingsPanel?.Show(
-                "Existem alteracoes por guardar. Deseja sair sem guardar as alteracoes?",
+                UiText.LocalizeKnownText("Existem alteracoes por guardar. Deseja sair sem guardar as alteracoes?"),
                 () =>
                 {
                     optionsPanelView.RevertToAppliedSettings();
@@ -383,17 +393,7 @@ public sealed class PauseMenuController : MonoBehaviour
         pausePanel?.HideImmediate();
         SetOverlayVisible(false);
         yield return null;
-        yield return new WaitForEndOfFrame();
-
-        int activeSlot = SaveManager.GetActiveSlot();
-        string screenshotPath = SaveManager.GetSlotScreenshotPath(activeSlot);
-
-        if (!TryCaptureScreenshot(screenshotPath))
-        {
-            screenshotPath = string.Empty;
-        }
-
-        SaveManager.SaveActiveSlotFromCurrentScene(SceneManager.GetActiveScene().name, screenshotPath);
+        yield return SaveManager.SaveActiveSlotFromCurrentSceneRoutine(SceneManager.GetActiveScene().name);
 
         SetOverlayVisible(true);
         if (settingsWasVisible)
@@ -407,57 +407,13 @@ public sealed class PauseMenuController : MonoBehaviour
 
         if (saveSuccessPanel != null)
         {
-            saveSuccessPanel.Show("JOGO GUARDADO COM SUCESSO.");
+            saveSuccessPanel.Show(UiText.LocalizeKnownText("JOGO GUARDADO COM SUCESSO."));
         }
         else
         {
-            ShowSaveFeedback("JOGO GUARDADO");
+            ShowSaveFeedback(UiText.LocalizeKnownText("JOGO GUARDADO"));
         }
         isSaving = false;
-    }
-
-    private bool TryCaptureScreenshot(string screenshotPath)
-    {
-        if (string.IsNullOrWhiteSpace(screenshotPath))
-        {
-            return false;
-        }
-
-        string directory = Path.GetDirectoryName(screenshotPath);
-        if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
-
-        Texture2D shot = null;
-        try
-        {
-            shot = ScreenCapture.CaptureScreenshotAsTexture();
-            if (shot == null)
-            {
-                return false;
-            }
-
-            byte[] png = shot.EncodeToPNG();
-            if (png == null || png.Length == 0)
-            {
-                return false;
-            }
-
-            File.WriteAllBytes(screenshotPath, png);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-        finally
-        {
-            if (shot != null)
-            {
-                Destroy(shot);
-            }
-        }
     }
 
     private static bool IsEscapePressedThisFrame()
@@ -483,5 +439,20 @@ public sealed class PauseMenuController : MonoBehaviour
         {
             button.Clicked -= action;
         }
+    }
+
+    private void HandleLanguageChanged()
+    {
+        ApplyLocalizedLabels();
+        RuntimeTextLocalizer.RequestRefresh();
+    }
+
+    private void ApplyLocalizedLabels()
+    {
+        continueButton?.SetLabel(UiText.GetMainMenuButtonLabel("continue"));
+        saveButton?.SetLabel(UiText.LocalizeKnownText("GUARDAR"));
+        settingsButton?.SetLabel(UiText.LocalizeKnownText("DEFINICOES"));
+        exitButton?.SetLabel(UiText.GetMainMenuButtonLabel("exit"));
+        settingsBackButton?.SetLabel(UiText.GetMainMenuButtonLabel("back"));
     }
 }

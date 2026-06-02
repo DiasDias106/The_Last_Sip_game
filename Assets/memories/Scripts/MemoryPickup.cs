@@ -210,12 +210,21 @@ public class MemoryPickup : MonoBehaviour, IInteractable
     {
         string keyName = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact);
         string prompt = interactionPromptText ?? "Pressiona {0} para interagir";
+        prompt = UiText.LocalizeKnownText(prompt);
         if (prompt.Contains("{0}"))
         {
             return string.Format(prompt, keyName);
         }
 
-        prompt = prompt.Replace("Pressiona F", "Pressiona " + keyName).Replace("Pressiona E", "Pressiona " + keyName);
+        if (UiText.IsPortuguese)
+        {
+            prompt = prompt.Replace("Pressiona F", "Pressiona " + keyName).Replace("Pressiona E", "Pressiona " + keyName);
+        }
+        else
+        {
+            prompt = prompt.Replace("Press F", "Press " + keyName).Replace("Press E", "Press " + keyName);
+        }
+
         return prompt;
     }
 }

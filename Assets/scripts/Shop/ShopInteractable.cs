@@ -55,7 +55,7 @@ public class ShopInteractable : MonoBehaviour
         }
 
         EnsureStyle();
-        string text = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - Abrir Loja";
+        string text = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - " + UiText.LocalizeKnownText("Abrir Loja");
         GUIContent content = new GUIContent(text);
         float width = Mathf.Min(PromptMaxWidth, Mathf.Max(120f, _promptStyle.CalcSize(content).x));
         float height = _promptStyle.CalcHeight(content, width);

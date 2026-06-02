@@ -9,6 +9,9 @@ using UnityEngine.InputSystem.Controls;
 
 public sealed class StartupSplashController : MonoBehaviour
 {
+    private const string PendingSceneKey = "__PENDING_LOAD_SCENE__";
+    private static bool hasShownSplashThisSession;
+
     [Header("References")]
     [SerializeField] private GameObject splashPanel;
     [SerializeField] private GameObject mainMenuPanel;
@@ -25,12 +28,48 @@ public sealed class StartupSplashController : MonoBehaviour
     [SerializeField] private string promptMessage = "CLIQUE EM QUALQUER TELA PARA COMECAR";
 
     private bool waitingForInput;
+    private bool skipSplashForSceneTransition;
 
     private void Awake()
     {
+        skipSplashForSceneTransition =
+            hasShownSplashThisSession ||
+            !string.IsNullOrWhiteSpace(GlobalSceneTransitionRequest.PendingSceneName) ||
+            !string.IsNullOrWhiteSpace(PlayerPrefs.GetString(PendingSceneKey, string.Empty)) ||
+            PlayerPrefs.GetInt("__DR__", 0) == 1;
+
         if (promptText != null)
         {
-            promptText.text = promptMessage;
+            promptText.text = UiText.LocalizeKnownText(promptMessage);
+        }
+
+        if (skipSplashForSceneTransition)
+        {
+            if (splashPanel != null)
+            {
+                splashPanel.SetActive(false);
+            }
+
+            if (mainMenuPanel != null)
+            {
+                mainMenuPanel.SetActive(true);
+            }
+
+            if (splashCanvasGroup != null)
+            {
+                splashCanvasGroup.alpha = 0f;
+                splashCanvasGroup.interactable = false;
+                splashCanvasGroup.blocksRaycasts = false;
+            }
+
+            if (promptCanvasGroup != null)
+            {
+                promptCanvasGroup.alpha = 0f;
+                promptCanvasGroup.interactable = false;
+                promptCanvasGroup.blocksRaycasts = false;
+            }
+
+            return;
         }
 
         if (mainMenuPanel != null)
@@ -60,6 +99,11 @@ public sealed class StartupSplashController : MonoBehaviour
 
     private void Start()
     {
+        if (skipSplashForSceneTransition)
+        {
+            return;
+        }
+
         StartCoroutine(PlaySequence());
     }
 
@@ -76,6 +120,8 @@ public sealed class StartupSplashController : MonoBehaviour
 
     private IEnumerator PlaySequence()
     {
+        hasShownSplashThisSession = true;
+
         if (initialDelay > 0f)
         {
             yield return new WaitForSecondsRealtime(initialDelay);
