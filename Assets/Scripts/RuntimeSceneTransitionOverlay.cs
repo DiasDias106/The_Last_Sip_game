@@ -8,7 +8,6 @@ public class RuntimeSceneTransitionOverlay : MonoBehaviour
     private const string OverlayObjectName = "RuntimeSceneTransitionOverlay";
     private const string LoadingSceneName = "MainMenuScene";
     private const string PendingSceneKey = "__PENDING_LOAD_SCENE__";
-
     private Canvas _canvas;
     private Image _background;
     private Coroutine _activeRoutine;
@@ -178,19 +177,6 @@ public class RuntimeSceneTransitionOverlay : MonoBehaviour
         _activeRoutine = null;
     }
 
-    private IEnumerator ShowMainMenuLoadingThenLoad(string targetSceneName)
-    {
-        if (!Application.CanStreamedLevelBeLoaded(LoadingSceneName))
-        {
-            SceneManager.LoadScene(targetSceneName);
-            yield break;
-        }
-        GlobalSceneTransitionRequest.PendingSceneName = targetSceneName;
-        PlayerPrefs.SetString(PendingSceneKey, targetSceneName);
-        PlayerPrefs.Save();
-        SceneManager.LoadScene(LoadingSceneName);
-    }
-
     private void ShowBlackOnly()
     {
         if (_canvas != null) _canvas.gameObject.SetActive(true);
@@ -201,6 +187,21 @@ public class RuntimeSceneTransitionOverlay : MonoBehaviour
     {
         float elapsed = 0f;
         while (elapsed < seconds) { elapsed += Time.unscaledDeltaTime; yield return null; }
+    }
+
+    private IEnumerator ShowMainMenuLoadingThenLoad(string targetSceneName)
+    {
+        if (!Application.CanStreamedLevelBeLoaded(LoadingSceneName))
+        {
+            _autoFadeOnLoad = true;
+            SceneManager.LoadScene(targetSceneName);
+            yield break;
+        }
+
+        GlobalSceneTransitionRequest.PendingSceneName = targetSceneName;
+        PlayerPrefs.SetString(PendingSceneKey, targetSceneName);
+        PlayerPrefs.Save();
+        SceneManager.LoadScene(LoadingSceneName);
     }
 
     private void HideImmediate()

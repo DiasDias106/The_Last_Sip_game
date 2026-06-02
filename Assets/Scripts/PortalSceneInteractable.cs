@@ -8,6 +8,7 @@ public class PortalSceneInteractable : MonoBehaviour
 {
     [SerializeField] private string targetSceneName = "level_1";
     [SerializeField] private float interactionDistance = 5f;
+    [SerializeField] private float blackScreenDuration = 0.35f;
     [SerializeField] private Vector3 promptOffset = new Vector3(0f, 1.7f, 0f);
     [SerializeField] private string promptText = "Entrar portal";
     [SerializeField] private bool lockPortalWhenLevelCompleted = true;
@@ -58,7 +59,7 @@ public class PortalSceneInteractable : MonoBehaviour
         if (_isPlayerNear && !_isLocked && GetInteractPressed())
         {
             _transitionStarted = true;
-            LoadTargetScene();
+            StartSceneTransition();
         }
     }
 
@@ -110,7 +111,7 @@ public class PortalSceneInteractable : MonoBehaviour
         _promptStyle.wordWrap = true;
     }
 
-    private void LoadTargetScene()
+    private void StartSceneTransition()
     {
         if (string.IsNullOrWhiteSpace(targetSceneName))
         {
@@ -120,7 +121,7 @@ public class PortalSceneInteractable : MonoBehaviour
 
         if (Application.CanStreamedLevelBeLoaded(targetSceneName))
         {
-            SceneManager.LoadScene(targetSceneName);
+            RuntimeSceneTransitionOverlay.BeginTransition(targetSceneName, blackScreenDuration);
             return;
         }
 
@@ -131,7 +132,8 @@ public class PortalSceneInteractable : MonoBehaviour
         int buildIndex = SceneUtility.GetBuildIndexByScenePath(candidatePath);
         if (buildIndex >= 0)
         {
-            SceneManager.LoadScene(buildIndex);
+            string resolvedSceneName = System.IO.Path.GetFileNameWithoutExtension(candidatePath);
+            RuntimeSceneTransitionOverlay.BeginTransition(resolvedSceneName, blackScreenDuration);
             return;
         }
 

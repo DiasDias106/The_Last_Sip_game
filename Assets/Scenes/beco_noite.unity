@@ -229849,43 +229849,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.08
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.08
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.08
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -17.398567
+      value: -15.44
       objectReference: {fileID: 0}
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.22
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 25.442707
+      value: -23.807297
       objectReference: {fileID: 0}
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7339955
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.1046751
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.11625347
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.66089255
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -229898,6 +229898,10 @@ PrefabInstance:
     - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2642201539207942256, guid: 5ef419fc9703e87449131fda91b0c423, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -229934,7 +229938,7 @@ MonoBehaviour:
   promptText: F - Apanhar garrafa
   drinkIntroClip: {fileID: 8993902097722301239, guid: 44f3cf9adc6abda49887a528b20f70ea, type: 3}
   drinkLoopClip: {fileID: 8993902097722301239, guid: 0a317c9c86907e5449cf06760470f5e4, type: 3}
-  collapseClip: {fileID: 7400000, guid: 7f0b16d67db4d0349993822251b989b3, type: 3}
+  collapseClip: {fileID: 8993902097722301239, guid: bf737ec5f8ed42b4983d49d91bad81f9, type: 3}
 --- !u!54 &1096897359
 Rigidbody:
   m_ObjectHideFlags: 0
