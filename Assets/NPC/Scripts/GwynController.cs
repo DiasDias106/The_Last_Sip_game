@@ -38,7 +38,8 @@ public class GwynController : MonoBehaviour, IDamageable
     private float      _health, _lastAttackTime, _patrolWaitTimer, _attackingExitTimer;
     private int        _attackStep;
     private Vector3    _patrolTarget, _spawnPosition;
-    private bool       _inCombat;
+    private bool _inCombat;
+    private PlayerHealth _playerHealth;
 
     private Transform _modelRoot;
 
@@ -62,6 +63,19 @@ public class GwynController : MonoBehaviour, IDamageable
     {
         if (_state == State.Dead) return;
         if (_state != State.Chasing && _state != State.Attacking) TryDetect();
+        // Se o player morreu, voltar a patrulhar
+        if (_player != null)
+        {
+            if (_playerHealth == null) _playerHealth = _player.GetComponentInParent<PlayerHealth>() ?? _player.GetComponentInChildren<PlayerHealth>();
+            if (_playerHealth != null && _playerHealth.IsDead)
+            {
+                _player = null; _playerHealth = null;
+                if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); }
+                _animator?.SetBool(HashIsWalking, false); _animator?.SetBool(HashIsRunning, false);
+                _state = State.Patrolling;
+            }
+        }
+
         switch (_state)
         {
             case State.Idle:       UpdateIdle();    break;
@@ -76,6 +90,8 @@ public class GwynController : MonoBehaviour, IDamageable
         foreach (var col in Physics.OverlapSphere(transform.position, detectionRange))
         {
             if (!col.CompareTag("Player")) continue;
+            var ph = col.GetComponentInParent<PlayerHealth>() ?? col.GetComponentInChildren<PlayerHealth>();
+            if (ph != null && ph.IsDead) continue;
             _player = col.transform;
             if (!_inCombat) { _inCombat = true; GameMusicManager.Instance?.EnterCombat(); }
             _state = State.Chasing; break;
@@ -148,22 +164,37 @@ public class GwynController : MonoBehaviour, IDamageable
     {
         _state = State.Dead;
         if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); }
-        if (_agent.isOnNavMesh) _agent.isStopped = true; _agent.enabled = false;
-        _animator?.SetTrigger(HashDie); PlayerInventory.Instance?.AddCoins(coinReward);
+        if (_agent.isOnNavMesh) _agent.isStopped = true;
+        _agent.enabled = false;
+        // Voltar ao idle antes de morrer (pose neutra, nao pose de ataque)
+        _animator?.SetBool(HashIsWalking, false);
+        _animator?.SetBool(HashIsRunning, false);
+        _animator?.Play("Idle");
+        var col = GetComponent<CapsuleCollider>();
+        if (col != null) col.isTrigger = true;
+        PlayerInventory.Instance?.AddCoins(coinReward);
         StartCoroutine(DeathRoutine());
     }
 
-    private void LateUpdate()
+    private IEnumerator DeathRoutine()
     {
-        if (_modelRoot != null)
+        // Deixar transicionar para idle (0.4s)
+        yield return new WaitForSeconds(0.4f);
+        // Congelar na pose idle
+        if (_animator != null) _animator.enabled = false;
+        // Encolher igual ao skeleton
+        float elapsed = 0f;
+        float shrinkDuration = 1.2f;
+        Vector3 originalScale = transform.localScale;
+        while (elapsed < shrinkDuration)
         {
-            var lp = _modelRoot.localPosition;
-            lp.y = 0f;
-            _modelRoot.localPosition = lp;
+            elapsed += Time.deltaTime;
+            transform.localScale = Vector3.Lerp(originalScale, Vector3.zero,
+                Mathf.Clamp01(elapsed / shrinkDuration));
+            yield return null;
         }
+        Destroy(gameObject);
     }
-
-    private IEnumerator DeathRoutine() { yield return new WaitForSeconds(4f); Destroy(gameObject); }
 
     private void PickPatrolTarget()
     {
@@ -183,6 +214,18 @@ public class GwynController : MonoBehaviour, IDamageable
         Gizmos.color = Color.red; Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

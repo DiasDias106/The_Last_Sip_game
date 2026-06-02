@@ -25,8 +25,8 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     private const float PromptMaxWidth = 220f;
 
 #if UNITY_EDITOR
-    // Drink intro: Stunned do ExplosiveLLC (funciona no player) → simula embriaguez
-    private const string DrinkIntroClipAssetPath = "Assets/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/Unarmed/RPG-Character@Unarmed-Stunned.FBX";
+    // Drink intro: transição para beber do MoCap Central
+    private const string DrinkIntroClipAssetPath = "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Stand_Trans_Moonshine.FBX";
     // Drink loop: MoCap Central moonshine
     private const string DrinkLoopClipAssetPath  = "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Moonshine_01_Drink_Loop.FBX";
     // Collapse: animação de cair do MoCap Central Injured
@@ -166,14 +166,14 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
 
     private void EnsureSequenceClips()
     {
-        // Reset clips antigos incompatíveis
-        if (drinkIntroClip != null && drinkIntroClip.name == "MCU_am_Stand_Trans_Moonshine")
+        // Limpar clip de intro antigo (Unarmed-Stunned era o anterior, substituído por MCU_am_Stand_Trans_Moonshine)
+        if (drinkIntroClip != null && drinkIntroClip.name == "Unarmed-Stunned")
             drinkIntroClip = null;
         if (collapseClip != null && (collapseClip.name == "Unarmed-Fall" || collapseClip.name == "Unarmed-Knockdown1"))
             collapseClip = null;
 
         if (drinkIntroClip == null)
-            drinkIntroClip = FindRuntimeClip("Unarmed-Stunned");
+            drinkIntroClip = FindRuntimeClip("MCU_am_Stand_Trans_Moonshine");
 
         if (drinkLoopClip == null)
             drinkLoopClip = FindRuntimeClip("MCU_am_Moonshine_01_Drink_Loop");
@@ -183,7 +183,7 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
 
 #if UNITY_EDITOR
         if (drinkIntroClip == null)
-            drinkIntroClip = FindClipAtPath(DrinkIntroClipAssetPath, "Unarmed-Stunned");
+            drinkIntroClip = FindClipAtPath(DrinkIntroClipAssetPath, "MCU_am_Stand_Trans_Moonshine");
 
         if (drinkLoopClip == null)
             drinkLoopClip = FindClipAtPath(DrinkLoopClipAssetPath, "MCU_am_Moonshine_01_Drink_Loop");

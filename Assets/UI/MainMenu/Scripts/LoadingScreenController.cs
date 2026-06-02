@@ -22,7 +22,7 @@ public sealed class LoadingScreenController : MonoBehaviour
     [SerializeField] private RectTransform loadingIconRoot;
     [SerializeField] private TMP_Text quoteText;
     [SerializeField] private TMP_Text loadingText;
-    [SerializeField] private float loadingDuration = 2.5f;
+    [SerializeField] private float loadingDuration = 4.5f;
     [SerializeField] private float shortFadeDuration = 0.22f;
     [SerializeField] private float loadingFadeDuration = 0.4f;
     [SerializeField] private float iconRotationSpeed = 160f;
@@ -183,31 +183,34 @@ public sealed class LoadingScreenController : MonoBehaviour
 
     private IEnumerator ShowLoadingThenLoadSceneRoutine(string sceneName)
     {
+        // Garantir que o overlay preto está escondido antes de mostrar o loading
+        RuntimeSceneTransitionOverlay.HideOverlay();
         yield return PlayLoadingIntro();
-        yield return WaitForUnscaledSeconds(loadingDuration);
-        yield return FadeToBlack();
 
-        if (Application.CanStreamedLevelBeLoaded(sceneName))
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
         {
-            SceneManager.LoadScene(sceneName);
+            Debug.LogWarning($"Scene '{sceneName}' is not available in Build Settings.");
+            if (loadingPanel != null) loadingPanel.SetActive(false);
+            if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
+            RestoreAudioAfterLoading();
+            yield return FadeFromBlack();
+            FinishSequence();
             yield break;
         }
 
-        Debug.LogWarning($"Scene '{sceneName}' is not available in Build Settings.");
+        // Carregar a cena em background enquanto o loading está visível
+        var asyncOp = SceneManager.LoadSceneAsync(sceneName);
+        asyncOp.allowSceneActivation = false;
 
-        if (loadingPanel != null)
+        // Esperar o tempo mínimo de loading E que a cena esteja pronta
+        float elapsed = 0f;
+        while (elapsed < loadingDuration || asyncOp.progress < 0.9f)
         {
-            loadingPanel.SetActive(false);
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
         }
 
-        if (mainMenuPanel != null)
-        {
-            mainMenuPanel.SetActive(true);
-        }
-
-        RestoreAudioAfterLoading();
-        yield return FadeFromBlack();
-        FinishSequence();
+        asyncOp.allowSceneActivation = true;
     }
 
     private IEnumerator PlayLoadingIntro()

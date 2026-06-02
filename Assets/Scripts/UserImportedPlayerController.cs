@@ -56,7 +56,7 @@ public class UserImportedPlayerController : MonoBehaviour
 
     private const float CombatExitDelay = 3.5f;
     private const float AttackHitTime   = 0.28f;
-    private const float RollDuration    = 0.75f;
+    private const float RollDuration    = 1.1f;
     private const float RollSpeed       = 7f;
 
     // ── Movement ─────────────────────────────────────────────────────────────────
@@ -148,6 +148,7 @@ public class UserImportedPlayerController : MonoBehaviour
         if (_controller == null || _visualRoot == null) return;
         if (_isScriptedSequencePlaying)
         {
+            UpdateAnimationTransition();
             SampleCurrentClip();
             return;
         }
@@ -222,38 +223,51 @@ public class UserImportedPlayerController : MonoBehaviour
         _verticalVelocity = -1f;
 
         AttachBottleToRightHand(bottleTransform);
-        yield return WaitForSecondsRoutine(0.18f);
+        yield return WaitForSecondsRoutine(0.1f);
 
         if (drinkIntroClip != null)
         {
-            PlayDirectClip(drinkIntroClip);
-            yield return WaitForClipSeconds(drinkIntroClip, 0.95f, 4f); // deixar tocar
+            PlayDirectClipImmediate(drinkIntroClip, 0f, 1f);
+            yield return WaitForClipSeconds(drinkIntroClip, 1f, 5f);
         }
 
         if (drinkLoopClip != null)
         {
-            PlayDirectClip(drinkLoopClip);
-            yield return WaitForClipSeconds(drinkLoopClip, 0.38f, 1.5f);
+            PlayDirectClipImmediate(drinkLoopClip, 0f, 1f);
+            yield return WaitForClipSeconds(drinkLoopClip, 1f, 4f);
         }
-
-        yield return WaitForSecondsRoutine(0.15f);
 
         if (bottleTransform != null)
         {
             bottleTransform.gameObject.SetActive(false);
         }
 
+        yield return WaitForSecondsRoutine(0.1f);
+
         if (collapseClip != null)
         {
-            PlayDirectClip(collapseClip);
-            yield return WaitForClipSeconds(collapseClip, 1f, 8f); // espera o clip todo
+            PlayDirectClipImmediate(collapseClip, 0f, 1f);
+            yield return WaitForClipSeconds(collapseClip, 1f, 8f);
+            // Congelar no último frame (evita loop da animação)
+            float lastFrame = Mathf.Max(0f, collapseClip.length - 0.02f);
+            _clipTime = lastFrame;
+            _currentClipSpeed = 0f;
+            if (_graphCreated && _clipPlayable.IsValid())
+            {
+                _clipPlayable.SetTime(lastFrame);
+                _clipPlayable.SetSpeed(0);
+                _playableGraph.Evaluate();
+            }
         }
 
-        yield return WaitForSecondsRoutine(0.3f);
-
-        _isScriptedSequencePlaying = false;
+        // Invocar transição sem desativar _isScriptedSequencePlaying
+        // O player fica deitado enquanto o ecrã faz fade to black
         _activeScriptedSequence = null;
         onComplete?.Invoke();
+
+        // Segurança: caso a transição de cena falhe, desbloquear ao fim de 5s
+        yield return WaitForSecondsRoutine(5f);
+        _isScriptedSequencePlaying = false;
     }
 
     private IEnumerator PlayConsumableDrinkSequenceRoutine(Action onDrinkMoment)
@@ -404,8 +418,9 @@ public class UserImportedPlayerController : MonoBehaviour
             EnterAttack();
             return;
         }
-        // Combat mode: active while enemies are nearby, lingers CombatExitDelay after they leave
-        if (CheckEnemiesNearby())
+        // Combat mode: ativo quando inimigos avistam o player (via GameMusicManager)
+        bool enemiesEngaged = GameMusicManager.Instance != null && GameMusicManager.Instance.IsInCombat;
+        if (enemiesEngaged)
         {
             _inCombat    = true;
             _combatTimer = CombatExitDelay;
@@ -432,7 +447,7 @@ public class UserImportedPlayerController : MonoBehaviour
         else if (!grounded && _verticalVelocity < -1f && _airTime > 0.3f)
             PlayClip("fall");
         else if (input.sqrMagnitude < 0.01f)
-            PlayClip("idle");
+            PlayClip(_inCombat ? "idleCombat" : "idle");
         else if (run)
             PlayClip("run");
         else
@@ -595,18 +610,31 @@ public class UserImportedPlayerController : MonoBehaviour
         _moveState    = MoveState.Rolling;
         _stateTimer   = 0f;
         _isInvincible = true;
+
+        // Limpar playables para transição INSTANTÂNEA — sem blend de walk/run → roll
+        if (_graphCreated && _playableGraph.IsValid())
+        {
+            if (_oldClipPlayable.IsValid())  { _playableGraph.Disconnect(_mixerPlayable, 1); _oldClipPlayable.Destroy(); }
+            if (_clipPlayable.IsValid())     { _playableGraph.Disconnect(_mixerPlayable, 0); _clipPlayable.Destroy(); }
+            _isTransitioning = false;
+            _mixerPlayable.SetInputWeight(0, 1f);
+            _mixerPlayable.SetInputWeight(1, 0f);
+        }
+        _currentClip = null;
         PlayClip("roll");
     }
 
     void UpdateRolling(bool grounded)
     {
+        // Movimento usa RollDuration para a curva de velocidade
         float t     = _stateTimer / RollDuration;
-        float speed = RollSpeed * Mathf.Cos(t * Mathf.PI * 0.5f);
+        float speed = RollSpeed * Mathf.Cos(Mathf.Min(t, 1f) * Mathf.PI * 0.5f);
         _verticalVelocity += gravity * Time.deltaTime;
         if (grounded && _verticalVelocity < 0f) _verticalVelocity = -1f;
 
         _controller.Move((transform.forward * speed + Vector3.up * _verticalVelocity) * Time.deltaTime);
 
+        // Sair ao fim de RollDuration — devolve controlo ao jogador imediatamente
         if (_stateTimer >= RollDuration)
         {
             _isInvincible = false;
@@ -753,8 +781,9 @@ public class UserImportedPlayerController : MonoBehaviour
         Override("jump",       ki + "Movement/Jump/HumanM@Jump01.fbx");
         Override("fall",       ki + "Movement/Jump/HumanM@Fall01.fbx");
 
-        // Combat locomotion (2Hand-Sword)
+        // Combat locomotion e idle de combate (2Hand-Sword)
         Override("walkCombat", s2 + "Strafe-Forward.FBX");
+        Override("idleCombat", s2 + "Idle.FBX");
 
         // Combat actions (2Hand-Sword)
         Override("attack1",    s2 + "Attack1.FBX");
@@ -775,6 +804,7 @@ public class UserImportedPlayerController : MonoBehaviour
         // Fallbacks
         Fallback("walk",       "run");
         Fallback("walkCombat", "walk");
+        Fallback("idleCombat", "idle");
         Fallback("idle",       "walk");
         Fallback("idleStatic", "idle");
         Fallback("run",        "walk");
@@ -1368,7 +1398,7 @@ public class UserImportedPlayerController : MonoBehaviour
 
     bool CheckEnemiesNearby()
     {
-        const float radius = 20f;
+        const float radius = 6f; // raio reduzido para não entrar em combate ao spawn
         int enemyLayer = LayerMask.NameToLayer("Enemy");
         if (enemyLayer < 0) return false;
         return Physics.CheckSphere(transform.position, radius, 1 << enemyLayer);
