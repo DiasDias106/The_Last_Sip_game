@@ -10,14 +10,27 @@ public class LeverInteractable : MonoBehaviour, IInteractable
 
     [Header("Animation Settings")]
     public float targetRotationX = 46.986f;
-    public float animationDuration = 1.5f; // Aumentado para parecer mais pesado
+    
+    private bool useRelativeRotation;
+    private float relativeRotationX;
+public float animationDuration = 1.5f; // Aumentado para parecer mais pesado
 
-    void Awake()
+void Awake()
     {
-        if (gameObject.name == "big_door_lever" && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "level_2")
+        useRelativeRotation = false;
+
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "level_2")
         {
-            targetRotationX = -66.194f;
-            animationDuration = 2.5f; // Esta alavanca é ainda mais dura/pesada
+            if (gameObject.name == "big_door_lever")
+            {
+                targetRotationX = -66.194f;
+                animationDuration = 2.5f; // Esta alavanca e ainda mais dura/pesada
+            }
+            else
+            {
+                targetRotationX = 46.986f;
+                animationDuration = 1.5f;
+            }
         }
     }
 
@@ -34,7 +47,7 @@ public class LeverInteractable : MonoBehaviour, IInteractable
         Transform handle = null;
         foreach (Transform child in GetComponentsInChildren<Transform>(true))
         {
-            if (child.name == "SM_PROP_lever_handle_dungeon_01")
+            if (child.name == "SM_PROP_lever_handle_dungeon_01" || child.name == "SM_PROP_lever_handle_dungeon_03")
             {
                 handle = child;
                 break;

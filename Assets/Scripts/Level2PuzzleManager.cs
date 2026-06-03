@@ -21,7 +21,9 @@ public class Level2PuzzleManager : MonoBehaviour
         OpenDoorLeafByRotation(bigDoorRoot.transform, "MOD_Gateway_Door_01_large_door_L", -90f);
         OpenDoorLeafByRotation(bigDoorRoot.transform, "MOD_Gateway_Door_01_large_door_R", 90f);
         HideBigDoorPlank(bigDoorRoot.transform, "MOD_Gateway_Door_01_large_plank_01");
-        HideBigDoorPlank(bigDoorRoot.transform, "MOD_Gateway_Door_01_large_plank_02");
+        
+        DisableBigDoorFrameCollider(bigDoorRoot.transform);
+HideBigDoorPlank(bigDoorRoot.transform, "MOD_Gateway_Door_01_large_plank_02");
     }
 
     void OpenDoorLeafByRotation(Transform root, string objectName, float yAngle)
@@ -35,10 +37,23 @@ public class Level2PuzzleManager : MonoBehaviour
 
         Vector3 euler = t.localEulerAngles;
         t.localRotation = Quaternion.Euler(euler.x, yAngle, euler.z);
-
-        foreach (var col in t.GetComponentsInChildren<Collider>(true))
-            col.enabled = false;
     }
+
+void DisableBigDoorFrameCollider(Transform root)
+    {
+        var frame = FindChildRecursive(root, "P_MOD_Gateway_Door_01_large");
+        if (frame == null)
+        {
+            return;
+        }
+
+        var meshCollider = frame.GetComponent<MeshCollider>();
+        if (meshCollider != null)
+        {
+            meshCollider.enabled = false;
+        }
+    }
+
 
     void HideBigDoorPlank(Transform root, string objectName)
     {
@@ -49,10 +64,10 @@ public class Level2PuzzleManager : MonoBehaviour
             return;
         }
 
-        foreach (var col in t.GetComponentsInChildren<Collider>(true))
+                foreach (var col in t.GetComponentsInChildren<Collider>(true))
             col.enabled = false;
 
-        foreach (var r in t.GetComponentsInChildren<Renderer>(true))
+foreach (var r in t.GetComponentsInChildren<Renderer>(true))
             r.enabled = false;
     }
 
