@@ -141,7 +141,7 @@ MonoBehaviour:
   openAngleY: 95
   openSpeed: 3.5
   promptOffset: {x: 0, y: 1.7, z: 0}
-  disableCollidersWhenOpen: 1
+  disableCollidersWhenOpen: 0
 --- !u!1001 &3003290
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6729,7 +6729,7 @@ MonoBehaviour:
   openAngleY: -95
   openSpeed: 3.5
   promptOffset: {x: 0, y: 1.7, z: 0}
-  disableCollidersWhenOpen: 1
+  disableCollidersWhenOpen: 0
 --- !u!1001 &186616739
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21212,6 +21212,19 @@ Transform:
   - {fileID: 917833722}
   m_Father: {fileID: 953249751}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!134 &538463661
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1001 &540929742
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31927,6 +31940,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4950642333166707006, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 1562747367}
     - target: {fileID: 5309144726502237816, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -31935,6 +31952,10 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 7662518467405247638, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 854130163}
     - target: {fileID: 7752246411790496848, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
@@ -35736,6 +35757,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 5012379852628955425, guid: 7041dce2daaa5f04899e7eb11bd69f2d, type: 3}
+--- !u!134 &854130163
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1001 &854332573
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -61673,7 +61707,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 1954120425}
     m_Modifications:
     - target: {fileID: 3038559213080294444, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
       propertyPath: m_IsActive
@@ -61687,6 +61721,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4950642333166707006, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 538463661}
     - target: {fileID: 5309144726502237816, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -61695,6 +61733,10 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 7662518467405247638, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 2088366563}
     - target: {fileID: 7752246411790496848, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
@@ -61832,6 +61874,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 6183388362204786232, guid: 95608c2f4e4e2e9418ac94f3cb9cc345, type: 3}
+--- !u!4 &1411479273 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8117132810412722425, guid: 2aa54ccc4610b974793d0d5f80474bed, type: 3}
+  m_PrefabInstance: {fileID: 1411479270}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1413150326 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
@@ -63394,7 +63441,7 @@ MonoBehaviour:
   openAngleY: -95
   openSpeed: 3.5
   promptOffset: {x: 0, y: 1.7, z: 0}
-  disableCollidersWhenOpen: 1
+  disableCollidersWhenOpen: 0
 --- !u!1001 &1451228745
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -68238,6 +68285,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 7930082936007843316, guid: 8606969f693d5cf46b648d0ced0fde39, type: 3}
+--- !u!134 &1562747367
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1001 &1565013845
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -82636,7 +82696,7 @@ MonoBehaviour:
   openAngleY: 95
   openSpeed: 3.5
   promptOffset: {x: 0, y: 1.7, z: 0}
-  disableCollidersWhenOpen: 1
+  disableCollidersWhenOpen: 0
 --- !u!1001 &1913234111
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -85074,6 +85134,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1411479273}
   - {fileID: 782944603}
   m_Father: {fileID: 1526167976}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -91989,6 +92050,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2086564121}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!134 &2088366563
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1001 &2091551362
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -94455,7 +94529,6 @@ SceneRoots:
   - {fileID: 1526167976}
   - {fileID: 156038167}
   - {fileID: 959479039}
-  - {fileID: 1411479270}
   - {fileID: 1232952887}
   - {fileID: 1617801235}
   - {fileID: 1905630041}
