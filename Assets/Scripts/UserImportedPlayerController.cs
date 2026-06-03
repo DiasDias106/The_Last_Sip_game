@@ -89,15 +89,21 @@ public class UserImportedPlayerController : MonoBehaviour
     private bool _isTransitioning = false;
     private bool _isScriptedSequencePlaying;
     private Coroutine             _activeScriptedSequence;
+    private bool _externalControlLocked;
     private AnimationClip _potionDrinkIntroClip;
     private AnimationClip _potionDrinkLoopClip;
     private float _currentClipSpeed = 1f;
     private bool _drinkOverlayActive;
     private bool _isBecoScavengerMode;
+    private Transform _cameraFollowOverride;
+    private bool _cameraFollowOverrideAlign;
+    private float _cameraFollowOverridePitch = 14f;
     private const float PotionDrinkStartTime = 1.97f;
     private const float PotionDrinkPlaybackSpeed = 2f;
 
     public bool IsScriptedSequencePlaying => _isScriptedSequencePlaying;
+    public bool IsExternalControlLocked => _externalControlLocked;
+    public Transform VisualRoot => _visualRoot;
 
     private const string AnimBase = "Assets/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/";
 
@@ -105,6 +111,80 @@ public class UserImportedPlayerController : MonoBehaviour
     //  SETUP
     // ═══════════════════════════════════════════════════════════════════════════
     public void AssignVisualRoot(Transform vr) => _visualRoot = vr;
+
+    public void SetExternalControlLocked(bool locked)
+    {
+        _externalControlLocked = locked;
+        if (!locked)
+        {
+            return;
+        }
+
+        _currentMovementVelocity = Vector3.zero;
+        _movementVelocityRef = Vector3.zero;
+    }
+
+    public void MoveExternally(Vector3 worldVelocity)
+    {
+        if (_controller == null)
+        {
+            return;
+        }
+
+        bool grounded = _controller.isGrounded;
+        if (grounded && _verticalVelocity < 0f)
+        {
+            _verticalVelocity = -1f;
+        }
+
+        _verticalVelocity += gravity * Time.deltaTime;
+        Vector3 move = worldVelocity;
+        move.y = _verticalVelocity;
+        _controller.Move(move * Time.deltaTime);
+    }
+
+    public void FaceDirection(Vector3 worldDirection)
+    {
+        Vector3 flatDirection = Vector3.ProjectOnPlane(worldDirection, Vector3.up);
+        if (flatDirection.sqrMagnitude < 0.0001f)
+        {
+            return;
+        }
+
+        Quaternion rotation = Quaternion.LookRotation(flatDirection.normalized, Vector3.up);
+        transform.rotation = rotation;
+        _yaw = rotation.eulerAngles.y;
+    }
+
+    public void PlayExternalAnimation(string key)
+    {
+        PlayClip(key);
+    }
+
+    public void SetVisualVisible(bool visible)
+    {
+        if (_visualRoot == null)
+        {
+            return;
+        }
+
+        foreach (Renderer renderer in _visualRoot.GetComponentsInChildren<Renderer>(true))
+        {
+            renderer.enabled = visible;
+        }
+    }
+
+    public void SetCameraFollowOverride(Transform target, bool alignToTargetForward = true, float pitch = 14f)
+    {
+        _cameraFollowOverride = target;
+        _cameraFollowOverrideAlign = alignToTargetForward;
+        _cameraFollowOverridePitch = pitch;
+    }
+
+    public void ClearCameraFollowOverride()
+    {
+        _cameraFollowOverride = null;
+    }
 
     void Awake()
     {
@@ -152,6 +232,22 @@ public class UserImportedPlayerController : MonoBehaviour
             SampleCurrentClip();
             return;
         }
+
+        if (_externalControlLocked)
+        {
+            bool externalGrounded = _controller.isGrounded;
+            if (externalGrounded && _verticalVelocity < 0f)
+            {
+                _verticalVelocity = -1f;
+            }
+
+            _verticalVelocity += gravity * Time.deltaTime;
+            _controller.Move(Vector3.up * _verticalVelocity * Time.deltaTime);
+            UpdateAnimationTransition();
+            SampleCurrentClip();
+            return;
+        }
+
         if (Time.timeScale <= 0f) return;
 
         HandleCameraLook();
@@ -1234,6 +1330,7 @@ public class UserImportedPlayerController : MonoBehaviour
     void HandleCameraLook()
     {
         if (_cameraPivot == null) return;
+        if (_cameraFollowOverride != null) return;
         var d = GetMouseDelta();
         _yaw   += d.x * mouseSensitivity;
         _pitch -= d.y * mouseSensitivity;
@@ -1244,8 +1341,26 @@ public class UserImportedPlayerController : MonoBehaviour
     void LateUpdate()
     {
         if (_cameraPivot == null || _mainCamera == null || Time.timeScale <= 0f) return;
-        _cameraPivot.position = Vector3.Lerp(
-            _cameraPivot.position, transform.position + Vector3.up * 1.2f, cameraFollowSpeed * Time.deltaTime);
+
+        if (_cameraFollowOverride != null)
+        {
+            _pitch = Mathf.Lerp(_pitch, _cameraFollowOverridePitch, 6f * Time.deltaTime);
+            if (_cameraFollowOverrideAlign)
+            {
+                _yaw = Mathf.LerpAngle(_yaw, _cameraFollowOverride.eulerAngles.y, 6f * Time.deltaTime);
+            }
+
+            _cameraPivot.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
+            _cameraPivot.position = Vector3.Lerp(
+                _cameraPivot.position,
+                _cameraFollowOverride.position + Vector3.up * 1.2f,
+                cameraFollowSpeed * Time.deltaTime);
+        }
+        else
+        {
+            _cameraPivot.position = Vector3.Lerp(
+                _cameraPivot.position, transform.position + Vector3.up * 1.2f, cameraFollowSpeed * Time.deltaTime);
+        }
 
         Vector3 dir  = cameraLocalOffset.normalized;
         float   dist = cameraLocalOffset.magnitude;

@@ -49,6 +49,7 @@ public sealed class MainMenuController : MonoBehaviour
     private MenuPanelController activePanel;
     private string pendingSceneFromTransition;
     private bool pendingSceneLaunchQueued;
+    private bool pendingCreditsLaunchQueued;
 
     private void Awake()
     {
@@ -100,6 +101,12 @@ public sealed class MainMenuController : MonoBehaviour
             PlayerPrefs.DeleteKey(PendingSceneKey);
             PlayerPrefs.Save();
             pendingSceneLaunchQueued = true;
+        }
+
+        if (GlobalSceneTransitionRequest.PendingOpenCredits)
+        {
+            GlobalSceneTransitionRequest.PendingOpenCredits = false;
+            pendingCreditsLaunchQueued = true;
         }
 
         optionsPanel?.HideImmediate();
@@ -176,6 +183,13 @@ public sealed class MainMenuController : MonoBehaviour
         if (pendingSceneLaunchQueued)
         {
             StartCoroutine(BeginPendingSceneTransition());
+            return;
+        }
+
+        if (pendingCreditsLaunchQueued)
+        {
+            pendingCreditsLaunchQueued = false;
+            StartCoroutine(OpenCreditsWithLoading());
         }
     }
 

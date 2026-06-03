@@ -673,7 +673,13 @@ public static class UserImportedPlayerBootstrap
 
     private static void SetupBecoEncounter()
     {
-        if (!IsBecoScene(SceneManager.GetActiveScene().name))
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (!IsBecoScene(sceneName))
+        {
+            return;
+        }
+
+        if (sceneName == BecoNoiteSceneName || sceneName == BecoDiaSceneName)
         {
             return;
         }
