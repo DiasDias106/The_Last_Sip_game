@@ -174,11 +174,27 @@ public class UserImportedPlayerController : MonoBehaviour
         }
     }
 
-    public void SetCameraFollowOverride(Transform target, bool alignToTargetForward = true, float pitch = 14f)
+    public void SetCameraFollowOverride(Transform target, bool alignToTargetForward = true, float pitch = 14f, bool snapImmediately = false)
     {
         _cameraFollowOverride = target;
         _cameraFollowOverrideAlign = alignToTargetForward;
         _cameraFollowOverridePitch = pitch;
+
+        if (!snapImmediately || _cameraPivot == null || target == null)
+        {
+            return;
+        }
+
+        _pitch = pitch;
+        if (alignToTargetForward)
+        {
+            _yaw = target.eulerAngles.y;
+        }
+
+        _cameraPivot.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
+        _cameraPivot.position = target.position + Vector3.up * 1.2f;
+        _mainCamera.transform.localPosition = cameraLocalOffset;
+        _mainCamera.transform.localRotation = Quaternion.identity;
     }
 
     public void ClearCameraFollowOverride()
@@ -1355,6 +1371,10 @@ public class UserImportedPlayerController : MonoBehaviour
                 _cameraPivot.position,
                 _cameraFollowOverride.position + Vector3.up * 1.2f,
                 cameraFollowSpeed * Time.deltaTime);
+
+            _mainCamera.transform.localPosition = cameraLocalOffset;
+            _mainCamera.transform.localRotation = Quaternion.identity;
+            return;
         }
         else
         {
