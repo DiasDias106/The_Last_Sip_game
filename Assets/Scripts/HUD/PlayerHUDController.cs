@@ -30,9 +30,13 @@ public class PlayerHUDController : MonoBehaviour
 
     public RectTransform ResourcesContainerRect => _resourcesContainerRT;
 
+    static bool IsNonGameplayScene(string name) =>
+        name == "MainMenuScene" || name == "beco" || name == "beco_noite" || name == "beco_dia"
+        || name == "new_game_controls";
+
     void Update()
     {
-        if (SceneManager.GetActiveScene().name == "MainMenuScene")
+        if (IsNonGameplayScene(SceneManager.GetActiveScene().name))
         {
             Destroy(gameObject);
             return;
@@ -78,10 +82,7 @@ public class PlayerHUDController : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "MainMenuScene"
-            || scene.name == "beco"
-            || scene.name == "beco_noite"
-            || scene.name == "beco_dia")
+        if (IsNonGameplayScene(scene.name))
         {
             Destroy(gameObject);
             return;
@@ -191,8 +192,8 @@ public class PlayerHUDController : MonoBehaviour
         outline.effectDistance = new Vector2(1.2f, -1.2f);
 
         var rt = promptGo.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.5f, 0.18f);
-        rt.anchorMax = new Vector2(0.5f, 0.18f);
+        rt.anchorMin = new Vector2(0.5f, 0.45f);
+        rt.anchorMax = new Vector2(0.5f, 0.45f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.sizeDelta = new Vector2(600f, 42f);
         rt.anchoredPosition = Vector2.zero;
@@ -532,7 +533,7 @@ public class PlayerHUDController : MonoBehaviour
         ctRT.sizeDelta = new Vector2(100, 30);
         ctRT.anchoredPosition = new Vector2(-16, 0);
 
-        var autosaveGo = new GameObject("AutosaveIndicator");
+        var autosaveGo = new GameObject("AutosaveIndicator", typeof(RectTransform));
         autosaveGo.transform.SetParent(container.transform, false);
         _autosaveIndicatorRoot = autosaveGo.GetComponent<RectTransform>();
         _autosaveIndicatorRoot.anchorMin = new Vector2(0.5f, 0f);
