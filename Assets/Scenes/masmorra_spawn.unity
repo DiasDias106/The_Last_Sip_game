@@ -44530,7 +44530,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0861c39d90924f7418200d4a7ba7ed9b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1
+      value: -0.88
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0861c39d90924f7418200d4a7ba7ed9b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -68697,14 +68697,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleIdleAnimation
   enableFloating: 1
-  floatAmplitude: 0.03
-  floatSpeed: 1.5
+  floatAmplitude: 0.04
+  floatSpeed: 0.8
   enableBreathing: 1
-  breathAmplitude: 0.015
-  breathSpeed: 2
+  breathAmplitude: 0.008
+  breathSpeed: 1.2
   enableWobble: 1
-  wobbleAmplitude: 1.5
-  wobbleSpeed: 1
+  wobbleAmplitude: 3.5
+  wobbleSpeed: 0.5
 --- !u!64 &2076904340
 MeshCollider:
   m_ObjectHideFlags: 0
