@@ -42,11 +42,7 @@ IInteractable closest = GetClosestInteractable();
         _currentClosest = closest;
         if (closest != null)
         {
-            string keyName = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact);
-            string prompt = UiText.IsPortuguese
-                ? "Pressiona " + keyName + " para interagir"
-                : "Press " + keyName + " to interact";
-            PlayerHUDController.Instance?.ShowInteractionPrompt(prompt);
+            PlayerHUDController.Instance?.HideInteractionPrompt();
         }
         else
         {
@@ -97,6 +93,46 @@ IInteractable closest = GetClosestInteractable();
 
         _currentClosest = closest;
 return closest;
+    }
+
+    void OnGUI()
+    {
+        if (_currentClosest != null)
+        {
+            var interactableMono = _currentClosest as MonoBehaviour;
+            if (interactableMono != null)
+            {
+                // Calcula a posicao ligeiramente acima do objeto
+                Vector3 worldPos = interactableMono.transform.position + Vector3.up * 0.4f;
+                if (Camera.main != null)
+                {
+                    Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
+                    
+                    // Apenas desenha se o objeto estiver a frente da camara
+                    if (screenPos.z > 0)
+                    {
+                        string keyName = "F";
+                        #if ENABLE_INPUT_SYSTEM
+                        MovementKeyBindings.EnsureLoaded();
+                        keyName = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact);
+                        #endif
+
+                        GUIStyle style = new GUIStyle();
+                        style.fontSize = 28;
+                        style.fontStyle = FontStyle.Bold;
+                        style.alignment = TextAnchor.MiddleCenter;
+
+                        // Desenha a sombra
+                        style.normal.textColor = Color.black;
+                        GUI.Label(new Rect(screenPos.x - 24, Screen.height - screenPos.y - 24, 50, 50), keyName, style);
+                        
+                        // Desenha o texto branco
+                        style.normal.textColor = Color.white;
+                        GUI.Label(new Rect(screenPos.x - 25, Screen.height - screenPos.y - 25, 50, 50), keyName, style);
+                    }
+                }
+            }
+        }
     }
 
     
