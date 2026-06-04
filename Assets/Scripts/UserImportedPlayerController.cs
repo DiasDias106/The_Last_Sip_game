@@ -108,6 +108,9 @@ public class UserImportedPlayerController : MonoBehaviour
 
     void Awake()
     {
+        walkSpeed = 0.7f; // Reduz a velocidade de deslocamento bastante
+        runSpeed = 3.0f;
+
         _controller = GetComponent<CharacterController>();
         _mainCamera = Camera.main
             ?? FindObjectOfType<Camera>()
@@ -775,7 +778,7 @@ public class UserImportedPlayerController : MonoBehaviour
         // Exploration (Kevin Iglesias — natural locomotion)
         Override("idle",       ki + "Idles/HumanM@Idle01.fbx");
         Override("idleStatic", ki + "Idles/HumanM@Idle01.fbx");
-        Override("walk",       ki + "Movement/Walk/HumanM@Walk01_Forward.fbx");
+        Override("walk",       "Assets/MoCapCentral/MC_Sample/Animations/Drunk/MCU_am_Drunk_Loco_Walk_01.FBX");
         Override("run",        ki + "Movement/Run/HumanM@Run01_Forward.fbx");
         Override("roll",       ua + "DiveRoll-Forward1.FBX");
         Override("jump",       ki + "Movement/Jump/HumanM@Jump01.fbx");
@@ -927,7 +930,8 @@ public class UserImportedPlayerController : MonoBehaviour
         }
 
         OverrideRuntimeClip(runtimeClips, "idle", "Unarmed-Idle");
-        OverrideRuntimeClip(runtimeClips, "walk", "Unarmed-Strafe-Forward");
+        OverrideRuntimeClip(runtimeClips, "idleStatic", "Unarmed-Idle");
+        OverrideRuntimeClip(runtimeClips, "walk", "MCU_am_Drunk_Loco_Walk_01");
         OverrideRuntimeClip(runtimeClips, "run", "Unarmed-Run-Forward");
         OverrideRuntimeClip(runtimeClips, "roll", "Unarmed-DiveRoll-Forward1");
         OverrideRuntimeClip(runtimeClips, "walkCombat", "2Hand-Sword-Strafe-Forward");
