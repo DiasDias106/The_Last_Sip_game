@@ -100,7 +100,6 @@ public class LimoNightTrigger : MonoBehaviour
                 }
 
                 controller.transform.position += step;
-                controller.PlayExternalAnimation("walk");
             }
 
             autoWalkTimer += Time.deltaTime;
@@ -124,7 +123,6 @@ public class LimoNightTrigger : MonoBehaviour
         GameObject limo = CreateLimo();
         if (limo == null)
         {
-            _globalSequenceStarted = false;
             health.TakeDamage(health.CurrentHealth + health.maxHealth);
             yield break;
         }
@@ -192,7 +190,6 @@ public class LimoNightTrigger : MonoBehaviour
                 {
                     controller.ClearCameraFollowOverride();
                     Destroy(cameraAnchor);
-                    _globalSequenceStarted = false;
                     yield break;
                 }
 
@@ -202,7 +199,6 @@ public class LimoNightTrigger : MonoBehaviour
                 {
                     controller.ClearCameraFollowOverride();
                     Destroy(cameraAnchor);
-                    _globalSequenceStarted = false;
                     yield break;
                 }
             }
