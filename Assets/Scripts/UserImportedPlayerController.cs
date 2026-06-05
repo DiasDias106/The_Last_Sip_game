@@ -204,6 +204,18 @@ public class UserImportedPlayerController : MonoBehaviour
 
     void Awake()
     {
+        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        if (sceneName == BecoNoiteSceneName)
+        {
+            walkSpeed = 0.7f; // Reduz a velocidade para coincidir com o andar bebado
+            runSpeed = 3.0f;
+        }
+        else
+        {
+            walkSpeed = 2.25f; // Velocidade normal
+            runSpeed = 4.5f;
+        }
+
         _controller = GetComponent<CharacterController>();
         _mainCamera = Camera.main
             ?? FindObjectOfType<Camera>()
@@ -887,7 +899,10 @@ public class UserImportedPlayerController : MonoBehaviour
         // Exploration (Kevin Iglesias — natural locomotion)
         Override("idle",       ki + "Idles/HumanM@Idle01.fbx");
         Override("idleStatic", ki + "Idles/HumanM@Idle01.fbx");
-        Override("walk",       ki + "Movement/Walk/HumanM@Walk01_Forward.fbx");
+
+        bool isBecoNoite = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == BecoNoiteSceneName;
+        Override("walk", isBecoNoite ? "Assets/MoCapCentral/MC_Sample/Animations/Drunk/MCU_am_Drunk_Loco_Walk_01.FBX" : ki + "Movement/Walk/HumanM@Walk01_Forward.fbx");
+
         Override("run",        ki + "Movement/Run/HumanM@Run01_Forward.fbx");
         Override("roll",       ua + "DiveRoll-Forward1.FBX");
         Override("jump",       ki + "Movement/Jump/HumanM@Jump01.fbx");
@@ -1039,7 +1054,11 @@ public class UserImportedPlayerController : MonoBehaviour
         }
 
         OverrideRuntimeClip(runtimeClips, "idle", "Unarmed-Idle");
-        OverrideRuntimeClip(runtimeClips, "walk", "Unarmed-Strafe-Forward");
+        OverrideRuntimeClip(runtimeClips, "idleStatic", "Unarmed-Idle");
+
+        bool isBecoNoite = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == BecoNoiteSceneName;
+        OverrideRuntimeClip(runtimeClips, "walk", isBecoNoite ? "MCU_am_Drunk_Loco_Walk_01" : "Unarmed-Strafe-Forward");
+
         OverrideRuntimeClip(runtimeClips, "run", "Unarmed-Run-Forward");
         OverrideRuntimeClip(runtimeClips, "roll", "Unarmed-DiveRoll-Forward1");
         OverrideRuntimeClip(runtimeClips, "walkCombat", "2Hand-Sword-Strafe-Forward");

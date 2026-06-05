@@ -3,8 +3,11 @@ using UnityEngine;
 
 public class Level2PuzzleManager : MonoBehaviour
 {
+    private AudioClip fireballSound;
+
     void Start()
     {
+        fireballSound = Resources.Load<AudioClip>("FireballSound");
         SetupPuzzle();
         AddInteractionDetectorToPlayer();
     }
@@ -111,7 +114,7 @@ foreach (var r in t.GetComponentsInChildren<Renderer>(true))
 
             door1Levers[i].onActivated.AddListener(() =>
             {
-                SetBrazierLit(fire, true);
+                SetBrazierLit(fire, true, true);
 
                 bool allOn = true;
                 foreach (var l in levers)
@@ -209,7 +212,7 @@ foreach (var r in t.GetComponentsInChildren<Renderer>(true))
         return go;
     }
 
-    void SetBrazierLit(GameObject brazierOrFireRoot, bool isLit)
+    void SetBrazierLit(GameObject brazierOrFireRoot, bool isLit, bool playSound = false)
     {
         if (brazierOrFireRoot == null) return;
 
@@ -225,6 +228,28 @@ foreach (var r in t.GetComponentsInChildren<Renderer>(true))
 
         var lightFx = FindChildRecursive(brazierOrFireRoot.transform, "P_pointlight_fire_dungeon");
         if (lightFx != null) lightFx.gameObject.SetActive(isLit);
+
+        // Play fireball sound when lit
+        if (isLit && playSound && fireballSound != null) 
+        {
+            PlayFireballSound(brazierOrFireRoot.transform.position);
+        }
+    }
+
+    void PlayFireballSound(Vector3 position)
+    {
+        if (fireballSound == null) return;
+        GameObject tempAudio = new GameObject("TempFireballAudio");
+        tempAudio.transform.position = position;
+        AudioSource source = tempAudio.AddComponent<AudioSource>();
+        source.clip = fireballSound;
+        source.spatialBlend = 0.8f; // Mistura 3D com um pouco de 2D para ser mais alto
+        source.minDistance = 5f;
+        source.maxDistance = 35f;
+        source.volume = 1.0f;
+        source.time = 0.25f; // Salta o inicio silencioso do ficheiro audio para sincronizar perfeitamente com o fogo
+        source.Play();
+        Destroy(tempAudio, fireballSound.length - 0.25f);
     }
 
     Transform FindChildRecursive(Transform root, string childName)

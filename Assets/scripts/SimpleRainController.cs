@@ -53,6 +53,18 @@ public class SimpleRainController : MonoBehaviour
             if (defaultShader != null) pRenderer.material = new Material(defaultShader);
         }
 
+        // Adiciona som de chuva
+        AudioClip rainSound = Resources.Load<AudioClip>("RainSound");
+        if (rainSound != null)
+        {
+            AudioSource audioSource = rainObj.AddComponent<AudioSource>();
+            audioSource.clip = rainSound;
+            audioSource.loop = true;
+            audioSource.spatialBlend = 0f; // Som ambiente 2D global
+            audioSource.volume = 0.1f;
+            audioSource.Play();
+        }
+
         ApplySettings();
         rainParticleSystem.Play();
     }

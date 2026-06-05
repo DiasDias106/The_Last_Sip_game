@@ -13,11 +13,25 @@ public class LeverInteractable : MonoBehaviour, IInteractable
     
     private bool useRelativeRotation;
     private float relativeRotationX;
-public float animationDuration = 1.5f; // Aumentado para parecer mais pesado
+    public float animationDuration = 1.5f; // Aumentado para parecer mais pesado
 
-void Awake()
+    private AudioClip leverSoundClip;
+    private AudioSource audioSource;
+
+    void Awake()
     {
         useRelativeRotation = false;
+
+        leverSoundClip = Resources.Load<AudioClip>("LeverSound");
+        audioSource = gameObject.GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        audioSource.spatialBlend = 0.8f; // Som 3D misturado com 20% de som global para ser mais alto
+        audioSource.minDistance = 5f;
+        audioSource.maxDistance = 35f;
+        audioSource.volume = 1.0f;
 
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "level_2")
         {
@@ -39,7 +53,28 @@ void Awake()
         if (IsActivated) return;
         IsActivated = true;
 
+        if (audioSource != null && leverSoundClip != null)
+        {
+            if (gameObject.name == "big_door_lever")
+            {
+                StartCoroutine(PlaySoundMultipleTimes(3, 0.75f));
+            }
+            else
+            {
+                audioSource.PlayOneShot(leverSoundClip);
+            }
+        }
+
         StartCoroutine(AnimateAndInvoke());
+    }
+
+    private System.Collections.IEnumerator PlaySoundMultipleTimes(int times, float interval)
+    {
+        for (int i = 0; i < times; i++)
+        {
+            if (audioSource != null && leverSoundClip != null) audioSource.PlayOneShot(leverSoundClip);
+            yield return new WaitForSeconds(interval);
+        }
     }
 
     private System.Collections.IEnumerator AnimateAndInvoke()
