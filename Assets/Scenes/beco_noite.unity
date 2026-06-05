@@ -19577,7 +19577,7 @@ GameObject:
   - component: {fileID: 81759354}
   - component: {fileID: 81759353}
   m_Layer: 0
-  m_Name: Plane (4)
+  m_Name: estrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27668,8 +27668,11 @@ GameObject:
   - component: {fileID: 116993977}
   - component: {fileID: 116993976}
   - component: {fileID: 116993975}
+  - component: {fileID: 116993979}
+  - component: {fileID: 116993978}
+  - component: {fileID: 116993980}
   m_Layer: 0
-  m_Name: Plane (21)
+  m_Name: "ch\xE3o armadilha"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27697,7 +27700,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 116993973}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 1281401427}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -27769,6 +27772,85 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 116993973}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &116993978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116993973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
+  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+  limoSpawnPoint: {fileID: 817022358}
+  playerImpactPoint: {fileID: 1073215104}
+  limoExitPoint: {fileID: 1808096356}
+  roadZOffset: -4.5
+  limoSpawnYOffset: 0.35
+  limoScale: {x: 2, y: 2, z: 2}
+  limoDriveEuler: {x: 270, y: 0, z: 0}
+  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
+  sceneLimoObject: {fileID: 935258921}
+  playerWalkSpeed: 8
+  limoSpeed: 13
+  killDistance: 1.3
+  impactPointDistance: 1.6
+  limoStartDelay: 0.15
+  preImpactLookDelay: 0.35
+  limoImpactTimeout: 4
+  maxAutoWalkTime: 8
+  postImpactDriveTime: 1.1
+--- !u!65 &116993979
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116993973}
+  m_Material: {fileID: 1971079621}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10, y: 3, z: 10}
+  m_Center: {x: 0, y: 1.1, z: 0}
+--- !u!54 &116993980
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116993973}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &117606235
 GameObject:
   m_ObjectHideFlags: 0
@@ -33648,6 +33730,41 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -992628361675000710, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!1 &144234607
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 144234608}
+  m_Layer: 0
+  m_Name: LimoNightSequence
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &144234608
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 144234607}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2116495437}
+  - {fileID: 817022358}
+  - {fileID: 1073215104}
+  - {fileID: 1808096356}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &144331624
 GameObject:
   m_ObjectHideFlags: 0
@@ -34113,7 +34230,7 @@ GameObject:
   - component: {fileID: 148792643}
   - component: {fileID: 148792642}
   m_Layer: 0
-  m_Name: Plane (10)
+  m_Name: estrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34453,7 +34570,7 @@ GameObject:
   - component: {fileID: 149428838}
   - component: {fileID: 149428837}
   m_Layer: 0
-  m_Name: Plane (8)
+  m_Name: estrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60119,6 +60236,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -6965745336860677951, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &267754610
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &270053507
 GameObject:
   m_ObjectHideFlags: 0
@@ -91238,6 +91368,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -7385392253852639669, guid: 3737603b0923c004480660284d9a1453, type: 3}
+--- !u!134 &416464442
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &417033683
 GameObject:
   m_ObjectHideFlags: 0
@@ -115060,6 +115203,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 1864893948627024220, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &538557157
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &538647807
 GameObject:
   m_ObjectHideFlags: 0
@@ -126039,7 +126195,7 @@ GameObject:
   - component: {fileID: 590497578}
   - component: {fileID: 590497577}
   m_Layer: 0
-  m_Name: Plane (2)
+  m_Name: estrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -133260,6 +133416,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -992628361675000710, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &622605618
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &623043569
 GameObject:
   m_ObjectHideFlags: 0
@@ -148591,6 +148760,19 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 103201683}
   m_SourcePrefab: {fileID: 100100000, guid: 8de36a6e92c2035488fc3e4460823e78, type: 3}
+--- !u!134 &694290681
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &694800628
 GameObject:
   m_ObjectHideFlags: 0
@@ -173874,6 +174056,37 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -7385392253852639669, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!1 &817022357
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 817022358}
+  m_Layer: 0
+  m_Name: LimoSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &817022358
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 817022357}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -24, y: 0.9, z: 35.02}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 144234608}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &817190923
 GameObject:
   m_ObjectHideFlags: 0
@@ -175654,8 +175867,11 @@ GameObject:
   - component: {fileID: 823175238}
   - component: {fileID: 823175237}
   - component: {fileID: 823175236}
+  - component: {fileID: 823175240}
+  - component: {fileID: 823175239}
+  - component: {fileID: 823175241}
   m_Layer: 0
-  m_Name: Plane (19)
+  m_Name: "ch\xE3o armadilha"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -175683,7 +175899,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 823175234}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 694290681}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -175755,6 +175971,85 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 823175234}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &823175239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823175234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
+  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+  limoSpawnPoint: {fileID: 817022358}
+  playerImpactPoint: {fileID: 1073215104}
+  limoExitPoint: {fileID: 1808096356}
+  roadZOffset: -4.5
+  limoSpawnYOffset: 0.35
+  limoScale: {x: 2, y: 2, z: 2}
+  limoDriveEuler: {x: 270, y: 0, z: 0}
+  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
+  sceneLimoObject: {fileID: 935258921}
+  playerWalkSpeed: 8
+  limoSpeed: 13
+  killDistance: 1.3
+  impactPointDistance: 1.6
+  limoStartDelay: 0.15
+  preImpactLookDelay: 0.35
+  limoImpactTimeout: 4
+  maxAutoWalkTime: 8
+  postImpactDriveTime: 1.1
+--- !u!65 &823175240
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823175234}
+  m_Material: {fileID: 1891212763}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10, y: 3, z: 10}
+  m_Center: {x: 0, y: 1.1, z: 0}
+--- !u!54 &823175241
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 823175234}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &823606512
 GameObject:
   m_ObjectHideFlags: 0
@@ -182232,6 +182527,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4816808559564839995, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &851009729
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &851010736
 GameObject:
   m_ObjectHideFlags: 0
@@ -199059,6 +199367,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -992628361675000710, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!1 &935258921 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+  m_PrefabInstance: {fileID: 1694495859}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &935858407
 GameObject:
   m_ObjectHideFlags: 0
@@ -203398,7 +203711,7 @@ GameObject:
   - component: {fileID: 961702164}
   - component: {fileID: 961702163}
   m_Layer: 0
-  m_Name: Plane (9)
+  m_Name: estrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -208940,7 +209253,7 @@ GameObject:
   - component: {fileID: 989523833}
   - component: {fileID: 989523832}
   m_Layer: 0
-  m_Name: Plane (6)
+  m_Name: estrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -213678,8 +213991,11 @@ GameObject:
   - component: {fileID: 1014736457}
   - component: {fileID: 1014736456}
   - component: {fileID: 1014736455}
+  - component: {fileID: 1014736459}
+  - component: {fileID: 1014736458}
+  - component: {fileID: 1014736460}
   m_Layer: 0
-  m_Name: Plane (1)
+  m_Name: "ch\xE3o armadilha"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -213707,7 +214023,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1014736453}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 1814522360}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -213779,6 +214095,85 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1014736453}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1014736458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1014736453}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
+  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+  limoSpawnPoint: {fileID: 817022358}
+  playerImpactPoint: {fileID: 1073215104}
+  limoExitPoint: {fileID: 1808096356}
+  roadZOffset: -4.5
+  limoSpawnYOffset: 0.35
+  limoScale: {x: 2, y: 2, z: 2}
+  limoDriveEuler: {x: 270, y: 0, z: 0}
+  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
+  sceneLimoObject: {fileID: 935258921}
+  playerWalkSpeed: 8
+  limoSpeed: 13
+  killDistance: 1.3
+  impactPointDistance: 1.6
+  limoStartDelay: 0.15
+  preImpactLookDelay: 0.35
+  limoImpactTimeout: 4
+  maxAutoWalkTime: 8
+  postImpactDriveTime: 1.1
+--- !u!65 &1014736459
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1014736453}
+  m_Material: {fileID: 622605618}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10, y: 3, z: 10}
+  m_Center: {x: 0, y: 1.1, z: 0}
+--- !u!54 &1014736460
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1014736453}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1016548504
 GameObject:
   m_ObjectHideFlags: 0
@@ -216054,7 +216449,7 @@ GameObject:
   - component: {fileID: 1031508683}
   - component: {fileID: 1031508682}
   m_Layer: 0
-  m_Name: Plane (5)
+  m_Name: estrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -225199,6 +225594,37 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -7385392253852639669, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!1 &1073215103
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1073215104}
+  m_Layer: 0
+  m_Name: PlayerImpactPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1073215104
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1073215103}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -15.12, y: 0.06, z: 35.02}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 144234608}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1074032524
 GameObject:
   m_ObjectHideFlags: 0
@@ -229722,6 +230148,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -7385392253852639669, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &1095689867
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &1096589837
 GameObject:
   m_ObjectHideFlags: 0
@@ -236054,7 +236493,7 @@ GameObject:
   - component: {fileID: 1119776877}
   - component: {fileID: 1119776876}
   m_Layer: 0
-  m_Name: Plane (3)
+  m_Name: estrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -260604,6 +261043,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -7385392253852639669, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &1234649705
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &1234826298
 GameObject:
   m_ObjectHideFlags: 0
@@ -269654,6 +270106,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 1864893948627024220, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &1281401427
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &1281849375
 GameObject:
   m_ObjectHideFlags: 0
@@ -317241,8 +317706,11 @@ GameObject:
   - component: {fileID: 1514552832}
   - component: {fileID: 1514552831}
   - component: {fileID: 1514552830}
+  - component: {fileID: 1514552834}
+  - component: {fileID: 1514552833}
+  - component: {fileID: 1514552835}
   m_Layer: 0
-  m_Name: Plane (18)
+  m_Name: "ch\xE3o armadilha"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -317270,7 +317738,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1514552828}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 1234649705}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -317342,6 +317810,85 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1514552828}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1514552833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1514552828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
+  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+  limoSpawnPoint: {fileID: 817022358}
+  playerImpactPoint: {fileID: 1073215104}
+  limoExitPoint: {fileID: 1808096356}
+  roadZOffset: -4.5
+  limoSpawnYOffset: 0.35
+  limoScale: {x: 2, y: 2, z: 2}
+  limoDriveEuler: {x: 270, y: 0, z: 0}
+  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
+  sceneLimoObject: {fileID: 935258921}
+  playerWalkSpeed: 8
+  limoSpeed: 13
+  killDistance: 1.3
+  impactPointDistance: 1.6
+  limoStartDelay: 0.15
+  preImpactLookDelay: 0.35
+  limoImpactTimeout: 4
+  maxAutoWalkTime: 8
+  postImpactDriveTime: 1.1
+--- !u!65 &1514552834
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1514552828}
+  m_Material: {fileID: 416464442}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10, y: 3, z: 10}
+  m_Center: {x: 0, y: 1.1, z: 0}
+--- !u!54 &1514552835
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1514552828}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1515282852
 GameObject:
   m_ObjectHideFlags: 0
@@ -326285,7 +326832,7 @@ GameObject:
   - component: {fileID: 1557349039}
   - component: {fileID: 1557349038}
   m_Layer: 0
-  m_Name: Plane (7)
+  m_Name: estrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -352240,6 +352787,87 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -7385392253852639669, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!1001 &1694495859
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -23
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 35.02
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
+    - target: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_Name
+      value: LimoPreview
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
 --- !u!1 &1694499424
 GameObject:
   m_ObjectHideFlags: 0
@@ -352931,7 +353559,7 @@ GameObject:
   - component: {fileID: 1697818578}
   - component: {fileID: 1697818577}
   m_Layer: 0
-  m_Name: Plane (11)
+  m_Name: estrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -356660,8 +357288,11 @@ GameObject:
   - component: {fileID: 1711945239}
   - component: {fileID: 1711945238}
   - component: {fileID: 1711945237}
+  - component: {fileID: 1711945241}
+  - component: {fileID: 1711945240}
+  - component: {fileID: 1711945242}
   m_Layer: 0
-  m_Name: Plane (33)
+  m_Name: "ch\xE3o armadilha"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -356689,7 +357320,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1711945235}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 1780719649}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -356761,6 +357392,85 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1711945235}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1711945240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1711945235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
+  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+  limoSpawnPoint: {fileID: 817022358}
+  playerImpactPoint: {fileID: 1073215104}
+  limoExitPoint: {fileID: 1808096356}
+  roadZOffset: -4.5
+  limoSpawnYOffset: 0.35
+  limoScale: {x: 2, y: 2, z: 2}
+  limoDriveEuler: {x: 270, y: 0, z: 0}
+  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
+  sceneLimoObject: {fileID: 935258921}
+  playerWalkSpeed: 8
+  limoSpeed: 13
+  killDistance: 1.3
+  impactPointDistance: 1.6
+  limoStartDelay: 0.15
+  preImpactLookDelay: 0.35
+  limoImpactTimeout: 4
+  maxAutoWalkTime: 8
+  postImpactDriveTime: 1.1
+--- !u!65 &1711945241
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1711945235}
+  m_Material: {fileID: 538557157}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10, y: 3, z: 10}
+  m_Center: {x: 0, y: 1.1, z: 0}
+--- !u!54 &1711945242
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1711945235}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1712029806
 GameObject:
   m_ObjectHideFlags: 0
@@ -373776,6 +374486,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -6965745336860677951, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &1780719649
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &1781236977
 GameObject:
   m_ObjectHideFlags: 0
@@ -378557,6 +379280,37 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4816808559564839995, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!1 &1808096355
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1808096356}
+  m_Layer: 0
+  m_Name: LimoExitPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1808096356
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808096355}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 12, y: 0.9, z: 35.02}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 144234608}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1810515743
 GameObject:
   m_ObjectHideFlags: 0
@@ -379348,6 +380102,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -7385392253852639669, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &1814522360
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &1814948013
 GameObject:
   m_ObjectHideFlags: 0
@@ -391515,8 +392282,11 @@ GameObject:
   - component: {fileID: 1875835424}
   - component: {fileID: 1875835423}
   - component: {fileID: 1875835422}
+  - component: {fileID: 1875835426}
+  - component: {fileID: 1875835425}
+  - component: {fileID: 1875835427}
   m_Layer: 0
-  m_Name: Plane (17)
+  m_Name: "ch\xE3o armadilha"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -391544,7 +392314,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1875835420}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 851009729}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -391616,6 +392386,85 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1875835420}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1875835425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1875835420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
+  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+  limoSpawnPoint: {fileID: 817022358}
+  playerImpactPoint: {fileID: 1073215104}
+  limoExitPoint: {fileID: 1808096356}
+  roadZOffset: -4.5
+  limoSpawnYOffset: 0.35
+  limoScale: {x: 2, y: 2, z: 2}
+  limoDriveEuler: {x: 270, y: 0, z: 0}
+  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
+  sceneLimoObject: {fileID: 935258921}
+  playerWalkSpeed: 8
+  limoSpeed: 13
+  killDistance: 1.3
+  impactPointDistance: 1.6
+  limoStartDelay: 0.15
+  preImpactLookDelay: 0.35
+  limoImpactTimeout: 4
+  maxAutoWalkTime: 8
+  postImpactDriveTime: 1.1
+--- !u!65 &1875835426
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1875835420}
+  m_Material: {fileID: 1095689867}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10, y: 3, z: 10}
+  m_Center: {x: 0, y: 1.1, z: 0}
+--- !u!54 &1875835427
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1875835420}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1877753141
 GameObject:
   m_ObjectHideFlags: 0
@@ -394246,6 +395095,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1891099418}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!134 &1891212763
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &1891508965
 GameObject:
   m_ObjectHideFlags: 0
@@ -412215,6 +413077,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -7385392253852639669, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &1971079621
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &1971180275
 GameObject:
   m_ObjectHideFlags: 0
@@ -423873,7 +424748,7 @@ GameObject:
   - component: {fileID: 2023020657}
   - component: {fileID: 2023020656}
   m_Layer: 0
-  m_Name: Plane (1)
+  m_Name: estrada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -444942,6 +445817,91 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -992628361675000710, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!1 &2116495436
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2116495437}
+  - component: {fileID: 2116495439}
+  - component: {fileID: 2116495438}
+  m_Layer: 0
+  m_Name: NightLimoTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &2116495437
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2116495436}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -7.470001, y: 1.25, z: 23.17805}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 144234608}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2116495438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2116495436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
+  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+  limoSpawnPoint: {fileID: 817022358}
+  playerImpactPoint: {fileID: 1073215104}
+  limoExitPoint: {fileID: 1808096356}
+  roadZOffset: -4.5
+  limoSpawnYOffset: 0.85
+  limoScale: {x: 2, y: 2, z: 2}
+  limoDriveEuler: {x: 270, y: 0, z: 0}
+  limoMaterialOverride: {fileID: 0}
+  sceneLimoObject: {fileID: 0}
+  playerWalkSpeed: 1.0964803e-38
+  limoSpeed: 1.75
+  killDistance: 13
+  impactPointDistance: 1.3
+  limoStartDelay: 1.6
+  preImpactLookDelay: 0.15
+  limoImpactTimeout: 0.35
+  maxAutoWalkTime: 4
+  postImpactDriveTime: 2.5
+--- !u!65 &2116495439
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2116495436}
+  m_Material: {fileID: 267754610}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 5, y: 2.5, z: 3.3}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2117638024
 GameObject:
   m_ObjectHideFlags: 0
@@ -451179,3 +452139,5 @@ SceneRoots:
   - {fileID: 1096897356}
   - {fileID: 1509247497}
   - {fileID: 2075113937}
+  - {fileID: 144234608}
+  - {fileID: 1694495859}
