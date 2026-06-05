@@ -2714,9 +2714,9 @@ RectTransform:
   - {fileID: 1932192621}
   m_Father: {fileID: 1462239805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 197.5, y: -346}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 395, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &169347218
@@ -3303,9 +3303,9 @@ RectTransform:
   - {fileID: 1972485257}
   m_Father: {fileID: 1462239805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 197.5, y: -448}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 395, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &195519342
@@ -4656,7 +4656,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4291094517
   m_fontColor: {r: 0.9607843, g: 0.90588236, b: 0.76862746, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -4669,7 +4669,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -5934,9 +5934,9 @@ RectTransform:
   - {fileID: 785244981}
   m_Father: {fileID: 1462239805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 197.5, y: -244}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 395, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &414372302
@@ -12309,6 +12309,7 @@ MonoBehaviour:
   menuAmbientClip: {fileID: 8300000, guid: 7bd0e2cc53093944598279a38606d1e4, type: 3}
   creditsAmbientClip: {fileID: 8300000, guid: 3eeb064e5c53e6f4ca10faaf576e0529, type: 3}
   defaultGameSceneName: Beco
+  newGameIntroSceneName: new_game_controls
   sceneFadeController: {fileID: 142932538}
   loadingScreenController: {fileID: 970711835}
   mainMenuPanel: {fileID: 1701483403}
@@ -12803,9 +12804,9 @@ RectTransform:
   - {fileID: 1495750062}
   m_Father: {fileID: 1462239805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 197.5, y: -142}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 395, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &988812579
@@ -14006,6 +14007,8 @@ MonoBehaviour:
   previewImage: {fileID: 1102299477}
   disabledOverlay: {fileID: 1750068528}
   disabledOverlayImage: {fileID: 0}
+  deleteButton: {fileID: 0}
+  deleteButtonText: {fileID: 0}
   occupiedColor: {r: 0.24, g: 0.08, b: 0.08, a: 0.92}
   emptyColor: {r: 0.16, g: 0.11, b: 0.11, a: 0.9}
 --- !u!1 &1067241276
@@ -15264,9 +15267,9 @@ RectTransform:
   - {fileID: 1503245808}
   m_Father: {fileID: 1462239805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 197.5, y: -40}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 395, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1133175153
@@ -20046,7 +20049,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 108, y: -320}
-  m_SizeDelta: {x: 430, y: 488}
+  m_SizeDelta: {x: 430, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1462239806
 MonoBehaviour:
@@ -22656,6 +22659,8 @@ MonoBehaviour:
   previewImage: {fileID: 400334038}
   disabledOverlay: {fileID: 1202460181}
   disabledOverlayImage: {fileID: 0}
+  deleteButton: {fileID: 0}
+  deleteButtonText: {fileID: 0}
   occupiedColor: {r: 0.24, g: 0.08, b: 0.08, a: 0.92}
   emptyColor: {r: 0.16, g: 0.11, b: 0.11, a: 0.9}
 --- !u!1 &1634840170
@@ -27479,6 +27484,8 @@ MonoBehaviour:
   previewImage: {fileID: 675058925}
   disabledOverlay: {fileID: 1878687732}
   disabledOverlayImage: {fileID: 0}
+  deleteButton: {fileID: 0}
+  deleteButtonText: {fileID: 0}
   occupiedColor: {r: 0.24, g: 0.08, b: 0.08, a: 0.92}
   emptyColor: {r: 0.16, g: 0.11, b: 0.11, a: 0.9}
 --- !u!1 &2045203151
