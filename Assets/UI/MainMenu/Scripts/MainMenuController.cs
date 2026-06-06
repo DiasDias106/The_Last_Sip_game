@@ -49,6 +49,7 @@ public sealed class MainMenuController : MonoBehaviour
     private MenuPanelController activePanel;
     private string pendingSceneFromTransition;
     private bool pendingSceneLaunchQueued;
+    private bool pendingCreditsLaunchQueued;
 
     private void Awake()
     {
@@ -102,12 +103,18 @@ public sealed class MainMenuController : MonoBehaviour
             pendingSceneLaunchQueued = true;
         }
 
+        if (GlobalSceneTransitionRequest.PendingOpenCredits)
+        {
+            GlobalSceneTransitionRequest.PendingOpenCredits = false;
+            pendingCreditsLaunchQueued = true;
+        }
+
         optionsPanel?.HideImmediate();
         creditsPanel?.HideImmediate();
         slotSelectionController?.HideImmediate();
         confirmOverwritePanel?.HideImmediate();
         loadingScreenController?.HideLoading();
-        if (pendingSceneLaunchQueued)
+        if (pendingSceneLaunchQueued || pendingCreditsLaunchQueued)
         {
             mainMenuPanel?.SetActive(false);
             if (mainMenuCanvasGroup != null)
@@ -176,7 +183,40 @@ public sealed class MainMenuController : MonoBehaviour
         if (pendingSceneLaunchQueued)
         {
             StartCoroutine(BeginPendingSceneTransition());
+            return;
         }
+
+        if (pendingCreditsLaunchQueued)
+        {
+            pendingCreditsLaunchQueued = false;
+            StartCoroutine(OpenCreditsFromGameTransition());
+        }
+    }
+
+    // Opens credits directly from a game-to-credits transition (no loading screen).
+    private System.Collections.IEnumerator OpenCreditsFromGameTransition()
+    {
+        isTransitioning = true;
+        SetMainMenuInputBlocked(true);
+        mainMenuPanel?.SetActive(false);
+
+        if (menuAudioManager != null && creditsAmbientClip != null)
+            menuAudioManager.SetAmbientMusicClip(creditsAmbientClip);
+
+        optionsPanel?.HideImmediate();
+        slotSelectionController?.HideImmediate();
+        confirmOverwritePanel?.HideImmediate();
+
+        creditsPanel?.Show();
+        activePanel = creditsPanel;
+
+        // Fade in from the black screen left by the limo sequence
+        if (sceneFadeController != null)
+            yield return sceneFadeController.FadeToAlpha(0f, 0.5f);
+
+        SetMainMenuInputBlocked(false);
+        isTransitioning = false;
+        UpdateMainMenuPresentation();
     }
 
     private void OnDisable()

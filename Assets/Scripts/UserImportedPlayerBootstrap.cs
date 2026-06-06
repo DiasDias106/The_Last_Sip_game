@@ -13,6 +13,7 @@ public static class UserImportedPlayerBootstrap
     private const string BecoSceneName = "beco";
     private const string BecoNoiteSceneName = "beco_noite";
     private const string BecoDiaSceneName = "beco_dia";
+    private const string BecoDiaSpawnFloorName = "piso_spawn";
     private const string DungeonSpawnSceneName = "masmorra_spawn";
     private const string TavernSpawnFloorName = "P_MOD_Floor_01_O_straight_med (171)";
     private const string CharacterResourcePath = "Runtime/PaladinPlayerVisual";
@@ -474,6 +475,13 @@ public static class UserImportedPlayerBootstrap
             return baseObj.transform.position + Vector3.up * 0.1f;
         }
 
+        if (sceneName == BecoDiaSceneName && TryGetBecoDiaSpawnPoint(out Vector3 becoDiaSpawn, out Quaternion becoDiaRotation))
+        {
+            fromBase = false;
+            rot = becoDiaRotation;
+            return becoDiaSpawn;
+        }
+
         if (IsBecoScene(sceneName) && TryGetSpawnFromMainCamera(out Vector3 cameraSpawn, out Quaternion cameraRotation))
         {
             fromBase = false;
@@ -517,6 +525,21 @@ public static class UserImportedPlayerBootstrap
         spawn = shop.transform.position + forward * 2.2f + Vector3.up * 0.1f;
         rot = Quaternion.LookRotation(forward, Vector3.up);
         return true;
+    }
+
+    private static bool TryGetBecoDiaSpawnPoint(out Vector3 spawn, out Quaternion rot)
+    {
+        GameObject spawnFloor = GameObject.Find(BecoDiaSpawnFloorName);
+        if (spawnFloor != null)
+        {
+            spawn = spawnFloor.transform.position + Vector3.up * 0.1f;
+            rot = Quaternion.identity;
+            return true;
+        }
+
+        spawn = BecoFallbackSpawn;
+        rot = Quaternion.identity;
+        return false;
     }
 
     private static bool TryGetSpawnFromMainCamera(out Vector3 spawn, out Quaternion rot)
@@ -673,7 +696,13 @@ public static class UserImportedPlayerBootstrap
 
     private static void SetupBecoEncounter()
     {
-        if (!IsBecoScene(SceneManager.GetActiveScene().name))
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (!IsBecoScene(sceneName))
+        {
+            return;
+        }
+
+        if (sceneName == BecoNoiteSceneName || sceneName == BecoDiaSceneName)
         {
             return;
         }
