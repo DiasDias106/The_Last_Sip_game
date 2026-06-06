@@ -19,6 +19,7 @@ public class UserImportedPlayerController : MonoBehaviour
     private const string RuntimePaladinClipsResourceFolder = "RuntimePaladinClips";
     // ── Inspector ────────────────────────────────────────────────────────────────
     [SerializeField] private float walkSpeed          = 2.25f;
+    public float CurrentWalkSpeed => walkSpeed;
     [SerializeField] private float runSpeed           = 4.5f;
     [SerializeField] private float jumpForce          = 9f;
     [SerializeField] private float gravity            = -18f;
@@ -263,14 +264,18 @@ public class UserImportedPlayerController : MonoBehaviour
 
         if (_externalControlLocked)
         {
-            bool externalGrounded = _controller.isGrounded;
-            if (externalGrounded && _verticalVelocity < 0f)
+            if (_controller.enabled)
             {
-                _verticalVelocity = -1f;
+                bool externalGrounded = _controller.isGrounded;
+                if (externalGrounded && _verticalVelocity < 0f)
+                {
+                    _verticalVelocity = -1f;
+                }
+
+                _verticalVelocity += gravity * Time.deltaTime;
+                _controller.Move(Vector3.up * _verticalVelocity * Time.deltaTime);
             }
 
-            _verticalVelocity += gravity * Time.deltaTime;
-            _controller.Move(Vector3.up * _verticalVelocity * Time.deltaTime);
             UpdateAnimationTransition();
             SampleCurrentClip();
             return;

@@ -27669,7 +27669,6 @@ GameObject:
   - component: {fileID: 116993976}
   - component: {fileID: 116993975}
   - component: {fileID: 116993979}
-  - component: {fileID: 116993978}
   - component: {fileID: 116993980}
   m_Layer: 0
   m_Name: "ch\xE3o armadilha"
@@ -27772,39 +27771,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 116993973}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &116993978
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 116993973}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
-  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
-  limoSpawnPoint: {fileID: 817022358}
-  playerImpactPoint: {fileID: 1073215104}
-  limoExitPoint: {fileID: 1808096356}
-  roadZOffset: -4.5
-  limoSpawnYOffset: 0.35
-  limoScale: {x: 2, y: 2, z: 2}
-  limoDriveEuler: {x: 270, y: 0, z: 0}
-  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
-  sceneLimoObject: {fileID: 935258921}
-  playerWalkSpeed: 8
-  limoSpeed: 13
-  killDistance: 1.3
-  impactPointDistance: 1.6
-  limoStartDelay: 0.15
-  preImpactLookDelay: 0.35
-  limoImpactTimeout: 4
-  maxAutoWalkTime: 8
-  postImpactDriveTime: 1.1
-  cameraPitch: 16
-  minimumLimoVisibleLength: 7
 --- !u!65 &116993979
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -174083,7 +174049,7 @@ Transform:
   m_GameObject: {fileID: 817022357}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -24, y: 0.9, z: 35.02}
+  m_LocalPosition: {x: -24, y: 0.9, z: 33}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -175870,7 +175836,6 @@ GameObject:
   - component: {fileID: 823175237}
   - component: {fileID: 823175236}
   - component: {fileID: 823175240}
-  - component: {fileID: 823175239}
   - component: {fileID: 823175241}
   m_Layer: 0
   m_Name: "ch\xE3o armadilha"
@@ -175973,39 +175938,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 823175234}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &823175239
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 823175234}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
-  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
-  limoSpawnPoint: {fileID: 817022358}
-  playerImpactPoint: {fileID: 1073215104}
-  limoExitPoint: {fileID: 1808096356}
-  roadZOffset: -4.5
-  limoSpawnYOffset: 0.35
-  limoScale: {x: 2, y: 2, z: 2}
-  limoDriveEuler: {x: 270, y: 0, z: 0}
-  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
-  sceneLimoObject: {fileID: 935258921}
-  playerWalkSpeed: 8
-  limoSpeed: 13
-  killDistance: 1.3
-  impactPointDistance: 1.6
-  limoStartDelay: 0.15
-  preImpactLookDelay: 0.35
-  limoImpactTimeout: 4
-  maxAutoWalkTime: 8
-  postImpactDriveTime: 1.1
-  cameraPitch: 16
-  minimumLimoVisibleLength: 7
 --- !u!65 &823175240
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -199371,11 +199303,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -992628361675000710, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
---- !u!1 &935258921 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
-  m_PrefabInstance: {fileID: 1694495859}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &935858407
 GameObject:
   m_ObjectHideFlags: 0
@@ -213996,7 +213923,6 @@ GameObject:
   - component: {fileID: 1014736456}
   - component: {fileID: 1014736455}
   - component: {fileID: 1014736459}
-  - component: {fileID: 1014736458}
   - component: {fileID: 1014736460}
   m_Layer: 0
   m_Name: "ch\xE3o armadilha"
@@ -214099,39 +214025,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1014736453}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1014736458
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1014736453}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
-  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
-  limoSpawnPoint: {fileID: 817022358}
-  playerImpactPoint: {fileID: 1073215104}
-  limoExitPoint: {fileID: 1808096356}
-  roadZOffset: -4.5
-  limoSpawnYOffset: 0.35
-  limoScale: {x: 2, y: 2, z: 2}
-  limoDriveEuler: {x: 270, y: 0, z: 0}
-  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
-  sceneLimoObject: {fileID: 935258921}
-  playerWalkSpeed: 8
-  limoSpeed: 13
-  killDistance: 1.3
-  impactPointDistance: 1.6
-  limoStartDelay: 0.15
-  preImpactLookDelay: 0.35
-  limoImpactTimeout: 4
-  maxAutoWalkTime: 8
-  postImpactDriveTime: 1.1
-  cameraPitch: 16
-  minimumLimoVisibleLength: 7
 --- !u!65 &1014736459
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -225625,7 +225518,7 @@ Transform:
   m_GameObject: {fileID: 1073215103}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -15.12, y: 0.06, z: 35.02}
+  m_LocalPosition: {x: -15.12, y: 0.06, z: 33}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -317713,7 +317606,6 @@ GameObject:
   - component: {fileID: 1514552831}
   - component: {fileID: 1514552830}
   - component: {fileID: 1514552834}
-  - component: {fileID: 1514552833}
   - component: {fileID: 1514552835}
   m_Layer: 0
   m_Name: "ch\xE3o armadilha"
@@ -317816,39 +317708,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1514552828}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1514552833
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1514552828}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
-  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
-  limoSpawnPoint: {fileID: 817022358}
-  playerImpactPoint: {fileID: 1073215104}
-  limoExitPoint: {fileID: 1808096356}
-  roadZOffset: -4.5
-  limoSpawnYOffset: 0.35
-  limoScale: {x: 2, y: 2, z: 2}
-  limoDriveEuler: {x: 270, y: 0, z: 0}
-  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
-  sceneLimoObject: {fileID: 935258921}
-  playerWalkSpeed: 8
-  limoSpeed: 13
-  killDistance: 1.3
-  impactPointDistance: 1.6
-  limoStartDelay: 0.15
-  preImpactLookDelay: 0.35
-  limoImpactTimeout: 4
-  maxAutoWalkTime: 8
-  postImpactDriveTime: 1.1
-  cameraPitch: 16
-  minimumLimoVisibleLength: 7
 --- !u!65 &1514552834
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -357297,7 +357156,6 @@ GameObject:
   - component: {fileID: 1711945238}
   - component: {fileID: 1711945237}
   - component: {fileID: 1711945241}
-  - component: {fileID: 1711945240}
   - component: {fileID: 1711945242}
   m_Layer: 0
   m_Name: "ch\xE3o armadilha"
@@ -357400,39 +357258,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1711945235}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1711945240
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1711945235}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
-  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
-  limoSpawnPoint: {fileID: 817022358}
-  playerImpactPoint: {fileID: 1073215104}
-  limoExitPoint: {fileID: 1808096356}
-  roadZOffset: -4.5
-  limoSpawnYOffset: 0.35
-  limoScale: {x: 2, y: 2, z: 2}
-  limoDriveEuler: {x: 270, y: 0, z: 0}
-  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
-  sceneLimoObject: {fileID: 935258921}
-  playerWalkSpeed: 8
-  limoSpeed: 13
-  killDistance: 1.3
-  impactPointDistance: 1.6
-  limoStartDelay: 0.15
-  preImpactLookDelay: 0.35
-  limoImpactTimeout: 4
-  maxAutoWalkTime: 8
-  postImpactDriveTime: 1.1
-  cameraPitch: 16
-  minimumLimoVisibleLength: 7
 --- !u!65 &1711945241
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -379315,7 +379140,7 @@ Transform:
   m_GameObject: {fileID: 1808096355}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 12, y: 0.9, z: 35.02}
+  m_LocalPosition: {x: 12, y: 0.9, z: 33}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -392293,7 +392118,6 @@ GameObject:
   - component: {fileID: 1875835423}
   - component: {fileID: 1875835422}
   - component: {fileID: 1875835426}
-  - component: {fileID: 1875835425}
   - component: {fileID: 1875835427}
   m_Layer: 0
   m_Name: "ch\xE3o armadilha"
@@ -392396,39 +392220,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1875835420}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1875835425
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1875835420}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c7e1b6683f1784478f6cd41c3f69473, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LimoNightTrigger
-  limoPrefab: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
-  limoSpawnPoint: {fileID: 817022358}
-  playerImpactPoint: {fileID: 1073215104}
-  limoExitPoint: {fileID: 1808096356}
-  roadZOffset: -4.5
-  limoSpawnYOffset: 0.35
-  limoScale: {x: 2, y: 2, z: 2}
-  limoDriveEuler: {x: 270, y: 0, z: 0}
-  limoMaterialOverride: {fileID: 2100000, guid: 035fb8a7789fadb479ddf0452596f33f, type: 2}
-  sceneLimoObject: {fileID: 935258921}
-  playerWalkSpeed: 8
-  limoSpeed: 13
-  killDistance: 1.3
-  impactPointDistance: 1.6
-  limoStartDelay: 0.15
-  preImpactLookDelay: 0.35
-  limoImpactTimeout: 4
-  maxAutoWalkTime: 8
-  postImpactDriveTime: 1.1
-  cameraPitch: 16
-  minimumLimoVisibleLength: 7
 --- !u!65 &1875835426
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -445880,7 +445671,7 @@ MonoBehaviour:
   limoExitPoint: {fileID: 1808096356}
   roadZOffset: -4.5
   limoSpawnYOffset: 0.85
-  limoScale: {x: 2, y: 2, z: 2}
+  limoScale: {x: 2, y: 1.5, z: 2}
   limoDriveEuler: {x: 270, y: 0, z: 0}
   limoMaterialOverride: {fileID: 0}
   sceneLimoObject: {fileID: 0}
@@ -445891,7 +445682,7 @@ MonoBehaviour:
   limoStartDelay: 0.15
   preImpactLookDelay: 0.35
   limoImpactTimeout: 4
-  maxAutoWalkTime: 10
+  maxAutoWalkTime: 30
   postImpactDriveTime: 1.1
   cameraPitch: 16
   minimumLimoVisibleLength: 7

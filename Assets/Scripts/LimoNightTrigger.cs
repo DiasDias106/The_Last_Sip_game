@@ -35,6 +35,9 @@ public class LimoNightTrigger : MonoBehaviour
 
     private void Awake()
     {
+        _globalSequenceStarted = false;
+        _sequenceStarted = false;
+
         BoxCollider trigger = GetComponent<BoxCollider>();
         trigger.isTrigger = true;
 
@@ -84,23 +87,33 @@ public class LimoNightTrigger : MonoBehaviour
         controller.SetExternalControlLocked(true);
         controller.PlayExternalAnimation("walk");
 
+        // Disable CharacterController during the walk so transform.position moves freely
+        CharacterController cc = controller.GetComponent<CharacterController>();
+        float originalStepOffset = 0f;
+        if (cc != null) { originalStepOffset = cc.stepOffset; cc.enabled = false; }
+
+        // Camera anchor that follows the player during the walk so the user can see it
+        GameObject walkCameraAnchor = new GameObject("NightWalkCameraAnchor");
+        walkCameraAnchor.transform.position = controller.transform.position;
+        controller.SetCameraFollowOverride(walkCameraAnchor.transform, true, cameraPitch);
+
+        float walkSpeed = controller.CurrentWalkSpeed;
         Vector3 targetPosition = GetImpactDestination(controller);
         float autoWalkTimer = 0f;
-        while (Vector3.Distance(controller.transform.position, targetPosition) > 0.12f)
+        while (Mathf.Abs(controller.transform.position.z - targetPosition.z) > 0.12f ||
+               Mathf.Abs(controller.transform.position.x - targetPosition.x) > 0.12f)
         {
             Vector3 direction = targetPosition - controller.transform.position;
             direction.y = 0f;
             if (direction.sqrMagnitude > 0.0001f)
             {
                 controller.FaceDirection(direction);
-                Vector3 step = direction.normalized * playerWalkSpeed * Time.deltaTime;
-                if (step.sqrMagnitude > direction.sqrMagnitude)
-                {
-                    step = direction;
-                }
-
+                Vector3 step = direction.normalized * walkSpeed * Time.deltaTime;
+                if (step.sqrMagnitude > direction.sqrMagnitude) step = direction;
                 controller.transform.position += step;
             }
+
+            walkCameraAnchor.transform.position = controller.transform.position;
 
             autoWalkTimer += Time.deltaTime;
             if (autoWalkTimer >= maxAutoWalkTime)
@@ -111,12 +124,11 @@ public class LimoNightTrigger : MonoBehaviour
             yield return null;
         }
 
-        controller.transform.position = new Vector3(
-            targetPosition.x,
-            controller.transform.position.y,
-            targetPosition.z);
-        controller.FaceDirection(Vector3.forward);
+        controller.ClearCameraFollowOverride();
+        Destroy(walkCameraAnchor);
 
+        if (cc != null) { cc.enabled = true; cc.stepOffset = originalStepOffset; }
+        controller.FaceDirection(Vector3.forward);
         controller.PlayExternalAnimation("idle");
         yield return new WaitForSeconds(limoStartDelay);
 
@@ -126,6 +138,10 @@ public class LimoNightTrigger : MonoBehaviour
             health.TakeDamage(health.CurrentHealth + health.maxHealth);
             yield break;
         }
+
+        // Make limo colliders triggers so the player's CharacterController doesn't step onto the car
+        foreach (Collider col in limo.GetComponentsInChildren<Collider>(true))
+            col.isTrigger = true;
 
         float driveLaneZ = controller.transform.position.z;
         Vector3 limoStartPosition = GetLimoSpawnPosition();
@@ -180,6 +196,7 @@ public class LimoNightTrigger : MonoBehaviour
                 if (deltaToPlayer.magnitude <= killDistance)
                 {
                     impactTriggered = true;
+                    controller.SetVisualVisible(false);
                     health.TakeDamage(health.CurrentHealth + health.maxHealth);
                 }
             }
