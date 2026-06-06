@@ -6,23 +6,14 @@ using UnityEngine.SceneManagement;
 public class LimoDayInteractable : MonoBehaviour, IInteractable
 {
     [Header("Interaction")]
-    [SerializeField] private float interactionDistance = 3f;
+    [SerializeField] private float interactionDistance = 0.8f;
 
     [Header("Sequence")]
-    [SerializeField] private Transform playerSeatPoint;
-    [SerializeField] private Transform driveTarget;
-    [SerializeField] private float playerWalkSpeed = 3.5f;
     [SerializeField] private float driveSpeed = 9f;
-    [SerializeField] private float seatEnterSpeed = 2.2f;
-    [SerializeField] private float enterDelay = 0.2f;
-    [SerializeField] private float preDriveDelay = 0.35f;
-    [SerializeField] private float maxDriveTime = 4f;
+    [SerializeField] private float preDriveDelay = 0.5f;
     [SerializeField] private float cameraPitch = 8f;
     [SerializeField] private string mainMenuSceneName = "MainMenuScene";
     [SerializeField] private Vector3 enterApproachOffset = new Vector3(-1.5f, 0f, -0.35f);
-    [SerializeField] private Vector3 seatOffset = new Vector3(0f, 0.9f, 0.1f);
-    [SerializeField] private Vector3 cameraAnchorOffset = new Vector3(-2.5f, 2.4f, -10.5f);
-    [SerializeField] private Vector3 cameraLookOffset = new Vector3(0f, 1.2f, 0f);
     [SerializeField] private float maxEnterWalkTime = 2.25f;
 
     private bool _sequenceStarted;
@@ -57,35 +48,67 @@ public class LimoDayInteractable : MonoBehaviour, IInteractable
     private IEnumerator DriveToCredits(UserImportedPlayerController controller)
     {
         controller.SetExternalControlLocked(true);
-        GameObject cameraAnchor = CreateCameraAnchor();
-        controller.SetCameraFollowOverride(cameraAnchor.transform, true, cameraPitch, true);
+
+        // Disable CC immediately so physics doesn't fight the scripted walk
+        CharacterController cc = controller.GetComponent<CharacterController>();
+        if (cc != null) cc.enabled = false;
+
+        // Phase 1: player walks to limo — camera follows player normally (no override, no shake)
         yield return MovePlayerToLimo(controller);
 
         controller.SetVisualVisible(false);
+
         yield return new WaitForSeconds(preDriveDelay);
 
-        Vector3 driveDirection = Vector3.right;
-        float destinationX = transform.position.x + 32f;
-        float driveTimer = 0f;
+        // Phase 2: fixed side-rear camera watching limo drive away
+        GameObject cameraAnchor = new GameObject("LimoDayCameraAnchor");
+        cameraAnchor.transform.position = transform.position + new Vector3(-8f, 3f, 0f);
+        cameraAnchor.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+        controller.SetCameraFollowOverride(cameraAnchor.transform, true, cameraPitch);
 
-        while (Mathf.Abs(transform.position.x - destinationX) > 0.05f)
+        // Fade overlay
+        Canvas fadeCanvas = new GameObject("LimoDayFade").AddComponent<Canvas>();
+        fadeCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        fadeCanvas.sortingOrder = 999;
+        fadeCanvas.gameObject.AddComponent<UnityEngine.UI.CanvasScaler>();
+        UnityEngine.UI.Image fadeImg = new GameObject("Img").AddComponent<UnityEngine.UI.Image>();
+        fadeImg.transform.SetParent(fadeCanvas.transform, false);
+        fadeImg.rectTransform.anchorMin = Vector2.zero;
+        fadeImg.rectTransform.anchorMax = Vector2.one;
+        fadeImg.rectTransform.offsetMin = Vector2.zero;
+        fadeImg.rectTransform.offsetMax = Vector2.zero;
+        fadeImg.color = Color.clear;
+        fadeImg.raycastTarget = false;
+
+        float destinationX = transform.position.x + 50f;
+        float driveTimer = 0f;
+        float fadeStartAfter = 2.5f;
+        float fadeDuration = 2f;
+        float fadeAlpha = 0f;
+
+        while (Mathf.Abs(transform.position.x - destinationX) > 0.05f && fadeAlpha < 1f)
         {
             Vector3 limoPosition = transform.position;
             limoPosition.x = Mathf.MoveTowards(limoPosition.x, destinationX, driveSpeed * Time.deltaTime);
             transform.position = limoPosition;
-            UpdateCameraAnchor(cameraAnchor.transform, driveDirection);
 
             driveTimer += Time.deltaTime;
-            if (driveTimer >= maxDriveTime)
+
+            if (driveTimer >= fadeStartAfter)
             {
-                break;
+                fadeAlpha = Mathf.Clamp01(fadeAlpha + Time.deltaTime / fadeDuration);
+                fadeImg.color = new Color(0f, 0f, 0f, fadeAlpha);
             }
 
             yield return null;
         }
 
+        fadeImg.color = Color.black;
+        yield return new WaitForSeconds(0.4f);
+
         controller.ClearCameraFollowOverride();
-        Destroy(cameraAnchor);
+        UnityEngine.Object.Destroy(cameraAnchor);
+        UnityEngine.Object.Destroy(fadeCanvas.gameObject);
         GlobalSceneTransitionRequest.PendingOpenCredits = true;
         SceneManager.LoadScene(mainMenuSceneName);
     }
@@ -93,7 +116,7 @@ public class LimoDayInteractable : MonoBehaviour, IInteractable
     private IEnumerator MovePlayerToLimo(UserImportedPlayerController controller)
     {
         Vector3 approachPoint = GetApproachPoint();
-        Vector3 seatPoint = GetSeatPoint();
+        float walkSpeed = controller.CurrentWalkSpeed;
         float moveTimer = 0f;
 
         controller.PlayExternalAnimation("walk");
@@ -104,64 +127,20 @@ public class LimoDayInteractable : MonoBehaviour, IInteractable
             if (direction.sqrMagnitude > 0.0001f)
             {
                 controller.FaceDirection(direction);
-                Vector3 step = direction.normalized * playerWalkSpeed * Time.deltaTime;
+                Vector3 step = direction.normalized * walkSpeed * Time.deltaTime;
                 if (step.sqrMagnitude > direction.sqrMagnitude)
-                {
                     step = direction;
-                }
-
                 controller.transform.position += step;
             }
 
             moveTimer += Time.deltaTime;
             if (moveTimer >= maxEnterWalkTime)
-            {
                 break;
-            }
-
-            yield return null;
-        }
-
-        Vector3 enterDirection = seatPoint - controller.transform.position;
-        enterDirection.y = 0f;
-        if (enterDirection.sqrMagnitude > 0.0001f)
-        {
-            controller.FaceDirection(enterDirection);
-        }
-
-        controller.PlayExternalAnimation("idle");
-        yield return new WaitForSeconds(enterDelay);
-
-        moveTimer = 0f;
-        controller.PlayExternalAnimation("walk");
-        while (Vector3.Distance(controller.transform.position, seatPoint) > 0.05f)
-        {
-            Vector3 direction = seatPoint - controller.transform.position;
-            direction.y = 0f;
-            if (direction.sqrMagnitude > 0.0001f)
-            {
-                controller.FaceDirection(direction);
-                Vector3 step = direction.normalized * seatEnterSpeed * Time.deltaTime;
-                if (step.sqrMagnitude > direction.sqrMagnitude)
-                {
-                    step = direction;
-                }
-
-                controller.transform.position += step;
-            }
-
-            moveTimer += Time.deltaTime;
-            if (moveTimer >= maxEnterWalkTime)
-            {
-                break;
-            }
 
             yield return null;
         }
 
         controller.PlayExternalAnimation("idle");
-        controller.transform.position = seatPoint;
-        controller.transform.rotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
     }
 
     private Vector3 GetApproachPoint()
@@ -169,13 +148,6 @@ public class LimoDayInteractable : MonoBehaviour, IInteractable
         Vector3 right = GetLimoRight();
         Vector3 forward = Vector3.right;
         return transform.position + right * enterApproachOffset.x + Vector3.up * enterApproachOffset.y + forward * enterApproachOffset.z;
-    }
-
-    private Vector3 GetSeatPoint()
-    {
-        Vector3 right = GetLimoRight();
-        Vector3 forward = Vector3.right;
-        return transform.position + right * seatOffset.x + Vector3.up * seatOffset.y + forward * seatOffset.z;
     }
 
     private Vector3 GetLimoRight()
@@ -187,27 +159,6 @@ public class LimoDayInteractable : MonoBehaviour, IInteractable
         }
 
         return right;
-    }
-
-    private GameObject CreateCameraAnchor()
-    {
-        Vector3 driveDirection = Vector3.right;
-        GameObject anchor = new GameObject("LimoDayCameraAnchor");
-        UpdateCameraAnchor(anchor.transform, driveDirection);
-        return anchor;
-    }
-
-    private void UpdateCameraAnchor(Transform anchor, Vector3 driveDirection)
-    {
-        anchor.position = transform.position + cameraAnchorOffset;
-
-        Vector3 lookDirection = (transform.position + cameraLookOffset) - anchor.position;
-        if (lookDirection.sqrMagnitude <= 0.0001f)
-        {
-            lookDirection = driveDirection;
-        }
-
-        anchor.rotation = Quaternion.LookRotation(lookDirection.normalized, Vector3.up);
     }
 
     private bool IsPlayerInRange()

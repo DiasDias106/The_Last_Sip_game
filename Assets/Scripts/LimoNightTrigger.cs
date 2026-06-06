@@ -26,7 +26,7 @@ public class LimoNightTrigger : MonoBehaviour
     [SerializeField] private float preImpactLookDelay = 0.35f;
     [SerializeField] private float limoImpactTimeout = 4f;
     [SerializeField] private float maxAutoWalkTime = 2.5f;
-    [SerializeField] private float postImpactDriveTime = 1.1f;
+    [SerializeField] private float postImpactDriveTime = 2.5f;
     [SerializeField] private float cameraPitch = 16f;
     [SerializeField] private float minimumLimoVisibleLength = 7f;
 
@@ -196,23 +196,19 @@ public class LimoNightTrigger : MonoBehaviour
                 if (deltaToPlayer.magnitude <= killDistance)
                 {
                     impactTriggered = true;
-                    controller.SetVisualVisible(false);
                     health.TakeDamage(health.CurrentHealth + health.maxHealth);
                 }
-            }
-            else
-            {
-                postImpactTimer += Time.deltaTime;
-                if (limoExitPoint == null || postImpactTimer >= postImpactDriveTime)
+                else if (impactTimer >= limoImpactTimeout)
                 {
                     controller.ClearCameraFollowOverride();
                     Destroy(cameraAnchor);
                     yield break;
                 }
-
-                Vector3 deltaToExit = limoExitPoint.position - limo.transform.position;
-                deltaToExit.y = 0f;
-                if (deltaToExit.magnitude <= 0.15f)
+            }
+            else
+            {
+                postImpactTimer += Time.deltaTime;
+                if (postImpactTimer >= postImpactDriveTime)
                 {
                     controller.ClearCameraFollowOverride();
                     Destroy(cameraAnchor);
