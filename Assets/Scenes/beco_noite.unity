@@ -27803,6 +27803,8 @@ MonoBehaviour:
   limoImpactTimeout: 4
   maxAutoWalkTime: 8
   postImpactDriveTime: 1.1
+  cameraPitch: 16
+  minimumLimoVisibleLength: 7
 --- !u!65 &116993979
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -176002,6 +176004,8 @@ MonoBehaviour:
   limoImpactTimeout: 4
   maxAutoWalkTime: 8
   postImpactDriveTime: 1.1
+  cameraPitch: 16
+  minimumLimoVisibleLength: 7
 --- !u!65 &823175240
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -214126,6 +214130,8 @@ MonoBehaviour:
   limoImpactTimeout: 4
   maxAutoWalkTime: 8
   postImpactDriveTime: 1.1
+  cameraPitch: 16
+  minimumLimoVisibleLength: 7
 --- !u!65 &1014736459
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -317841,6 +317847,8 @@ MonoBehaviour:
   limoImpactTimeout: 4
   maxAutoWalkTime: 8
   postImpactDriveTime: 1.1
+  cameraPitch: 16
+  minimumLimoVisibleLength: 7
 --- !u!65 &1514552834
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -357423,6 +357431,8 @@ MonoBehaviour:
   limoImpactTimeout: 4
   maxAutoWalkTime: 8
   postImpactDriveTime: 1.1
+  cameraPitch: 16
+  minimumLimoVisibleLength: 7
 --- !u!65 &1711945241
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -392417,6 +392427,8 @@ MonoBehaviour:
   limoImpactTimeout: 4
   maxAutoWalkTime: 8
   postImpactDriveTime: 1.1
+  cameraPitch: 16
+  minimumLimoVisibleLength: 7
 --- !u!65 &1875835426
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -445834,7 +445846,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2116495437
 Transform:
   m_ObjectHideFlags: 0
@@ -445881,6 +445893,8 @@ MonoBehaviour:
   limoImpactTimeout: 0.35
   maxAutoWalkTime: 4
   postImpactDriveTime: 2.5
+  cameraPitch: 16
+  minimumLimoVisibleLength: 7
 --- !u!65 &2116495439
 BoxCollider:
   m_ObjectHideFlags: 0
