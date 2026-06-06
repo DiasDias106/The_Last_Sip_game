@@ -94918,6 +94918,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
       insertIndex: -1
       addedObject: {fileID: 97545206}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1022773193}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
       insertIndex: -1
@@ -94949,20 +94952,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LimoDayInteractable
   interactionDistance: 3
-  playerSeatPoint: {fileID: 97545206}
-  driveTarget: {fileID: 195675949}
-  playerWalkSpeed: 3.5
+  doorAnchor: {fileID: 1022773193}
+  doorPromptLocalOffset: {x: 0, y: 0.9, z: 1.5}
+  entryHoldTime: 2.5
   driveSpeed: 9
-  seatEnterSpeed: 2.2
-  enterDelay: 0.2
-  preDriveDelay: 0.35
-  maxDriveTime: 4
   cameraPitch: 16
   mainMenuSceneName: MainMenuScene
-  enterApproachOffset: {x: -1.5, y: 0, z: -0.35}
-  seatOffset: {x: 0, y: 0.9, z: 0.1}
-  cameraAnchorOffset: {x: 4.5, y: 2.2, z: 6}
-  maxEnterWalkTime: 2.25
 --- !u!65 &435805517
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -215379,6 +215374,37 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4816808559564839995, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!1 &1022773192
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1022773193}
+  m_Layer: 0
+  m_Name: DoorHandleAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1022773193
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1022773192}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.002885715, y: -0.0034285744, z: 0.0005999998}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 435805515}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1023205321
 GameObject:
   m_ObjectHideFlags: 0
