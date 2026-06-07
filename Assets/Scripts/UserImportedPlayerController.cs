@@ -54,6 +54,13 @@ public class UserImportedPlayerController : MonoBehaviour
     private bool  _isInvincible;
     private bool  _isBlocking;
     private PlayerHealth _playerHealth;
+    
+    private AudioClip _normalAttackSound;
+    private AudioClip _heavyAttackSound;
+    private AudioSource _combatAudioSource;
+    
+    private AudioClip _footstepSound;
+    private AudioSource _footstepAudioSource;
 
     private const float CombatExitDelay = 3.5f;
     private const float AttackHitTime   = 0.28f;
@@ -236,6 +243,23 @@ public class UserImportedPlayerController : MonoBehaviour
         EnsureAnimationGraph();
         PlayClip("idle");
 
+        _normalAttackSound = Resources.Load<AudioClip>("ataque_leve");
+        _heavyAttackSound  = Resources.Load<AudioClip>("ataque_pesado");
+        _combatAudioSource = gameObject.AddComponent<AudioSource>();
+        _combatAudioSource.spatialBlend = 0f; // 2D para ser bem audível
+
+        _footstepSound = Resources.Load<AudioClip>("footsteps"); 
+        if (_footstepSound == null) _footstepSound = Resources.Load<AudioClip>("footsteps_gravel");
+        if (_footstepSound != null)
+        {
+            _footstepAudioSource = gameObject.AddComponent<AudioSource>();
+            _footstepAudioSource.spatialBlend = 0f; // 2D para não perder volume com a distância da câmara
+            _footstepAudioSource.loop = true;
+            _footstepAudioSource.clip = _footstepSound;
+            _footstepAudioSource.volume = 0f;
+            _footstepAudioSource.Play();
+        }
+
         _playerHealth = GetComponent<PlayerHealth>();
         if (_playerHealth != null)
         {
@@ -320,8 +344,35 @@ public class UserImportedPlayerController : MonoBehaviour
             case MoveState.Dead:       UpdateDead(grounded);       break;
         }
 
+        UpdateFootstepAudio(grounded);
         UpdateAnimationTransition();
         SampleCurrentClip();
+    }
+
+    private void UpdateFootstepAudio(bool grounded)
+    {
+        if (_footstepAudioSource == null || _moveState == MoveState.Dead || _moveState == MoveState.Drinking) 
+        {
+            if (_footstepAudioSource != null) _footstepAudioSource.volume = 0f;
+            return;
+        }
+
+        Vector3 hVel = new Vector3(_currentMovementVelocity.x, 0f, _currentMovementVelocity.z);
+        bool isMoving = hVel.sqrMagnitude > 0.1f && grounded && _moveState != MoveState.Rolling && _moveState != MoveState.HitReact;
+        bool run = isMoving && hVel.sqrMagnitude > (walkSpeed * walkSpeed * 1.1f);
+
+        if (isMoving)
+        {
+            float targetVolume = run ? 1.0f : 0.85f;
+            float targetPitch  = run ? 1.45f : 1.0f;
+            
+            _footstepAudioSource.volume = Mathf.Lerp(_footstepAudioSource.volume, targetVolume, Time.deltaTime * 15f);
+            _footstepAudioSource.pitch = Mathf.Lerp(_footstepAudioSource.pitch, targetPitch, Time.deltaTime * 10f);
+        }
+        else
+        {
+            _footstepAudioSource.volume = Mathf.Lerp(_footstepAudioSource.volume, 0f, Time.deltaTime * 20f);
+        }
     }
 
     public void PlayBottleDrinkSequence(AnimationClip drinkIntroClip, AnimationClip drinkLoopClip, AnimationClip collapseClip, Transform bottleTransform, Action onComplete)
@@ -661,6 +712,20 @@ public class UserImportedPlayerController : MonoBehaviour
 
         string key = _comboStep == 0 ? "attack1" : _comboStep == 1 ? "attack2" : _comboStep == 2 ? "attack3" : "attack4";
         PlayClip(key);
+
+        if (_combatAudioSource != null)
+        {
+            if (_comboStep == 3 && _heavyAttackSound != null)
+            {
+                _combatAudioSource.pitch = 1.0f;
+                _combatAudioSource.PlayOneShot(_heavyAttackSound, 1.0f);
+            }
+            else if (_comboStep < 3 && _normalAttackSound != null)
+            {
+                _combatAudioSource.pitch = UnityEngine.Random.Range(0.9f, 1.15f);
+                _combatAudioSource.PlayOneShot(_normalAttackSound, 0.7f);
+            }
+        }
     }
 
     void UpdateAttacking(bool grounded)

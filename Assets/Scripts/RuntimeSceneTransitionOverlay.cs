@@ -27,6 +27,15 @@ public class RuntimeSceneTransitionOverlay : MonoBehaviour
         overlay._autoFadeOnLoad = true;
     }
 
+    /// <summary>Pula o fade e vai direto para o ecrã de Loading.</summary>
+    public static void TransitionInstantlyToLoading(string targetSceneName)
+    {
+        var overlay = FindOrCreateOverlay();
+        overlay.ShowBlackOnly();
+        if (overlay._activeRoutine != null) overlay.StopCoroutine(overlay._activeRoutine);
+        overlay._activeRoutine = overlay.StartCoroutine(overlay.ShowMainMenuLoadingThenLoad(targetSceneName));
+    }
+
     /// <summary>Esconde o overlay imediatamente (usar no início do loading screen).</summary>
     public static void HideOverlay()
     {

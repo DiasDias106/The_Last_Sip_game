@@ -18,6 +18,10 @@ public class PortalSceneInteractable : MonoBehaviour
     [SerializeField] private Color completedPortalColor = new Color(0.15f, 0.95f, 0.35f, 1f);
     [SerializeField] private Color completedEmissionColor = new Color(0.1f, 1f, 0.25f, 1f);
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip enterSound;
+    [SerializeField] private float enterSoundVolume = 1.0f;
+
     private GameObject _player;
     private Camera _targetCamera;
     private GUIStyle _promptStyle;
@@ -59,7 +63,26 @@ public class PortalSceneInteractable : MonoBehaviour
         if (_isPlayerNear && !_isLocked && GetInteractPressed())
         {
             _transitionStarted = true;
+            PlayEnterSound();
             StartSceneTransition();
+        }
+    }
+
+    private void PlayEnterSound()
+    {
+        if (enterSound != null)
+        {
+            GameObject soundObj = new GameObject("PortalEnterSound");
+            soundObj.transform.position = transform.position;
+            AudioSource source = soundObj.AddComponent<AudioSource>();
+            source.spatialBlend = 0f; // Som 2D para se ouvir perfeito durante a transição
+            source.volume = enterSoundVolume;
+            source.clip = enterSound;
+            source.Play();
+            
+            // Garantir que o som não é cortado a meio quando a cena nova acaba de carregar!
+            Object.DontDestroyOnLoad(soundObj);
+            Object.Destroy(soundObj, enterSound.length + 0.1f);
         }
     }
 
@@ -121,7 +144,7 @@ public class PortalSceneInteractable : MonoBehaviour
 
         if (Application.CanStreamedLevelBeLoaded(targetSceneName))
         {
-            RuntimeSceneTransitionOverlay.BeginTransition(targetSceneName, blackScreenDuration);
+            RuntimeSceneTransitionOverlay.TransitionInstantlyToLoading(targetSceneName);
             return;
         }
 
@@ -133,7 +156,7 @@ public class PortalSceneInteractable : MonoBehaviour
         if (buildIndex >= 0)
         {
             string resolvedSceneName = System.IO.Path.GetFileNameWithoutExtension(candidatePath);
-            RuntimeSceneTransitionOverlay.BeginTransition(resolvedSceneName, blackScreenDuration);
+            RuntimeSceneTransitionOverlay.TransitionInstantlyToLoading(resolvedSceneName);
             return;
         }
 

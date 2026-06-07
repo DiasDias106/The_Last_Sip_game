@@ -6692,12 +6692,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: enterSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 0579cf2528c7e074c95c7e8a7e08cadd, type: 3}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: promptOffset.y
       value: 2.2
       objectReference: {fileID: 0}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: targetSceneName
       value: level_3
+      objectReference: {fileID: 0}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: enterSoundVolume
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: interactionDistance
@@ -35910,12 +35918,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: enterSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 0579cf2528c7e074c95c7e8a7e08cadd, type: 3}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: promptOffset.y
       value: 2.2
       objectReference: {fileID: 0}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: targetSceneName
       value: level_2
+      objectReference: {fileID: 0}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: enterSoundVolume
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: interactionDistance
@@ -49958,12 +49974,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: enterSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 0579cf2528c7e074c95c7e8a7e08cadd, type: 3}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: promptOffset.y
       value: 2.2
       objectReference: {fileID: 0}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: targetSceneName
       value: level_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: enterSoundVolume
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: interactionDistance
@@ -66530,12 +66554,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: enterSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 0579cf2528c7e074c95c7e8a7e08cadd, type: 3}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: promptOffset.y
       value: 2.2
       objectReference: {fileID: 0}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: targetSceneName
       value: boss_room
+      objectReference: {fileID: 0}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: enterSoundVolume
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: interactionDistance
