@@ -61,6 +61,7 @@ public class UserImportedPlayerController : MonoBehaviour
     
     private AudioClip _footstepSound;
     private AudioSource _footstepAudioSource;
+    private float _walkFootstepPitch = 1.0f;
     
     private AudioClip _drinkSound;
     private AudioClip _jumpSound;
@@ -222,13 +223,15 @@ public class UserImportedPlayerController : MonoBehaviour
         string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
         if (sceneName == BecoNoiteSceneName)
         {
-            walkSpeed = 0.7f; // Reduz a velocidade para coincidir com o andar bebado
+            walkSpeed = 0.7f;
             runSpeed = 3.0f;
+            _walkFootstepPitch = 0.65f;
         }
         else
         {
-            walkSpeed = 2.25f; // Velocidade normal
+            walkSpeed = 2.25f;
             runSpeed = 4.5f;
+            _walkFootstepPitch = 1.0f;
         }
 
         _controller = GetComponent<CharacterController>();
@@ -395,7 +398,7 @@ public class UserImportedPlayerController : MonoBehaviour
         if (isMoving)
         {
             float targetVolume = run ? 1.0f : 0.85f;
-            float targetPitch  = run ? 1.45f : 1.0f;
+            float targetPitch  = run ? 1.45f : _walkFootstepPitch;
             
             _footstepAudioSource.volume = Mathf.Lerp(_footstepAudioSource.volume, targetVolume, Time.deltaTime * 15f);
             _footstepAudioSource.pitch = Mathf.Lerp(_footstepAudioSource.pitch, targetPitch, Time.deltaTime * 10f);
@@ -436,16 +439,22 @@ public class UserImportedPlayerController : MonoBehaviour
         AttachBottleToRightHand(bottleTransform);
         yield return WaitForSecondsRoutine(0.1f);
 
-        if (_drinkSound != null && _combatAudioSource != null)
-        {
-            _combatAudioSource.pitch = 1.0f;
-            _combatAudioSource.PlayOneShot(_drinkSound, 1.0f);
-        }
-
         if (drinkIntroClip != null)
         {
             PlayDirectClipImmediate(drinkIntroClip, 0f, 1f);
-            yield return WaitForClipSeconds(drinkIntroClip, 1f, 5f);
+            float introDuration = Mathf.Clamp(drinkIntroClip.length, 0f, 5f);
+            yield return WaitForSecondsRoutine(Mathf.Max(0f, introDuration - 1f));
+            if (_drinkSound != null && _combatAudioSource != null)
+            {
+                _combatAudioSource.pitch = 1.0f;
+                _combatAudioSource.PlayOneShot(_drinkSound, 1.0f);
+            }
+            yield return WaitForSecondsRoutine(Mathf.Min(1f, introDuration));
+        }
+        else if (_drinkSound != null && _combatAudioSource != null)
+        {
+            _combatAudioSource.pitch = 1.0f;
+            _combatAudioSource.PlayOneShot(_drinkSound, 1.0f);
         }
 
         if (drinkLoopClip != null)

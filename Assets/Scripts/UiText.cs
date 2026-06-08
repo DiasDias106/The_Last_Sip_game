@@ -133,6 +133,9 @@ public static class UiText
         ,["DEFINIÇÕES"] = "SETTINGS"
         ,["DEFINICOES"] = "SETTINGS"
         ,["PAUSE"] = "PAUSE"
+        ,["O Ébrio Corrompido"] = "The Corrupted Drunkard"
+        ,["O Bode Viciado"] = "The Addicted Goat"
+        ,["O Rei da Embriaguez"] = "The King of Drunkenness"
     };
 
     private static readonly Dictionary<string, string> EnToPt = BuildReverseMap(PtToEn);
