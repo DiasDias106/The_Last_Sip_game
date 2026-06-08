@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,6 +10,7 @@ public class BossHUDController : MonoBehaviour
     private CanvasGroup _group;
     private RectTransform _fillRect;
     private RectTransform _armorFillRect;
+    private TextMeshProUGUI _nameLabel;
 
     private void Awake()
     {
@@ -139,5 +141,25 @@ public class BossHUDController : MonoBehaviour
         _armorFillRect.offsetMin = new Vector2(6f, 6f);
         _armorFillRect.offsetMax = new Vector2(-6f, -6f);
         armorFill.transform.SetAsLastSibling();
+
+        var nameGO = new GameObject("BossNameLabel");
+        nameGO.transform.SetParent(track.transform, false);
+        _nameLabel = nameGO.AddComponent<TextMeshProUGUI>();
+        _nameLabel.text = "";
+        _nameLabel.fontSize = 20f;
+        _nameLabel.fontStyle = TMPro.FontStyles.Bold;
+        _nameLabel.alignment = TMPro.TextAlignmentOptions.Center;
+        _nameLabel.color = new Color(1f, 0.92f, 0.82f, 0.95f);
+        var nameLabelRect = nameGO.GetComponent<RectTransform>();
+        nameLabelRect.anchorMin = Vector2.zero;
+        nameLabelRect.anchorMax = Vector2.one;
+        nameLabelRect.offsetMin = Vector2.zero;
+        nameLabelRect.offsetMax = Vector2.zero;
+        nameGO.transform.SetAsLastSibling();
+    }
+
+    public void SetName(string bossName)
+    {
+        if (_nameLabel != null) _nameLabel.text = UiText.LocalizeKnownText(bossName);
     }
 }
