@@ -267,8 +267,20 @@ public class UserImportedPlayerController : MonoBehaviour
             _jumpAudioSource.volume = 0.85f;
         }
 
-        _footstepSound = Resources.Load<AudioClip>("footsteps"); 
+
+        string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        if (IsBecoScene(currentScene))
+        {
+            _footstepSound = Resources.Load<AudioClip>("footsteps_gravel");
+        }
+        else
+        {
+            _footstepSound = Resources.Load<AudioClip>("footsteps");
+        }
+        
+        // Fallback no caso do ficheiro principal não ser encontrado
         if (_footstepSound == null) _footstepSound = Resources.Load<AudioClip>("footsteps_gravel");
+
         if (_footstepSound != null)
         {
             _footstepAudioSource = gameObject.AddComponent<AudioSource>();
