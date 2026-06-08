@@ -29,6 +29,8 @@ public class ShopMenuController : MonoBehaviour
     public DialogueData dialogoSairSemComprar;
 
     private bool _comprouAlgo;
+    private AudioClip _buySound;
+    private AudioSource _audioSource;
 
     [System.Serializable]
     private struct DrinkData
@@ -69,6 +71,11 @@ public class ShopMenuController : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        
+        _buySound = Resources.Load<AudioClip>("buy_sound");
+        _audioSource = gameObject.AddComponent<AudioSource>();
+        _audioSource.spatialBlend = 0f;
+
         BuildUI();
     }
 
@@ -421,6 +428,11 @@ public class ShopMenuController : MonoBehaviour
 
         SetStatus(UiText.Choose("Compraste: ", "Purchased: ") + UiText.LocalizeKnownText(drink.Name));
         RefreshShopRows();
+        
+        if (_buySound != null && _audioSource != null)
+        {
+            _audioSource.PlayOneShot(_buySound, 1.0f);
+        }
         
         if (dialogoComprar != null) 
         {

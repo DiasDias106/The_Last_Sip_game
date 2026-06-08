@@ -61,6 +61,13 @@ public class UserImportedPlayerController : MonoBehaviour
     
     private AudioClip _footstepSound;
     private AudioSource _footstepAudioSource;
+    
+    private AudioClip _drinkSound;
+    private AudioClip _jumpSound;
+    private AudioSource _jumpAudioSource;
+    private Coroutine _jumpStopCoroutine;
+    
+    private AudioClip _deathSound;
 
     private const float CombatExitDelay = 3.5f;
     private const float AttackHitTime   = 0.28f;
@@ -248,6 +255,18 @@ public class UserImportedPlayerController : MonoBehaviour
         _combatAudioSource = gameObject.AddComponent<AudioSource>();
         _combatAudioSource.spatialBlend = 0f; // 2D para ser bem audível
 
+        _drinkSound = Resources.Load<AudioClip>("drink");
+        _jumpSound  = Resources.Load<AudioClip>("jump");
+        _deathSound = Resources.Load<AudioClip>("death_fall");
+        
+        if (_jumpSound != null)
+        {
+            _jumpAudioSource = gameObject.AddComponent<AudioSource>();
+            _jumpAudioSource.spatialBlend = 0f;
+            _jumpAudioSource.clip = _jumpSound;
+            _jumpAudioSource.volume = 0.85f;
+        }
+
         _footstepSound = Resources.Load<AudioClip>("footsteps"); 
         if (_footstepSound == null) _footstepSound = Resources.Load<AudioClip>("footsteps_gravel");
         if (_footstepSound != null)
@@ -405,6 +424,12 @@ public class UserImportedPlayerController : MonoBehaviour
         AttachBottleToRightHand(bottleTransform);
         yield return WaitForSecondsRoutine(0.1f);
 
+        if (_drinkSound != null && _combatAudioSource != null)
+        {
+            _combatAudioSource.pitch = 1.0f;
+            _combatAudioSource.PlayOneShot(_drinkSound, 1.0f);
+        }
+
         if (drinkIntroClip != null)
         {
             PlayDirectClipImmediate(drinkIntroClip, 0f, 1f);
@@ -461,6 +486,13 @@ public class UserImportedPlayerController : MonoBehaviour
         if (_potionDrinkLoopClip != null)
         {
             PlayDrinkOverlayClip(_potionDrinkLoopClip, PotionDrinkStartTime, PotionDrinkPlaybackSpeed);
+            
+            if (_drinkSound != null && _combatAudioSource != null)
+            {
+                _combatAudioSource.pitch = 1.0f;
+                _combatAudioSource.PlayOneShot(_drinkSound, 1.0f);
+            }
+
             yield return WaitForSecondsRoutine(3f);
         }
         else
@@ -568,7 +600,18 @@ public class UserImportedPlayerController : MonoBehaviour
         _currentMovementVelocity = Vector3.SmoothDamp(
             _currentMovementVelocity, targetVel, ref _movementVelocityRef, movementSmoothTime);
 
-        if (!_isBecoScavengerMode && grounded && GetJumpPressed()) _verticalVelocity = jumpForce;
+        if (!_isBecoScavengerMode && grounded && GetJumpPressed()) 
+        {
+            _verticalVelocity = jumpForce;
+            if (_jumpAudioSource != null)
+            {
+                _jumpAudioSource.pitch = 1.0f;
+                _jumpAudioSource.time = 0.15f; // Salta os primeiros 150ms de silêncio
+                _jumpAudioSource.Play();
+                if (_jumpStopCoroutine != null) StopCoroutine(_jumpStopCoroutine);
+                _jumpStopCoroutine = StartCoroutine(StopJumpAudioRoutine(0.75f));
+            }
+        }
         _verticalVelocity += gravity * Time.deltaTime;
 
         Vector3 move = _currentMovementVelocity;
@@ -681,7 +724,18 @@ public class UserImportedPlayerController : MonoBehaviour
         _currentMovementVelocity = Vector3.SmoothDamp(
             _currentMovementVelocity, targetVel, ref _movementVelocityRef, movementSmoothTime);
 
-        if (!_isBecoScavengerMode && grounded && GetJumpPressed()) _verticalVelocity = jumpForce;
+        if (!_isBecoScavengerMode && grounded && GetJumpPressed()) 
+        {
+            _verticalVelocity = jumpForce;
+            if (_jumpAudioSource != null)
+            {
+                _jumpAudioSource.pitch = 1.0f;
+                _jumpAudioSource.time = 0.15f; // Salta os primeiros 150ms de silêncio
+                _jumpAudioSource.Play();
+                if (_jumpStopCoroutine != null) StopCoroutine(_jumpStopCoroutine);
+                _jumpStopCoroutine = StartCoroutine(StopJumpAudioRoutine(0.75f));
+            }
+        }
         _verticalVelocity += gravity * Time.deltaTime;
 
         Vector3 move = _currentMovementVelocity;
@@ -903,6 +957,25 @@ public class UserImportedPlayerController : MonoBehaviour
         _isScriptedSequencePlaying = false;
 
         PlayClip("knockdown");
+        
+        if (_deathSound != null && _combatAudioSource != null)
+        {
+            _combatAudioSource.pitch = 1.0f;
+            StartCoroutine(PlayDeathSoundRoutine(0.4f));
+        }
+    }
+
+    private IEnumerator PlayDeathSoundRoutine(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (_combatAudioSource != null && _deathSound != null)
+        {
+            // O áudio original é muito baixo e o Unity tem o volume limitado a 1.0.
+            // Tocar o som 3 vezes em simultâneo soma a amplitude de onda e funciona como um amplificador de volume (+9dB)!
+            _combatAudioSource.PlayOneShot(_deathSound, 1.0f);
+            _combatAudioSource.PlayOneShot(_deathSound, 1.0f);
+            _combatAudioSource.PlayOneShot(_deathSound, 1.0f);
+        }
     }
 
     void UpdateDead(bool grounded)
@@ -1641,5 +1714,15 @@ public class UserImportedPlayerController : MonoBehaviour
         go.tag = "MainCamera";
         go.AddComponent<AudioListener>();
         return go.AddComponent<Camera>();
+    }
+
+    private IEnumerator StopJumpAudioRoutine(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (_jumpAudioSource != null)
+        {
+            // Corta o áudio imediatamente para evitar a parte da aterragem no ficheiro MP3
+            _jumpAudioSource.Stop();
+        }
     }
 }
