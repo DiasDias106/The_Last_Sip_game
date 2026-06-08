@@ -36,21 +36,6 @@ public class LimoDaySequenceTrigger : MonoBehaviour
 
     private void TryStart(Collider other)
     {
-        if (_triggered || limoDayInteractable == null || other == null)
-        {
-            return;
-        }
-
-        UserImportedPlayerController controller = other.GetComponent<UserImportedPlayerController>()
-            ?? other.GetComponentInParent<UserImportedPlayerController>();
-        if (controller == null)
-        {
-            return;
-        }
-
-        if (limoDayInteractable.StartSequence(controller))
-        {
-            _triggered = true;
-        }
+        // Sequence is now triggered by F key inside LimoDayInteractable — nothing to do here.
     }
 }

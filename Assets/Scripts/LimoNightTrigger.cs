@@ -17,6 +17,14 @@ public class LimoNightTrigger : MonoBehaviour
     [SerializeField] private Material limoMaterialOverride;
     [SerializeField] private GameObject sceneLimoObject;
 
+    [Header("Audio (Opcional)")]
+    [SerializeField] private AudioClip engineSound;
+    [SerializeField] private AudioClip crashSound;
+    [SerializeField] private float engineVolume = 0.8f;
+    [SerializeField] private float crashVolume = 1.0f;
+    [SerializeField] private bool loopEngineSound = false;
+    [SerializeField, Range(0.1f, 3f)] private float enginePitch = 1.0f;
+
     [Header("Sequence")]
     [SerializeField] private float playerWalkSpeed = 3.75f;
     [SerializeField] private float limoSpeed = 13f;
@@ -26,7 +34,7 @@ public class LimoNightTrigger : MonoBehaviour
     [SerializeField] private float preImpactLookDelay = 0.35f;
     [SerializeField] private float limoImpactTimeout = 4f;
     [SerializeField] private float maxAutoWalkTime = 2.5f;
-    [SerializeField] private float postImpactDriveTime = 1.1f;
+    [SerializeField] private float postImpactDriveTime = 2.5f;
     [SerializeField] private float cameraPitch = 16f;
     [SerializeField] private float minimumLimoVisibleLength = 7f;
 
@@ -35,8 +43,14 @@ public class LimoNightTrigger : MonoBehaviour
 
     private void Awake()
     {
+        _globalSequenceStarted = false;
+        _sequenceStarted = false;
+
         BoxCollider trigger = GetComponent<BoxCollider>();
-        trigger.isTrigger = true;
+        if (trigger != null) trigger.isTrigger = true;
+
+        // Impedir que a câmara do jogador bata nesta caixa invisível (evita o "salto" da câmara)
+        gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 
         PrepareSceneLimoObject(false);
     }
@@ -84,24 +98,33 @@ public class LimoNightTrigger : MonoBehaviour
         controller.SetExternalControlLocked(true);
         controller.PlayExternalAnimation("walk");
 
+        // Disable CharacterController during the walk so transform.position moves freely
+        CharacterController cc = controller.GetComponent<CharacterController>();
+        float originalStepOffset = 0f;
+        if (cc != null) { originalStepOffset = cc.stepOffset; cc.enabled = false; }
+
+        // Camera anchor that follows the player during the walk so the user can see it
+        GameObject walkCameraAnchor = new GameObject("NightWalkCameraAnchor");
+        walkCameraAnchor.transform.position = controller.transform.position;
+        controller.SetCameraFollowOverride(walkCameraAnchor.transform, true, cameraPitch);
+
+        float walkSpeed = controller.CurrentWalkSpeed;
         Vector3 targetPosition = GetImpactDestination(controller);
         float autoWalkTimer = 0f;
-        while (Vector3.Distance(controller.transform.position, targetPosition) > 0.12f)
+        while (Mathf.Abs(controller.transform.position.z - targetPosition.z) > 0.12f ||
+               Mathf.Abs(controller.transform.position.x - targetPosition.x) > 0.12f)
         {
             Vector3 direction = targetPosition - controller.transform.position;
             direction.y = 0f;
             if (direction.sqrMagnitude > 0.0001f)
             {
                 controller.FaceDirection(direction);
-                Vector3 step = direction.normalized * playerWalkSpeed * Time.deltaTime;
-                if (step.sqrMagnitude > direction.sqrMagnitude)
-                {
-                    step = direction;
-                }
-
+                Vector3 step = direction.normalized * walkSpeed * Time.deltaTime;
+                if (step.sqrMagnitude > direction.sqrMagnitude) step = direction;
                 controller.transform.position += step;
-                controller.PlayExternalAnimation("walk");
             }
+
+            walkCameraAnchor.transform.position = controller.transform.position;
 
             autoWalkTimer += Time.deltaTime;
             if (autoWalkTimer >= maxAutoWalkTime)
@@ -112,22 +135,24 @@ public class LimoNightTrigger : MonoBehaviour
             yield return null;
         }
 
-        controller.transform.position = new Vector3(
-            targetPosition.x,
-            controller.transform.position.y,
-            targetPosition.z);
-        controller.FaceDirection(Vector3.forward);
+        controller.ClearCameraFollowOverride();
+        Destroy(walkCameraAnchor);
 
+        if (cc != null) { cc.enabled = true; cc.stepOffset = originalStepOffset; }
+        controller.FaceDirection(Vector3.forward);
         controller.PlayExternalAnimation("idle");
         yield return new WaitForSeconds(limoStartDelay);
 
         GameObject limo = CreateLimo();
         if (limo == null)
         {
-            _globalSequenceStarted = false;
             health.TakeDamage(health.CurrentHealth + health.maxHealth);
             yield break;
         }
+
+        // Make limo colliders triggers so the player's CharacterController doesn't step onto the car
+        foreach (Collider col in limo.GetComponentsInChildren<Collider>(true))
+            col.isTrigger = true;
 
         float driveLaneZ = controller.transform.position.z;
         Vector3 limoStartPosition = GetLimoSpawnPosition();
@@ -150,6 +175,29 @@ public class LimoNightTrigger : MonoBehaviour
         controller.SetCameraFollowOverride(cameraAnchorTransform, true, cameraPitch);
         yield return new WaitForSeconds(preImpactLookDelay);
 
+        Vector3 initialDestination = new Vector3(controller.transform.position.x, limo.transform.position.y, driveLaneZ);
+        Vector3 initialDirection = initialDestination - limo.transform.position;
+        initialDirection.y = 0f;
+        SetupHeadlights(limo, initialDirection);
+
+        AudioSource limoAudio = null;
+        if (engineSound != null || crashSound != null)
+        {
+            limoAudio = limo.AddComponent<AudioSource>();
+            limoAudio.spatialBlend = 1f; // Som 3D
+            limoAudio.minDistance = 5f;
+            limoAudio.maxDistance = 50f;
+            
+            if (engineSound != null)
+            {
+                limoAudio.clip = engineSound;
+                limoAudio.volume = engineVolume;
+                limoAudio.loop = loopEngineSound;
+                limoAudio.pitch = enginePitch;
+                limoAudio.Play();
+            }
+        }
+
         bool impactTriggered = false;
         float postImpactTimer = 0f;
         float impactTimer = 0f;
@@ -171,6 +219,12 @@ public class LimoNightTrigger : MonoBehaviour
 
                 limo.transform.position += step;
                 limo.transform.rotation = Quaternion.Euler(limoDriveEuler);
+
+                if (_headlightsGroup != null)
+                {
+                    _headlightsGroup.transform.position += step;
+                    _headlightsGroup.transform.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+                }
             }
 
             if (!impactTriggered)
@@ -182,33 +236,92 @@ public class LimoNightTrigger : MonoBehaviour
                 if (deltaToPlayer.magnitude <= killDistance)
                 {
                     impactTriggered = true;
+                    if (limoAudio != null && crashSound != null)
+                    {
+                        limoAudio.PlayOneShot(crashSound, crashVolume);
+                    }
                     health.TakeDamage(health.CurrentHealth + health.maxHealth);
+                }
+                else if (impactTimer >= limoImpactTimeout)
+                {
+                    controller.ClearCameraFollowOverride();
+                    Destroy(cameraAnchor);
+                    if (_headlightsGroup != null) Destroy(_headlightsGroup);
+                    yield break;
                 }
             }
             else
             {
                 postImpactTimer += Time.deltaTime;
-                if (limoExitPoint == null || postImpactTimer >= postImpactDriveTime)
+                if (postImpactTimer >= postImpactDriveTime)
                 {
                     controller.ClearCameraFollowOverride();
                     Destroy(cameraAnchor);
-                    _globalSequenceStarted = false;
-                    yield break;
-                }
-
-                Vector3 deltaToExit = limoExitPoint.position - limo.transform.position;
-                deltaToExit.y = 0f;
-                if (deltaToExit.magnitude <= 0.15f)
-                {
-                    controller.ClearCameraFollowOverride();
-                    Destroy(cameraAnchor);
-                    _globalSequenceStarted = false;
+                    if (_headlightsGroup != null) Destroy(_headlightsGroup);
                     yield break;
                 }
             }
 
             yield return null;
         }
+    }
+
+    private GameObject _headlightsGroup;
+
+    private void SetupHeadlights(GameObject limo, Vector3 direction)
+    {
+        if (_headlightsGroup != null) Destroy(_headlightsGroup);
+        _headlightsGroup = new GameObject("LimoHeadlights");
+
+        Bounds bounds = CalculateRendererBounds(limo);
+        _headlightsGroup.transform.position = bounds.center;
+
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            _headlightsGroup.transform.rotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+        }
+
+        float length = Mathf.Max(bounds.size.x, bounds.size.z);
+        float width = Mathf.Min(bounds.size.x, bounds.size.z);
+
+        if (length < 1f) length = 5f;
+        if (width < 1f) width = 2.5f;
+
+        // Ao usar 0.55f (em vez de 0.45f), garantimos que os faróis nascem ligeiramente
+        // à frente do para-choques, fora da "caixa" do carro. Assim o próprio carro
+        // não bloqueia a luz nem projeta sombras bizarras na estrada!
+        float forwardOffset = length * 0.55f;
+        float sideOffset = width * 0.4f; 
+        
+        // Subir os faróis um bocadinho mais para a grelha frontal
+        float yOffset = -bounds.extents.y + 0.85f;
+
+        CreateSingleLight("LeftLight", new Vector3(-sideOffset, yOffset, forwardOffset));
+        CreateSingleLight("RightLight", new Vector3(sideOffset, yOffset, forwardOffset));
+    }
+
+    private void CreateSingleLight(string name, Vector3 localPosition)
+    {
+        GameObject lightObj = new GameObject(name);
+        lightObj.transform.SetParent(_headlightsGroup.transform, false);
+        lightObj.transform.localPosition = localPosition;
+        
+        Light l = lightObj.AddComponent<Light>();
+        l.type = LightType.Spot;
+        l.range = 300f; // Alcança o fundo do beco
+        l.spotAngle = 50f; // Mais focado (como "máximos" verdadeiros)
+        l.innerSpotAngle = 25f; // Núcleo central focado
+        l.intensity = 200f; // Intensidade extrema para estourar a câmara
+        l.color = new Color(1f, 0.98f, 0.9f);
+        l.shadows = LightShadows.Hard;
+        
+        GameObject glowObj = new GameObject("Glow");
+        glowObj.transform.SetParent(lightObj.transform, false);
+        Light glow = glowObj.AddComponent<Light>();
+        glow.type = LightType.Point;
+        glow.range = 25f; // Área de "explosão" de luz à volta do carro
+        glow.intensity = 60f; // Brilho absurdamente forte
+        glow.color = l.color;
     }
 
     private GameObject CreateLimo()
