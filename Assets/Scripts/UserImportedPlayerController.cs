@@ -113,6 +113,7 @@ public class UserImportedPlayerController : MonoBehaviour
     private bool _isBecoScavengerMode;
     private Transform _cameraFollowOverride;
     private bool _cameraFollowOverrideAlign;
+    private Vector3 _lastPosition;
     private float _cameraFollowOverridePitch = 14f;
     private const float PotionDrinkStartTime = 1.97f;
     private const float PotionDrinkPlaybackSpeed = 2f;
@@ -223,9 +224,9 @@ public class UserImportedPlayerController : MonoBehaviour
         string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
         if (sceneName == BecoNoiteSceneName)
         {
-            walkSpeed = 0.7f;
+            walkSpeed = 0.7f; // Reduz a velocidade para coincidir com o andar bebado
             runSpeed = 3.0f;
-            _walkFootstepPitch = 0.65f;
+            _walkFootstepPitch = 0.85f; // Ajustado para não ficar nem muito rápido nem muito lento
         }
         else
         {
@@ -322,6 +323,14 @@ public class UserImportedPlayerController : MonoBehaviour
 
         if (_externalControlLocked)
         {
+            float dt = Time.deltaTime;
+            if (dt > 0.0001f)
+            {
+                Vector3 realVel = (transform.position - _lastPosition) / dt;
+                _currentMovementVelocity = new Vector3(realVel.x, 0f, realVel.z);
+            }
+            _lastPosition = transform.position;
+
             if (_controller.enabled)
             {
                 bool externalGrounded = _controller.isGrounded;
@@ -336,6 +345,7 @@ public class UserImportedPlayerController : MonoBehaviour
 
             UpdateAnimationTransition();
             SampleCurrentClip();
+            UpdateFootstepAudio(_controller.enabled ? _controller.isGrounded : true);
             return;
         }
 
@@ -381,6 +391,8 @@ public class UserImportedPlayerController : MonoBehaviour
         UpdateFootstepAudio(grounded);
         UpdateAnimationTransition();
         SampleCurrentClip();
+        
+        _lastPosition = transform.position;
     }
 
     private void UpdateFootstepAudio(bool grounded)
@@ -393,7 +405,9 @@ public class UserImportedPlayerController : MonoBehaviour
 
         Vector3 hVel = new Vector3(_currentMovementVelocity.x, 0f, _currentMovementVelocity.z);
         bool isMoving = hVel.sqrMagnitude > 0.1f && grounded && _moveState != MoveState.Rolling && _moveState != MoveState.HitReact;
-        bool run = isMoving && hVel.sqrMagnitude > (walkSpeed * walkSpeed * 1.1f);
+        
+        // Bloqueia a passagem a 'run' durante cutscenes para evitar oscilações de pitch devido a micro-saltos nas frames
+        bool run = isMoving && !_externalControlLocked && hVel.sqrMagnitude > (walkSpeed * walkSpeed * 1.1f);
 
         if (isMoving)
         {
@@ -978,6 +992,12 @@ public class UserImportedPlayerController : MonoBehaviour
         _isScriptedSequencePlaying = false;
 
         PlayClip("knockdown");
+        
+        if (_footstepAudioSource != null)
+        {
+            _footstepAudioSource.volume = 0f;
+            _footstepAudioSource.Stop();
+        }
         
         if (_deathSound != null && _combatAudioSource != null)
         {
