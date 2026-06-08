@@ -116,7 +116,7 @@ public class UserImportedPlayerController : MonoBehaviour
     private Vector3 _lastPosition;
     private float _cameraFollowOverridePitch = 14f;
     private const float PotionDrinkStartTime = 1.97f;
-    private const float PotionDrinkPlaybackSpeed = 2f;
+    private const float PotionDrinkPlaybackSpeed = 1f;
 
     public bool IsScriptedSequencePlaying => _isScriptedSequencePlaying;
     public bool IsExternalControlLocked => _externalControlLocked;
@@ -521,7 +521,7 @@ public class UserImportedPlayerController : MonoBehaviour
         if (_potionDrinkLoopClip != null)
         {
             PlayDrinkOverlayClip(_potionDrinkLoopClip, PotionDrinkStartTime, PotionDrinkPlaybackSpeed);
-            
+
             if (_drinkSound != null && _combatAudioSource != null)
             {
                 _combatAudioSource.pitch = 1.0f;
@@ -539,11 +539,10 @@ public class UserImportedPlayerController : MonoBehaviour
         yield return WaitForSecondsRoutine(0.15f);
 
         if (_moveState == MoveState.Drinking)
-        {
             _moveState = MoveState.Locomotion;
-            StopDrinkOverlay();
+        StopDrinkOverlay();
+        if (_moveState == MoveState.Locomotion)
             PlayClip("idle");
-        }
         _activeScriptedSequence = null;
     }
 
@@ -759,19 +758,8 @@ public class UserImportedPlayerController : MonoBehaviour
         _currentMovementVelocity = Vector3.SmoothDamp(
             _currentMovementVelocity, targetVel, ref _movementVelocityRef, movementSmoothTime);
 
-        if (!_isBecoScavengerMode && grounded && GetJumpPressed()) 
-        {
-            _verticalVelocity = jumpForce;
-            if (_jumpAudioSource != null)
-            {
-                _jumpAudioSource.pitch = 1.0f;
-                _jumpAudioSource.time = 0.15f; // Salta os primeiros 150ms de silêncio
-                _jumpAudioSource.Play();
-                if (_jumpStopCoroutine != null) StopCoroutine(_jumpStopCoroutine);
-                _jumpStopCoroutine = StartCoroutine(StopJumpAudioRoutine(0.75f));
-            }
-        }
         _verticalVelocity += gravity * Time.deltaTime;
+        if (grounded && _verticalVelocity < 0f) _verticalVelocity = -1f;
 
         Vector3 move = _currentMovementVelocity;
         move.y = _verticalVelocity;
@@ -790,6 +778,14 @@ public class UserImportedPlayerController : MonoBehaviour
             PlayClip("run");
         else
             PlayClip(_inCombat ? "walkCombat" : "walk");
+
+        if (_drinkOverlayActive && _graphCreated && _layerMixerPlayable.IsValid())
+        {
+            float speed = hVel.magnitude;
+            float targetWeight = speed < 0.1f ? 0.85f : Mathf.Lerp(0.65f, 0.4f, Mathf.InverseLerp(0f, runSpeed, speed));
+            float current = _layerMixerPlayable.GetInputWeight(1);
+            _layerMixerPlayable.SetInputWeight(1, Mathf.Lerp(current, targetWeight, Time.deltaTime * 5f));
+        }
     }
 
     void EnterAttack()
@@ -1422,7 +1418,7 @@ public class UserImportedPlayerController : MonoBehaviour
         _drinkClipPlayable.SetSpeed(Mathf.Max(0.01f, playbackSpeed));
 
         _playableGraph.Connect(_drinkClipPlayable, 0, _layerMixerPlayable, 1);
-        _layerMixerPlayable.SetInputWeight(1, 1f);
+        _layerMixerPlayable.SetInputWeight(1, 0.65f);
         _animOutput.SetSourcePlayable(_layerMixerPlayable);
         _playableGraph.Evaluate();
         _drinkOverlayActive = true;
@@ -1519,6 +1515,7 @@ public class UserImportedPlayerController : MonoBehaviour
         AvatarMask mask = new AvatarMask();
         foreach (AvatarMaskBodyPart bodyPart in Enum.GetValues(typeof(AvatarMaskBodyPart)))
         {
+            if (bodyPart == AvatarMaskBodyPart.LastBodyPart) continue;
             mask.SetHumanoidBodyPartActive(bodyPart, false);
         }
 
