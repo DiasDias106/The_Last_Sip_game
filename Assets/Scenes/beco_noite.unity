@@ -449769,7 +449769,7 @@ MonoBehaviour:
   engineSound: {fileID: 8300000, guid: 5eb6638b32c6364499dd6ecdeb0de4be, type: 3}
   crashSound: {fileID: 8300000, guid: b74333d429544e74fa9f819878d7175e, type: 3}
   engineVolume: 2
-  crashVolume: 3
+  crashVolume: 0.5
   loopEngineSound: 0
   enginePitch: 0.5
   playerWalkSpeed: 0.7

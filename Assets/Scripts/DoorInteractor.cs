@@ -82,7 +82,7 @@ public class DoorInteractor : MonoBehaviour
         }
 
         EnsureStyle();
-        string text = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - " + UiText.LocalizeKnownText("Interagir");
+        string text = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact);
         GUIContent content = new GUIContent(text);
         float width = Mathf.Min(PromptMaxWidth, Mathf.Max(120f, _promptStyle.CalcSize(content).x));
         float height = _promptStyle.CalcHeight(content, width);

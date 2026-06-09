@@ -136,6 +136,17 @@ public class EnemyController : MonoBehaviour, IDamageable
     {
         if (player == null) { state = State.Idle; return; }
 
+        var ph = player.GetComponentInParent<PlayerHealth>() ?? player.GetComponentInChildren<PlayerHealth>();
+        if (ph != null && ph.IsDead)
+        {
+            if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); }
+            player = null;
+            state = State.Patrolling;
+            if (agent.isOnNavMesh) agent.isStopped = true;
+            animator.SetBool(HashIsWalking, false);
+            return;
+        }
+
         float dist = Vector3.Distance(transform.position, player.position);
 
         if (dist <= attackRange)
@@ -166,6 +177,17 @@ public class EnemyController : MonoBehaviour, IDamageable
     private void UpdateAttack()
     {
         if (player == null) { state = State.Idle; return; }
+
+        var phA = player.GetComponentInParent<PlayerHealth>() ?? player.GetComponentInChildren<PlayerHealth>();
+        if (phA != null && phA.IsDead)
+        {
+            if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); }
+            player = null;
+            state = State.Patrolling;
+            if (agent.isOnNavMesh) agent.isStopped = true;
+            animator.SetBool(HashIsWalking, false);
+            return;
+        }
 
         float dist = Vector3.Distance(transform.position, player.position);
 

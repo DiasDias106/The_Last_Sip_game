@@ -10,7 +10,7 @@ public class PortalSceneInteractable : MonoBehaviour
     [SerializeField] private float interactionDistance = 5f;
     [SerializeField] private float blackScreenDuration = 0.35f;
     [SerializeField] private Vector3 promptOffset = new Vector3(0f, 1.7f, 0f);
-    [SerializeField] private string promptText = "Entrar portal";
+    [SerializeField] private string promptText = "Entrar";
     [SerializeField] private bool lockPortalWhenLevelCompleted = true;
     [SerializeField] private bool requireAllPrimaryLevelsCompleted;
     [SerializeField] private bool hideVortexWhenLocked = true;
