@@ -80,7 +80,8 @@ public class PlayerLavaRespawn : MonoBehaviour
         foreach (var r in GetComponentsInChildren<Renderer>(true))
             r.enabled = false;
 
-        // Mata o player
+        // Mata o player sem som de queda (a morte é por afogamento, não por impacto)
+        if (_playerController != null) _playerController.SuppressDeathSound = true;
         if (_playerHealth != null && !_playerHealth.IsDead)
             _playerHealth.TakeDamage(_playerHealth.maxHealth);
     }

@@ -45,6 +45,7 @@ public class UserImportedPlayerController : MonoBehaviour
     // ── Combat ───────────────────────────────────────────────────────────────────
     private bool  _inCombat;
     private float _combatTimer;
+    public bool SuppressDeathSound { get; set; }
     private float _fallTimer;
     private float _airTime;
     private const float FallDeathTime = 5f;
@@ -70,7 +71,7 @@ public class UserImportedPlayerController : MonoBehaviour
     
     private AudioClip _deathSound;
 
-    private const float CombatExitDelay = 3.5f;
+    private const float CombatExitDelay = 0f;
     private const float AttackHitTime   = 0.28f;
     private const float RollDuration    = 1.1f;
     private const float RollSpeed       = 7f;
@@ -988,7 +989,7 @@ public class UserImportedPlayerController : MonoBehaviour
             _footstepAudioSource.Stop();
         }
         
-        if (_deathSound != null && _combatAudioSource != null)
+        if (_deathSound != null && _combatAudioSource != null && !SuppressDeathSound)
         {
             _combatAudioSource.pitch = 1.0f;
             StartCoroutine(PlayDeathSoundRoutine(0.4f));
