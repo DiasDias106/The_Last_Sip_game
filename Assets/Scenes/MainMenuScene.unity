@@ -403,8 +403,8 @@ MonoBehaviour:
   panelTransform: {fileID: 38333110}
   transitionDuration: 0.24
   shownScale: {x: 1, y: 1, z: 1}
-  hiddenScale: {x: 0.92, y: 0.92, z: 1}
-  hiddenOffset: {x: 0, y: -24}
+  hiddenScale: {x: 1, y: 1, z: 1}
+  hiddenOffset: {x: 0, y: 0}
 --- !u!224 &38333110
 RectTransform:
   m_ObjectHideFlags: 0
@@ -414,7 +414,7 @@ RectTransform:
   m_GameObject: {fileID: 38333108}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.92, y: 0.92, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1412611278}
@@ -427,7 +427,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -24}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &38333111
@@ -12286,6 +12286,7 @@ GameObject:
   - component: {fileID: 970711835}
   - component: {fileID: 970711834}
   - component: {fileID: 970711843}
+  - component: {fileID: 970711844}
   m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
@@ -12316,6 +12317,7 @@ MonoBehaviour:
   optionsPanel: {fileID: 1266072285}
   optionsPanelView: {fileID: 1266072282}
   creditsPanel: {fileID: 38333109}
+  creditsBackgroundImage: {fileID: 1412611279}
   slotSelectionController: {fileID: 194489821}
   confirmOverwritePanel: {fileID: 2048864463}
   fullscreenToggle: {fileID: 0}
@@ -12690,6 +12692,24 @@ MonoBehaviour:
   fadeOutDuration: 0.4
   promptPulseSpeed: 1.15
   promptMessage: CLIQUE EM QUALQUER TELA PARA COMECAR
+--- !u!114 &970711844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 970711833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01051ed2be1906f4089b92b773e8f6ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MainMenuBackdropController
+  backdropSceneName: beco_noite
+  menuCamera: {fileID: 0}
+  menuAudioListener: {fileID: 0}
+  fallbackLightColor: {r: 0.45, g: 0.5, b: 0.6, a: 1}
+  fallbackLightIntensity: 0.7
+  fallbackLightEulerAngles: {x: 28, y: -118, z: 0}
 --- !u!1 &982818989
 GameObject:
   m_ObjectHideFlags: 0
@@ -19903,7 +19923,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418584824}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -19916,7 +19936,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8c4e9bf81e547bd4f913ccd7394ce69e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5b38fe14e057d77468d8d14ad29dcca1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -22457,7 +22477,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1627772534}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
