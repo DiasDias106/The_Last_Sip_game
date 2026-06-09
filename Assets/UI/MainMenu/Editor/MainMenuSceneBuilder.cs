@@ -95,6 +95,10 @@ public static class MainMenuSceneBuilder
 
         GameObject creditsPanel = CreateCreditsPanel(canvasGo.transform, tmpFont, background, vignette, title, panelWood, buttonNormal, buttonHover, buttonPressed, buttonGlow, bottle, glass, newspaper, audioManager);
         creditsPanel.name = "CreditsPanel";
+        SetFullScreenPanelBackground(creditsPanel.transform, background, Color.white);
+        MenuPanelController creditsPanelController = creditsPanel.GetComponent<MenuPanelController>();
+        SetVector2Field(creditsPanelController, "hiddenOffset", Vector2.zero);
+        SetVector3Field(creditsPanelController, "hiddenScale", Vector3.one);
         GameObject optionsPanel = CreateOptionsPanel(canvasGo.transform, tmpFont, background, vignette, title, panelWood, null, null, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
         optionsPanel.name = "OptionsPanel";
         GameObject slotSelectionPanel = CreateSlotSelectionPanel(canvasGo.transform, tmpFont, panelWood, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
@@ -124,6 +128,8 @@ public static class MainMenuSceneBuilder
         SetObjectField(loadingController, "quoteText", loadingQuoteText);
         SetObjectField(loadingController, "loadingText", loadingStatusText);
 
+        canvasGo.AddComponent<MainMenuBackdropController>();
+
         MainMenuController controller = canvasGo.AddComponent<MainMenuController>();
         SetStringField(controller, "defaultGameSceneName", "Beco");
         SetObjectField(controller, "sceneFadeController", fadeController);
@@ -135,6 +141,7 @@ public static class MainMenuSceneBuilder
         SetObjectField(controller, "optionsPanel", optionsPanel.GetComponent<MenuPanelController>());
         SetObjectField(controller, "optionsPanelView", optionsPanel.GetComponent<OptionsPanelView>());
         SetObjectField(controller, "creditsPanel", creditsPanel.GetComponent<MenuPanelController>());
+        SetObjectField(controller, "creditsBackgroundImage", FindInChildren<Image>(creditsPanel.transform, "Background"));
         SetObjectField(controller, "fullscreenToggle", FindInChildren<Toggle>(optionsPanel.transform, "FullscreenToggle"));
         SetObjectField(controller, "mainMenuCanvasGroup", mainMenuCanvasGroup);
         SetObjectField(controller, "newGameButton", newGameButton);
@@ -751,6 +758,24 @@ public static class MainMenuSceneBuilder
         shadeGo.transform.SetAsFirstSibling();
 
         return root;
+    }
+
+    private static void SetFullScreenPanelBackground(Transform panelRoot, Sprite sprite, Color color)
+    {
+        if (panelRoot == null)
+        {
+            return;
+        }
+
+        Transform backgroundTransform = panelRoot.Find("Background");
+        if (backgroundTransform == null || !backgroundTransform.TryGetComponent(out Image backgroundImage))
+        {
+            return;
+        }
+
+        backgroundImage.sprite = sprite;
+        backgroundImage.color = color;
+        backgroundImage.enabled = true;
     }
 
     private static void BuildCreditsBackdrop(Transform root, Sprite bottle, Sprite glass, Sprite newspaper)
@@ -1638,6 +1663,20 @@ public static class MainMenuSceneBuilder
         }
 
         property.vector2Value = value;
+        so.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(target);
+    }
+
+    private static void SetVector3Field(UnityEngine.Object target, string propertyName, Vector3 value)
+    {
+        SerializedObject so = new(target);
+        SerializedProperty property = so.FindProperty(propertyName);
+        if (property == null)
+        {
+            throw new MissingFieldException(target.GetType().Name, propertyName);
+        }
+
+        property.vector3Value = value;
         so.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(target);
     }

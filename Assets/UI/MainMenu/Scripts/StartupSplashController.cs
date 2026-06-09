@@ -10,6 +10,7 @@ using UnityEngine.InputSystem.Controls;
 public sealed class StartupSplashController : MonoBehaviour
 {
     private const string PendingSceneKey = "__PENDING_LOAD_SCENE__";
+    private const string SkipSplashKey = "__SKIP_SPLASH__";
     private static bool hasShownSplashThisSession;
 
     [Header("References")]
@@ -34,9 +35,17 @@ public sealed class StartupSplashController : MonoBehaviour
     {
         skipSplashForSceneTransition =
             hasShownSplashThisSession ||
+            PlayerPrefs.GetInt(SkipSplashKey, 0) == 1 ||
+            GlobalSceneTransitionRequest.PendingOpenCredits ||
             !string.IsNullOrWhiteSpace(GlobalSceneTransitionRequest.PendingSceneName) ||
             !string.IsNullOrWhiteSpace(PlayerPrefs.GetString(PendingSceneKey, string.Empty)) ||
             PlayerPrefs.GetInt("__DR__", 0) == 1;
+
+        if (PlayerPrefs.GetInt(SkipSplashKey, 0) == 1)
+        {
+            PlayerPrefs.DeleteKey(SkipSplashKey);
+            PlayerPrefs.Save();
+        }
 
         if (promptText != null)
         {

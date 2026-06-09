@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6409447292873121576}
   - component: {fileID: 850730843637900241}
   - component: {fileID: 7062486209805823863}
+  - component: {fileID: 1085260629537776704}
   m_Layer: 0
   m_Name: P_PROP_trap_floor_dungeon_01
   m_TagString: Untagged
@@ -93,3 +94,18 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.003702, y: 0.57, z: 2.0073628}
   m_Center: {x: 0.00083243847, y: 0.26, z: 0.0010550618}
+--- !u!114 &1085260629537776704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1437406108029507341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1db6b8f47650495389a19868bd95e79c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpikeTrapController
+  instantKill: 1
+  damage: 10
+  damageCooldown: 0.4

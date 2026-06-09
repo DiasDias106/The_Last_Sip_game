@@ -9,6 +9,8 @@ using UnityEngine.InputSystem;
 [DisallowMultipleComponent]
 public class LimoDayInteractable : MonoBehaviour
 {
+    private const string SkipSplashKey = "__SKIP_SPLASH__";
+
     [Header("Interaction")]
     [SerializeField] private float interactionDistance = 2.5f;
     [SerializeField] private Transform doorAnchor;
@@ -155,10 +157,11 @@ public class LimoDayInteractable : MonoBehaviour
         controller.ClearCameraFollowOverride();
         Destroy(anchor);
 
-        // Show credits immediately on the black screen
-        yield return ShowCredits(screenCanvas);
-
+        RuntimeSceneTransitionOverlay.ShowBlackForSceneLoad();
         Destroy(screenCanvas.gameObject);
+        PlayerPrefs.SetInt(SkipSplashKey, 1);
+        PlayerPrefs.Save();
+        GlobalSceneTransitionRequest.PendingOpenCredits = true;
         SceneManager.LoadScene(mainMenuSceneName);
     }
 

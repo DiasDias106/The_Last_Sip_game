@@ -25,6 +25,7 @@ public sealed class MainMenuController : MonoBehaviour
     [SerializeField] private MenuPanelController optionsPanel;
     [SerializeField] private OptionsPanelView optionsPanelView;
     [SerializeField] private MenuPanelController creditsPanel;
+    [SerializeField] private Image creditsBackgroundImage;
     [SerializeField] private SlotSelectionController slotSelectionController;
     [SerializeField] private ConfirmOverwritePanel confirmOverwritePanel;
     [SerializeField] private Toggle fullscreenToggle;
@@ -50,6 +51,8 @@ public sealed class MainMenuController : MonoBehaviour
     private string pendingSceneFromTransition;
     private bool pendingSceneLaunchQueued;
     private bool pendingCreditsLaunchQueued;
+    private Sprite defaultCreditsBackgroundSprite;
+    private Color defaultCreditsBackgroundColor = Color.white;
 
     private void Awake()
     {
@@ -66,6 +69,21 @@ public sealed class MainMenuController : MonoBehaviour
         if (optionsPanelView == null && optionsPanel != null)
         {
             optionsPanelView = optionsPanel.GetComponent<OptionsPanelView>();
+        }
+
+        if (creditsBackgroundImage == null && creditsPanel != null)
+        {
+            Transform backgroundTransform = creditsPanel.transform.Find("Background");
+            if (backgroundTransform != null)
+            {
+                creditsBackgroundImage = backgroundTransform.GetComponent<Image>();
+            }
+        }
+
+        if (creditsBackgroundImage != null)
+        {
+            defaultCreditsBackgroundSprite = creditsBackgroundImage.sprite;
+            defaultCreditsBackgroundColor = creditsBackgroundImage.color;
         }
 
         GameMusicManager.Instance?.StopAll();
@@ -108,6 +126,8 @@ public sealed class MainMenuController : MonoBehaviour
             GlobalSceneTransitionRequest.PendingOpenCredits = false;
             pendingCreditsLaunchQueued = true;
         }
+
+        ApplyCreditsBackground(pendingCreditsLaunchQueued);
 
         optionsPanel?.HideImmediate();
         creditsPanel?.HideImmediate();
@@ -199,6 +219,7 @@ public sealed class MainMenuController : MonoBehaviour
         isTransitioning = true;
         SetMainMenuInputBlocked(true);
         mainMenuPanel?.SetActive(false);
+        ApplyCreditsBackground(isBlackBackground: true);
 
         if (menuAudioManager != null && creditsAmbientClip != null)
             menuAudioManager.SetAmbientMusicClip(creditsAmbientClip);
@@ -442,6 +463,7 @@ public sealed class MainMenuController : MonoBehaviour
     {
         isTransitioning = true;
         SetMainMenuInputBlocked(true);
+        ApplyCreditsBackground(isBlackBackground: false);
 
         if (menuAudioManager != null && creditsAmbientClip != null)
         {
@@ -468,6 +490,25 @@ public sealed class MainMenuController : MonoBehaviour
         SetMainMenuInputBlocked(false);
         isTransitioning = false;
         UpdateMainMenuPresentation();
+    }
+
+    private void ApplyCreditsBackground(bool isBlackBackground)
+    {
+        if (creditsBackgroundImage == null)
+        {
+            return;
+        }
+
+        creditsBackgroundImage.enabled = true;
+        if (isBlackBackground)
+        {
+            creditsBackgroundImage.sprite = null;
+            creditsBackgroundImage.color = Color.black;
+            return;
+        }
+
+        creditsBackgroundImage.sprite = defaultCreditsBackgroundSprite;
+        creditsBackgroundImage.color = defaultCreditsBackgroundColor;
     }
 
     private void HandleSlotChosen(int slotIndex, SlotSelectionController.SlotSelectionMode mode, bool hasSave)
