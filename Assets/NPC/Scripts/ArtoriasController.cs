@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 [RequireComponent(typeof(NavMeshAgent))]
@@ -25,6 +26,10 @@ public class ArtoriasController : MonoBehaviour, IDamageable
 
     [Header("Boss HUD")]
     [SerializeField] private string displayName = "O Ébrio Corrompido";
+
+    [Header("Memory Drop")]
+    [SerializeField] private GameObject memoryPrefab;
+    public int videoIndex = 1;
 
     private static readonly int HashIsWalking  = Animator.StringToHash("IsWalking");
     private static readonly int HashIsRunning  = Animator.StringToHash("IsRunning");
@@ -59,8 +64,29 @@ public class ArtoriasController : MonoBehaviour, IDamageable
         _patrolWaitTimer = patrolWaitTime;
         if (_animator != null) _animator.applyRootMotion = false;
         int el = LayerMask.NameToLayer("Enemy"); if (el >= 0) gameObject.layer = el;
-        if (!_agent.isOnNavMesh) { NavMeshHit h; if (NavMesh.SamplePosition(transform.position, out h, 20f, NavMesh.AllAreas)) _agent.Warp(h.position); }
+        SnapToNavMesh();
         PickPatrolTarget();
+    }
+
+    private void Start()
+    {
+        if (!_agent.isOnNavMesh) SnapToNavMesh();
+    }
+
+    private void SnapToNavMesh()
+    {
+        if (_agent.isOnNavMesh) return;
+        NavMeshHit h;
+        Vector3 searchOrigin = transform.position + Vector3.up * 2f;
+        if (NavMesh.SamplePosition(searchOrigin, out h, 30f, NavMesh.AllAreas) ||
+            NavMesh.SamplePosition(transform.position, out h, 30f, NavMesh.AllAreas))
+        {
+            _agent.enabled = false;
+            transform.position = h.position;
+            _agent.enabled = true;
+            _spawnPosition = h.position;
+        }
+        else Debug.LogWarning($"[ArtoriasController] {name}: NavMesh not found within 30f — bake the NavMesh in this scene.");
     }
 
     private void Update()
@@ -129,7 +155,7 @@ public class ArtoriasController : MonoBehaviour, IDamageable
         if (dist <= attackRange && _player != null && _player.CompareTag("Player"))
         {
             if (_agent.isOnNavMesh) _agent.isStopped = true;
-            _state = State.Attacking; _attackingExitTimer = 0f;
+            _state = State.Attacking; _attackingExitTimer = 0f; _lastAttackTime = Time.time;
             _animator?.SetBool(HashIsWalking, false); _animator?.SetBool(HashIsRunning, false);
         }
         else
@@ -137,7 +163,7 @@ public class ArtoriasController : MonoBehaviour, IDamageable
             if (_agent.isOnNavMesh) { _agent.isStopped = false; _agent.speed = moveSpeed * 1.8f; _agent.SetDestination(_player.position); }
             _animator?.SetBool(HashIsWalking, false); _animator?.SetBool(HashIsRunning, true);
         }
-        if (dist > detectionRange * 2f) { if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); } BossHUDController.Instance?.Hide(); _animator?.SetBool(HashIsRunning, false); _state = State.Patrolling; _player = null; }
+        if (dist > detectionRange + 4f) { if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); } BossHUDController.Instance?.Hide(); _animator?.SetBool(HashIsRunning, false); _state = State.Patrolling; _player = null; }
     }
 
     private void UpdateAttack()
@@ -199,6 +225,28 @@ public class ArtoriasController : MonoBehaviour, IDamageable
                 Mathf.Clamp01(elapsed / shrinkDuration));
             yield return null;
         }
+
+        if (memoryPrefab != null)
+        {
+            var mem = Instantiate(memoryPrefab, transform.position + Vector3.up * 1f, Quaternion.identity);
+            var pickup = mem.GetComponent<MemoryPickup>();
+            if (pickup != null)
+            {
+                string sceneName = SceneManager.GetActiveScene().name;
+                pickup.videoIndex = videoIndex;
+                pickup.completedLevelSceneName = sceneName;
+
+                int completedOtherLevels = 0;
+                if (sceneName != "level_1" && LevelCompletionState.IsCompleted("level_1")) completedOtherLevels++;
+                if (sceneName != "level_2" && LevelCompletionState.IsCompleted("level_2")) completedOtherLevels++;
+                if (sceneName != "level_3" && LevelCompletionState.IsCompleted("level_3")) completedOtherLevels++;
+
+                int memoryNumber = Mathf.Clamp(completedOtherLevels + 1, 1, 3);
+                pickup.videoFileName = $"{memoryNumber}_memoria_v2";
+                pickup.targetSceneName = "masmorra_spawn";
+            }
+        }
+
         Destroy(gameObject);
     }
 

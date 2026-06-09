@@ -17818,7 +17818,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GwynController
   maxHealth: 400
-  attackDamage: 35
+  lightAttackDamage: 10
+  heavyAttackDamage: 20
   attackCooldown: 1.2
   moveSpeed: 2.5
   detectionRange: 14
@@ -17826,6 +17827,9 @@ MonoBehaviour:
   patrolRadius: 10
   patrolWaitTime: 3
   coinReward: 100
+  displayName: O Rei da Embriaguez
+  memoryPrefab: {fileID: 3393817763262611787, guid: e92c546103937ca41a38601eeaef8f4c, type: 3}
+  videoIndex: 1
 --- !u!1 &8303804662674154490
 GameObject:
   m_ObjectHideFlags: 0

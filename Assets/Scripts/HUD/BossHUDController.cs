@@ -12,6 +12,16 @@ public class BossHUDController : MonoBehaviour
     private RectTransform _armorFillRect;
     private TextMeshProUGUI _nameLabel;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void EnsureInstance()
+    {
+        if (Instance == null)
+        {
+            var go = new GameObject("[BossHUD]");
+            go.AddComponent<BossHUDController>();
+        }
+    }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 [RequireComponent(typeof(NavMeshAgent))]
@@ -25,6 +26,10 @@ public class CapraDemonController : MonoBehaviour, IDamageable
 
     [Header("Boss HUD")]
     [SerializeField] private string displayName = "O Bode Viciado";
+
+    [Header("Memory Drop")]
+    [SerializeField] private GameObject memoryPrefab;
+    public int videoIndex = 1;
 
     private static readonly int HashIsWalking  = Animator.StringToHash("IsWalking");
     private static readonly int HashIsRunning  = Animator.StringToHash("IsRunning");
@@ -200,6 +205,27 @@ public class CapraDemonController : MonoBehaviour, IDamageable
                 Mathf.Clamp01(elapsed / shrinkDuration));
             yield return null;
         }
+        if (memoryPrefab != null)
+        {
+            var mem = Instantiate(memoryPrefab, transform.position + Vector3.up * 1f, Quaternion.identity);
+            var pickup = mem.GetComponent<MemoryPickup>();
+            if (pickup != null)
+            {
+                string sceneName = SceneManager.GetActiveScene().name;
+                pickup.videoIndex = videoIndex;
+                pickup.completedLevelSceneName = sceneName;
+
+                int completedOtherLevels = 0;
+                if (sceneName != "level_1" && LevelCompletionState.IsCompleted("level_1")) completedOtherLevels++;
+                if (sceneName != "level_2" && LevelCompletionState.IsCompleted("level_2")) completedOtherLevels++;
+                if (sceneName != "level_3" && LevelCompletionState.IsCompleted("level_3")) completedOtherLevels++;
+
+                int memoryNumber = Mathf.Clamp(completedOtherLevels + 1, 1, 3);
+                pickup.videoFileName = $"{memoryNumber}_memoria_v2";
+                pickup.targetSceneName = "masmorra_spawn";
+            }
+        }
+
         Destroy(gameObject);
     }
 
