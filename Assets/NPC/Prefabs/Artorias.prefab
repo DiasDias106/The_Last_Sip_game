@@ -2052,7 +2052,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArtoriasController
   maxHealth: 300
-  attackDamage: 28
+  lightAttackDamage: 10
+  heavyAttackDamage: 20
   attackCooldown: 1.5
   moveSpeed: 3.5
   detectionRange: 12
@@ -2060,6 +2061,9 @@ MonoBehaviour:
   patrolRadius: 8
   patrolWaitTime: 3
   coinReward: 50
+  displayName: "O \xC9brio Corrompido"
+  memoryPrefab: {fileID: 3393817763262611787, guid: e92c546103937ca41a38601eeaef8f4c, type: 3}
+  videoIndex: 1
 --- !u!1 &1645697195209137153
 GameObject:
   m_ObjectHideFlags: 0
