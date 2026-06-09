@@ -6,9 +6,10 @@ using System.Collections;
 public class GwynController : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
-    public float maxHealth      = 400f;
-    public float attackDamage   = 35f;
-    public float attackCooldown = 1.2f;
+    public float maxHealth         = 300f;
+    public float lightAttackDamage = 10f;
+    public float heavyAttackDamage = 20f;
+    public float attackCooldown    = 1.2f;
     public float moveSpeed      = 2.5f;
 
     [Header("Detection")]
@@ -21,6 +22,9 @@ public class GwynController : MonoBehaviour, IDamageable
 
     [Header("Rewards")]
     public int coinReward = 100;
+
+    [Header("Boss HUD")]
+    [SerializeField] private string displayName = "O Rei da Embriaguez";
 
     private static readonly int HashIsWalking  = Animator.StringToHash("IsWalking");
     private static readonly int HashIsRunning  = Animator.StringToHash("IsRunning");
@@ -70,9 +74,12 @@ public class GwynController : MonoBehaviour, IDamageable
             if (_playerHealth != null && _playerHealth.IsDead)
             {
                 _player = null; _playerHealth = null;
-                if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); }
+                if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); BossHUDController.Instance?.Hide(); }
                 _animator?.SetBool(HashIsWalking, false); _animator?.SetBool(HashIsRunning, false);
-                _state = State.Patrolling;
+                _animator?.Play("Idle");
+                if (_agent.isOnNavMesh) _agent.isStopped = true;
+                _state = State.Idle;
+                return;
             }
         }
 
@@ -93,7 +100,7 @@ public class GwynController : MonoBehaviour, IDamageable
             var ph = col.GetComponentInParent<PlayerHealth>() ?? col.GetComponentInChildren<PlayerHealth>();
             if (ph != null && ph.IsDead) continue;
             _player = col.transform;
-            if (!_inCombat) { _inCombat = true; GameMusicManager.Instance?.EnterCombat(); }
+            if (!_inCombat) { _inCombat = true; GameMusicManager.Instance?.EnterCombat(); BossHUDController.Instance?.SetName(displayName); BossHUDController.Instance?.Show(); BossHUDController.Instance?.Refresh(_health, maxHealth); }
             _state = State.Chasing; break;
         }
     }
@@ -130,7 +137,7 @@ public class GwynController : MonoBehaviour, IDamageable
             if (_agent.isOnNavMesh) { _agent.isStopped = false; _agent.speed = moveSpeed; _agent.SetDestination(_player.position); }
             _animator?.SetBool(HashIsWalking, false); _animator?.SetBool(HashIsRunning, true);
         }
-        if (dist > detectionRange * 2f) { if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); } _animator?.SetBool(HashIsRunning, false); _state = State.Patrolling; _player = null; }
+        if (dist > detectionRange * 2f) { if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); } BossHUDController.Instance?.Hide(); _animator?.SetBool(HashIsRunning, false); _state = State.Patrolling; _player = null; }
     }
 
     private void UpdateAttack()
@@ -144,10 +151,11 @@ public class GwynController : MonoBehaviour, IDamageable
         if (Time.time >= _lastAttackTime + attackCooldown && _player != null && _player.CompareTag("Player"))
         {
             _lastAttackTime = Time.time;
+            bool isHeavy = (_attackStep % 3) == 1;
             var hash = (_attackStep % 3) == 0 ? HashAttack : (_attackStep % 3) == 1 ? HashAttack2 : HashAttack3;
             _animator?.SetTrigger(hash); _attackStep++;
             var ph = _player.GetComponentInParent<PlayerHealth>() ?? _player.GetComponentInChildren<PlayerHealth>();
-            ph?.TakeDamage(attackDamage);
+            if (ph != null && !ph.IsDead) ph.TakeDamage(isHeavy ? heavyAttackDamage : lightAttackDamage);
         }
     }
 
@@ -155,8 +163,9 @@ public class GwynController : MonoBehaviour, IDamageable
     {
         if (_state == State.Dead) return;
         _health -= amount;
-        if (_player == null) { _player = GameObject.FindGameObjectWithTag("Player")?.transform; if (!_inCombat) { _inCombat = true; GameMusicManager.Instance?.EnterCombat(); } _state = State.Chasing; }
+        if (_player == null) { _player = GameObject.FindGameObjectWithTag("Player")?.transform; if (!_inCombat) { _inCombat = true; GameMusicManager.Instance?.EnterCombat(); BossHUDController.Instance?.SetName(displayName); BossHUDController.Instance?.Show(); } _state = State.Chasing; }
         _animator?.SetTrigger(HashTakeDamage);
+        BossHUDController.Instance?.Refresh(_health, maxHealth);
         if (_health <= 0f) Die();
     }
 
@@ -164,9 +173,9 @@ public class GwynController : MonoBehaviour, IDamageable
     {
         _state = State.Dead;
         if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); }
+        BossHUDController.Instance?.Hide();
         if (_agent.isOnNavMesh) _agent.isStopped = true;
         _agent.enabled = false;
-        // Voltar ao idle antes de morrer (pose neutra, nao pose de ataque)
         _animator?.SetBool(HashIsWalking, false);
         _animator?.SetBool(HashIsRunning, false);
         _animator?.Play("Idle");

@@ -198,6 +198,7 @@ public sealed class PauseMenuController : MonoBehaviour
         isPaused = true;
         isTransitioning = true;
         Time.timeScale = 0f;
+        AudioListener.pause = true;
         menuAudioManager?.SetRuntimeMusicMultiplier(pauseMusicMultiplier);
         SetOverlayVisible(true);
         pausePanel?.Show();
@@ -310,6 +311,7 @@ public sealed class PauseMenuController : MonoBehaviour
         SetOverlayVisible(false);
         SetCursorState(false);
         menuAudioManager?.SetRuntimeMusicMultiplier(1f);
+        AudioListener.pause = false;
         Time.timeScale = 1f;
         isPaused = false;
         isTransitioning = false;

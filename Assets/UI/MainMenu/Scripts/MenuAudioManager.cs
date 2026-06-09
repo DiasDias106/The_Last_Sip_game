@@ -269,6 +269,7 @@ public sealed class MenuAudioManager : MonoBehaviour
             ambientMusicSource.playOnAwake = false;
             ambientMusicSource.loop = true;
             ambientMusicSource.clip = ambientMusicClip;
+            ambientMusicSource.ignoreListenerPause = true;
 
             if (ambientMusicClip != null && !ambientMusicSource.isPlaying)
             {
@@ -281,6 +282,7 @@ public sealed class MenuAudioManager : MonoBehaviour
             uiSfxSource.playOnAwake = false;
             uiSfxSource.loop = false;
             uiSfxSource.clip = null;
+            uiSfxSource.ignoreListenerPause = true;
         }
     }
 

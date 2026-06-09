@@ -61,6 +61,7 @@ public class UserImportedPlayerController : MonoBehaviour
     
     private AudioClip _footstepSound;
     private AudioSource _footstepAudioSource;
+    private float _walkFootstepPitch = 1.0f;
     
     private AudioClip _drinkSound;
     private AudioClip _jumpSound;
@@ -112,9 +113,10 @@ public class UserImportedPlayerController : MonoBehaviour
     private bool _isBecoScavengerMode;
     private Transform _cameraFollowOverride;
     private bool _cameraFollowOverrideAlign;
+    private Vector3 _lastPosition;
     private float _cameraFollowOverridePitch = 14f;
     private const float PotionDrinkStartTime = 1.97f;
-    private const float PotionDrinkPlaybackSpeed = 2f;
+    private const float PotionDrinkPlaybackSpeed = 1f;
 
     public bool IsScriptedSequencePlaying => _isScriptedSequencePlaying;
     public bool IsExternalControlLocked => _externalControlLocked;
@@ -224,11 +226,13 @@ public class UserImportedPlayerController : MonoBehaviour
         {
             walkSpeed = 0.7f; // Reduz a velocidade para coincidir com o andar bebado
             runSpeed = 3.0f;
+            _walkFootstepPitch = 0.85f; // Ajustado para não ficar nem muito rápido nem muito lento
         }
         else
         {
-            walkSpeed = 2.25f; // Velocidade normal
+            walkSpeed = 2.25f;
             runSpeed = 4.5f;
+            _walkFootstepPitch = 1.0f;
         }
 
         _controller = GetComponent<CharacterController>();
@@ -267,8 +271,20 @@ public class UserImportedPlayerController : MonoBehaviour
             _jumpAudioSource.volume = 0.85f;
         }
 
-        _footstepSound = Resources.Load<AudioClip>("footsteps"); 
+
+        string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        if (IsBecoScene(currentScene))
+        {
+            _footstepSound = Resources.Load<AudioClip>("footsteps_gravel");
+        }
+        else
+        {
+            _footstepSound = Resources.Load<AudioClip>("footsteps");
+        }
+        
+        // Fallback no caso do ficheiro principal não ser encontrado
         if (_footstepSound == null) _footstepSound = Resources.Load<AudioClip>("footsteps_gravel");
+
         if (_footstepSound != null)
         {
             _footstepAudioSource = gameObject.AddComponent<AudioSource>();
@@ -307,6 +323,14 @@ public class UserImportedPlayerController : MonoBehaviour
 
         if (_externalControlLocked)
         {
+            float dt = Time.deltaTime;
+            if (dt > 0.0001f)
+            {
+                Vector3 realVel = (transform.position - _lastPosition) / dt;
+                _currentMovementVelocity = new Vector3(realVel.x, 0f, realVel.z);
+            }
+            _lastPosition = transform.position;
+
             if (_controller.enabled)
             {
                 bool externalGrounded = _controller.isGrounded;
@@ -321,6 +345,7 @@ public class UserImportedPlayerController : MonoBehaviour
 
             UpdateAnimationTransition();
             SampleCurrentClip();
+            UpdateFootstepAudio(_controller.enabled ? _controller.isGrounded : true);
             return;
         }
 
@@ -366,6 +391,8 @@ public class UserImportedPlayerController : MonoBehaviour
         UpdateFootstepAudio(grounded);
         UpdateAnimationTransition();
         SampleCurrentClip();
+        
+        _lastPosition = transform.position;
     }
 
     private void UpdateFootstepAudio(bool grounded)
@@ -378,12 +405,14 @@ public class UserImportedPlayerController : MonoBehaviour
 
         Vector3 hVel = new Vector3(_currentMovementVelocity.x, 0f, _currentMovementVelocity.z);
         bool isMoving = hVel.sqrMagnitude > 0.1f && grounded && _moveState != MoveState.Rolling && _moveState != MoveState.HitReact;
-        bool run = isMoving && hVel.sqrMagnitude > (walkSpeed * walkSpeed * 1.1f);
+        
+        // Bloqueia a passagem a 'run' durante cutscenes para evitar oscilações de pitch devido a micro-saltos nas frames
+        bool run = isMoving && !_externalControlLocked && hVel.sqrMagnitude > (walkSpeed * walkSpeed * 1.1f);
 
         if (isMoving)
         {
             float targetVolume = run ? 1.0f : 0.85f;
-            float targetPitch  = run ? 1.45f : 1.0f;
+            float targetPitch  = run ? 1.45f : _walkFootstepPitch;
             
             _footstepAudioSource.volume = Mathf.Lerp(_footstepAudioSource.volume, targetVolume, Time.deltaTime * 15f);
             _footstepAudioSource.pitch = Mathf.Lerp(_footstepAudioSource.pitch, targetPitch, Time.deltaTime * 10f);
@@ -424,16 +453,22 @@ public class UserImportedPlayerController : MonoBehaviour
         AttachBottleToRightHand(bottleTransform);
         yield return WaitForSecondsRoutine(0.1f);
 
-        if (_drinkSound != null && _combatAudioSource != null)
-        {
-            _combatAudioSource.pitch = 1.0f;
-            _combatAudioSource.PlayOneShot(_drinkSound, 1.0f);
-        }
-
         if (drinkIntroClip != null)
         {
             PlayDirectClipImmediate(drinkIntroClip, 0f, 1f);
-            yield return WaitForClipSeconds(drinkIntroClip, 1f, 5f);
+            float introDuration = Mathf.Clamp(drinkIntroClip.length, 0f, 5f);
+            yield return WaitForSecondsRoutine(Mathf.Max(0f, introDuration - 1f));
+            if (_drinkSound != null && _combatAudioSource != null)
+            {
+                _combatAudioSource.pitch = 1.0f;
+                _combatAudioSource.PlayOneShot(_drinkSound, 1.0f);
+            }
+            yield return WaitForSecondsRoutine(Mathf.Min(1f, introDuration));
+        }
+        else if (_drinkSound != null && _combatAudioSource != null)
+        {
+            _combatAudioSource.pitch = 1.0f;
+            _combatAudioSource.PlayOneShot(_drinkSound, 1.0f);
         }
 
         if (drinkLoopClip != null)
@@ -486,7 +521,7 @@ public class UserImportedPlayerController : MonoBehaviour
         if (_potionDrinkLoopClip != null)
         {
             PlayDrinkOverlayClip(_potionDrinkLoopClip, PotionDrinkStartTime, PotionDrinkPlaybackSpeed);
-            
+
             if (_drinkSound != null && _combatAudioSource != null)
             {
                 _combatAudioSource.pitch = 1.0f;
@@ -504,11 +539,10 @@ public class UserImportedPlayerController : MonoBehaviour
         yield return WaitForSecondsRoutine(0.15f);
 
         if (_moveState == MoveState.Drinking)
-        {
             _moveState = MoveState.Locomotion;
-            StopDrinkOverlay();
+        StopDrinkOverlay();
+        if (_moveState == MoveState.Locomotion)
             PlayClip("idle");
-        }
         _activeScriptedSequence = null;
     }
 
@@ -724,19 +758,8 @@ public class UserImportedPlayerController : MonoBehaviour
         _currentMovementVelocity = Vector3.SmoothDamp(
             _currentMovementVelocity, targetVel, ref _movementVelocityRef, movementSmoothTime);
 
-        if (!_isBecoScavengerMode && grounded && GetJumpPressed()) 
-        {
-            _verticalVelocity = jumpForce;
-            if (_jumpAudioSource != null)
-            {
-                _jumpAudioSource.pitch = 1.0f;
-                _jumpAudioSource.time = 0.15f; // Salta os primeiros 150ms de silêncio
-                _jumpAudioSource.Play();
-                if (_jumpStopCoroutine != null) StopCoroutine(_jumpStopCoroutine);
-                _jumpStopCoroutine = StartCoroutine(StopJumpAudioRoutine(0.75f));
-            }
-        }
         _verticalVelocity += gravity * Time.deltaTime;
+        if (grounded && _verticalVelocity < 0f) _verticalVelocity = -1f;
 
         Vector3 move = _currentMovementVelocity;
         move.y = _verticalVelocity;
@@ -754,7 +777,8 @@ public class UserImportedPlayerController : MonoBehaviour
         else if (run)
             PlayClip("run");
         else
-            PlayClip(_inCombat ? "walkCombat" : "walk");
+            PlayClip("walk");
+
     }
 
     void EnterAttack()
@@ -957,6 +981,12 @@ public class UserImportedPlayerController : MonoBehaviour
         _isScriptedSequencePlaying = false;
 
         PlayClip("knockdown");
+        
+        if (_footstepAudioSource != null)
+        {
+            _footstepAudioSource.volume = 0f;
+            _footstepAudioSource.Stop();
+        }
         
         if (_deathSound != null && _combatAudioSource != null)
         {
@@ -1478,10 +1508,10 @@ public class UserImportedPlayerController : MonoBehaviour
         AvatarMask mask = new AvatarMask();
         foreach (AvatarMaskBodyPart bodyPart in Enum.GetValues(typeof(AvatarMaskBodyPart)))
         {
+            if (bodyPart == AvatarMaskBodyPart.LastBodyPart) continue;
             mask.SetHumanoidBodyPartActive(bodyPart, false);
         }
 
-        mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.Body, true);
         mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.Head, true);
         mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.LeftArm, true);
         mask.SetHumanoidBodyPartActive(AvatarMaskBodyPart.RightArm, true);

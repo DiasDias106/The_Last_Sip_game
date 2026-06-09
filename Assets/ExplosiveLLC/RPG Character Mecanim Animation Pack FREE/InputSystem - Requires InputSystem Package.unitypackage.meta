@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/InputSystem - Requires InputSystem Package.unitypackage.meta
 guid: d3a9c9d842043b54aa5429606b7dab7e
+========
+guid: 78df972f44564964f8ef0f45f2af0cd8
+>>>>>>>> develop/testing:Assets/_Recovery/0 (1).unity.meta
 DefaultImporter:
   externalObjects: {}
   userData: 
