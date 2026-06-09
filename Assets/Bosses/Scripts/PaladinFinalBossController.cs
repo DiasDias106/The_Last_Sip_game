@@ -49,6 +49,7 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
     private bool isDead;
     private bool isAttacking;
     private bool isHitReacting;
+    private AudioClip _deathSound;
 
     private PlayableGraph playableGraph;
     private AnimationMixerPlayable mixerPlayable;
@@ -108,6 +109,7 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         LoadClips();
         EnsureAnimationGraph();
         PlayClip("idle");
+        _deathSound = Resources.Load<AudioClip>("death_fall");
 
 #if UNITY_EDITOR
         if (memoryPrefab == null)
@@ -313,6 +315,7 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         }
 
         PlayClip("death");
+        StartCoroutine(PlayDeathSoundRoutine());
         yield return new WaitForSeconds(deathAnimTime);
 
         if (memoryPrefab != null)
@@ -332,6 +335,19 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
 
         BossHUDController.Instance?.Hide();
         Destroy(gameObject);
+    }
+
+    private IEnumerator PlayDeathSoundRoutine()
+    {
+        yield return new WaitForSeconds(0.4f);
+        if (_deathSound != null)
+        {
+            AudioSource audio = gameObject.AddComponent<AudioSource>();
+            audio.spatialBlend = 0f;
+            audio.PlayOneShot(_deathSound, 1.0f);
+            audio.PlayOneShot(_deathSound, 1.0f);
+            audio.PlayOneShot(_deathSound, 1.0f);
+        }
     }
 
     private void DealDamage()
@@ -399,8 +415,7 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         Override("attack1", s2 + "Attack1.FBX");
         Override("getHit", s2 + "GetHit-F1.FBX");
 
-        string deathPath = "Assets/Resources/UserImportedCharacter/sword and shield death.fbx";
-        Override("death", deathPath);
+        Override("death", s2 + "Knockdown1.FBX");
 #endif
 
         LoadRuntimeBossClip("idle", "2Hand-Sword-Idle");

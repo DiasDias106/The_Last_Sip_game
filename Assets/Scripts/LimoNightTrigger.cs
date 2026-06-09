@@ -21,7 +21,7 @@ public class LimoNightTrigger : MonoBehaviour
     [SerializeField] private AudioClip engineSound;
     [SerializeField] private AudioClip crashSound;
     [SerializeField] private float engineVolume = 0.8f;
-    [SerializeField] private float crashVolume = 1.0f;
+    [SerializeField] private float crashVolume = 0.5f;
     [SerializeField] private bool loopEngineSound = false;
     [SerializeField, Range(0.1f, 3f)] private float enginePitch = 1.0f;
 
