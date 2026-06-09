@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 public sealed class MainMenuController : MonoBehaviour
 {
     private const string PendingSceneKey = "__PENDING_LOAD_SCENE__";
+    private const string DeathRetrySlotKey = "__DR_SLOT__";
 
     [Header("Audio")]
     [SerializeField] private MenuAudioManager menuAudioManager;
@@ -53,6 +54,11 @@ public sealed class MainMenuController : MonoBehaviour
     private bool pendingCreditsLaunchQueued;
     private Sprite defaultCreditsBackgroundSprite;
     private Color defaultCreditsBackgroundColor = Color.white;
+    private bool consumeDeathRetryFlagOnStart;
+    private bool consumePendingSceneFlagOnStart;
+    private bool consumePendingCreditsFlagOnStart;
+    private bool restoreDeathRetrySlotOnStart;
+    private int pendingDeathRetrySlot = -1;
 
     private void Awake()
     {
@@ -106,8 +112,13 @@ public sealed class MainMenuController : MonoBehaviour
         bool deathRetry = PlayerPrefs.GetInt("__DR__", 0) == 1;
         if (deathRetry)
         {
-            PlayerPrefs.DeleteKey("__DR__");
-            PlayerPrefs.Save();
+            consumeDeathRetryFlagOnStart = true;
+        }
+
+        pendingDeathRetrySlot = PlayerPrefs.GetInt(DeathRetrySlotKey, -1);
+        if (pendingDeathRetrySlot > 0)
+        {
+            restoreDeathRetrySlotOnStart = true;
         }
 
         pendingSceneFromTransition = !string.IsNullOrWhiteSpace(GlobalSceneTransitionRequest.PendingSceneName)
@@ -115,15 +126,13 @@ public sealed class MainMenuController : MonoBehaviour
             : PlayerPrefs.GetString(PendingSceneKey, string.Empty);
         if (!string.IsNullOrWhiteSpace(pendingSceneFromTransition))
         {
-            GlobalSceneTransitionRequest.PendingSceneName = null;
-            PlayerPrefs.DeleteKey(PendingSceneKey);
-            PlayerPrefs.Save();
+            consumePendingSceneFlagOnStart = true;
             pendingSceneLaunchQueued = true;
         }
 
         if (GlobalSceneTransitionRequest.PendingOpenCredits)
         {
-            GlobalSceneTransitionRequest.PendingOpenCredits = false;
+            consumePendingCreditsFlagOnStart = true;
             pendingCreditsLaunchQueued = true;
         }
 
@@ -200,6 +209,8 @@ public sealed class MainMenuController : MonoBehaviour
 
     private void Start()
     {
+        ConsumeStartupTransitionFlags();
+
         if (pendingSceneLaunchQueued)
         {
             StartCoroutine(BeginPendingSceneTransition());
@@ -210,6 +221,46 @@ public sealed class MainMenuController : MonoBehaviour
         {
             pendingCreditsLaunchQueued = false;
             StartCoroutine(OpenCreditsFromGameTransition());
+        }
+    }
+
+    private void ConsumeStartupTransitionFlags()
+    {
+        bool prefsChanged = false;
+
+        if (restoreDeathRetrySlotOnStart && pendingDeathRetrySlot > 0)
+        {
+            SaveManager.SetActiveSlot(pendingDeathRetrySlot);
+            PlayerPrefs.DeleteKey(DeathRetrySlotKey);
+            restoreDeathRetrySlotOnStart = false;
+            pendingDeathRetrySlot = -1;
+            prefsChanged = true;
+        }
+
+        if (consumeDeathRetryFlagOnStart)
+        {
+            PlayerPrefs.DeleteKey("__DR__");
+            consumeDeathRetryFlagOnStart = false;
+            prefsChanged = true;
+        }
+
+        if (consumePendingSceneFlagOnStart)
+        {
+            GlobalSceneTransitionRequest.PendingSceneName = null;
+            PlayerPrefs.DeleteKey(PendingSceneKey);
+            consumePendingSceneFlagOnStart = false;
+            prefsChanged = true;
+        }
+
+        if (consumePendingCreditsFlagOnStart)
+        {
+            GlobalSceneTransitionRequest.PendingOpenCredits = false;
+            consumePendingCreditsFlagOnStart = false;
+        }
+
+        if (prefsChanged)
+        {
+            PlayerPrefs.Save();
         }
     }
 
