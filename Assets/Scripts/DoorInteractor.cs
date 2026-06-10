@@ -75,7 +75,8 @@ public class DoorInteractor : MonoBehaviour
             }
         }
 
-        Vector3 screen = targetCamera.WorldToScreenPoint(_nearestDoor.PromptWorldPosition);
+        Vector3 promptPos = GetDoorCenterWorld(_nearestDoor.gameObject);
+        Vector3 screen = targetCamera.WorldToScreenPoint(promptPos);
         if (screen.z <= 0f)
         {
             return;
@@ -88,6 +89,19 @@ public class DoorInteractor : MonoBehaviour
         float height = _promptStyle.CalcHeight(content, width);
         Rect rect = new Rect(screen.x - width * 0.5f, Screen.height - screen.y - height * 0.5f, width, height);
         GUI.Label(rect, text, _promptStyle);
+    }
+
+    private static Vector3 GetDoorCenterWorld(GameObject door)
+    {
+        Renderer[] renderers = door.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+            return door.transform.position;
+
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+            bounds.Encapsulate(renderers[i].bounds);
+
+        return bounds.center;
     }
 
     private void EnsureStyle()
