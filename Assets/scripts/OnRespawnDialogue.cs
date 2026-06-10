@@ -14,6 +14,10 @@ public class OnRespawnDialogue : MonoBehaviour
             PlayerPrefs.SetInt("JustRespawned", 0);
             PlayerPrefs.Save();
 
+            // Não tocar o diálogo de morte no beco_noite
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "beco_noite")
+                return;
+
             if (dialogueMorreu != null && DialogueUIManager.Instance != null)
             {
                 // Esperar um bocadinho para a cena carregar completamente (o ecrã de loading demora uns segundos)

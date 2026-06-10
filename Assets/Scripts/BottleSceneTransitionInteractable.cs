@@ -165,6 +165,11 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     private void BeginScreenTransition()
     {
         DisableVisualsAndColliders();
+        
+        // Limpar a flag de morte para evitar que toque o diálogo de morte na próxima cena se o jogador tiver morrido no beco
+        PlayerPrefs.SetInt("JustRespawned", 0);
+        PlayerPrefs.Save();
+
         PlayerHealth.PreserveCurrentForSceneTransition(targetSceneName);
         SaveManager.SaveActiveSlotFromCurrentScene(targetSceneName);
         RuntimeSceneTransitionOverlay.BeginTransition(targetSceneName, blackScreenDuration);
