@@ -17748,7 +17748,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -26}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &1266072284
@@ -17779,8 +17779,8 @@ MonoBehaviour:
   panelTransform: {fileID: 1266072283}
   transitionDuration: 0.28
   shownScale: {x: 1, y: 1, z: 1}
-  hiddenScale: {x: 0.92, y: 0.92, z: 1}
-  hiddenOffset: {x: 0, y: -26}
+  hiddenScale: {x: 1, y: 1, z: 1}
+  hiddenOffset: {x: 0, y: 0}
 --- !u!1 &1273345315
 GameObject:
   m_ObjectHideFlags: 0

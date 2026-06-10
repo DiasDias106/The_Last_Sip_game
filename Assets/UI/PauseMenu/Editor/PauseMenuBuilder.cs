@@ -364,8 +364,6 @@ public static class PauseMenuBuilder
         tabLayout.childForceExpandHeight = false;
         tabLayout.childForceExpandWidth = false;
 
-        GameObject gameTab = CreateSettingsTab(leftTabs.transform, "GameTab", "JOGO", false, tmpFont);
-        GameObject graphicsTab = CreateSettingsTab(leftTabs.transform, "GraphicsTab", "GRAFICOS", false, tmpFont);
         GameObject audioTab = CreateSettingsTab(leftTabs.transform, "AudioTab", "AUDIO", true, tmpFont);
         GameObject controlsTab = CreateSettingsTab(leftTabs.transform, "ControlsTab", "CONTROLOS", false, tmpFont);
         GameObject languageTab = CreateSettingsTab(leftTabs.transform, "LanguageTab", "IDIOMA", false, tmpFont);
@@ -385,9 +383,6 @@ public static class PauseMenuBuilder
 
         GameObject sectionsRoot = CreateUIObject("SectionsRoot", rightContent.transform);
         SetRect(RectOf(sectionsRoot), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, -74f), new Vector2(780f, 364f));
-
-        GameObject gameSection = CreatePlaceholderSection(sectionsRoot.transform, "GameSection", "Nenhuma opcao disponivel por agora.", tmpFont);
-        GameObject graphicsSection = CreatePlaceholderSection(sectionsRoot.transform, "GraphicsSection", "Nenhuma opcao disponivel por agora.", tmpFont);
 
         GameObject audioSection = CreateUIObject("AudioSection", sectionsRoot.transform);
         StretchFull(RectOf(audioSection));
@@ -453,12 +448,12 @@ public static class PauseMenuBuilder
         SetObjectField(view, "resetDefaultsButton", resetButton);
         SetObjectField(view, "activeTabSprite", null);
         SetObjectField(view, "inactiveTabSprite", null);
-        SetButtonArrayField(view, "tabButtons", new[] { gameTab.GetComponent<Button>(), graphicsTab.GetComponent<Button>(), audioTab.GetComponent<Button>(), controlsTab.GetComponent<Button>(), languageTab.GetComponent<Button>() });
-        SetImageArrayField(view, "tabBackgrounds", new[] { gameTab.GetComponent<Image>(), graphicsTab.GetComponent<Image>(), audioTab.GetComponent<Image>(), controlsTab.GetComponent<Image>(), languageTab.GetComponent<Image>() });
-        SetTextArrayField(view, "tabLabels", new[] { FindChildText(gameTab.transform, "Label"), FindChildText(graphicsTab.transform, "Label"), FindChildText(audioTab.transform, "Label"), FindChildText(controlsTab.transform, "Label"), FindChildText(languageTab.transform, "Label") });
-        SetGameObjectArrayField(view, "selectedMarkers", new[] { FindChild(gameTab.transform, "SelectedMarker"), FindChild(graphicsTab.transform, "SelectedMarker"), FindChild(audioTab.transform, "SelectedMarker"), FindChild(controlsTab.transform, "SelectedMarker"), FindChild(languageTab.transform, "SelectedMarker") });
-        SetGameObjectArrayField(view, "sections", new[] { gameSection, graphicsSection, audioSection, controlsSection, languageSection });
-        SetStringArrayField(view, "sectionTitles", new[] { "JOGO", "GRAFICOS", "AUDIO", "CONTROLOS", "IDIOMA" });
+        SetButtonArrayField(view, "tabButtons", new[] { audioTab.GetComponent<Button>(), controlsTab.GetComponent<Button>(), languageTab.GetComponent<Button>() });
+        SetImageArrayField(view, "tabBackgrounds", new[] { audioTab.GetComponent<Image>(), controlsTab.GetComponent<Image>(), languageTab.GetComponent<Image>() });
+        SetTextArrayField(view, "tabLabels", new[] { FindChildText(audioTab.transform, "Label"), FindChildText(controlsTab.transform, "Label"), FindChildText(languageTab.transform, "Label") });
+        SetGameObjectArrayField(view, "selectedMarkers", new[] { FindChild(audioTab.transform, "SelectedMarker"), FindChild(controlsTab.transform, "SelectedMarker"), FindChild(languageTab.transform, "SelectedMarker") });
+        SetGameObjectArrayField(view, "sections", new[] { audioSection, controlsSection, languageSection });
+        SetStringArrayField(view, "sectionTitles", new[] { "audio", "controls", "language" });
 
         return root;
     }

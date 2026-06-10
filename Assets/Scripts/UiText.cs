@@ -214,12 +214,28 @@ public static class UiText
     {
         return index switch
         {
-            0 => Choose("JOGO", "GAME"),
-            1 => Choose("GR\u00c1FICOS", "GRAPHICS"),
-            2 => Choose("\u00c1UDIO", "AUDIO"),
-            3 => Choose("CONTROLOS", "CONTROLS"),
-            4 => Choose("IDIOMA", "LANGUAGE"),
+            0 => Choose("\u00c1UDIO", "AUDIO"),
+            1 => Choose("CONTROLOS", "CONTROLS"),
+            2 => Choose("IDIOMA", "LANGUAGE"),
             _ => string.Empty
+        };
+    }
+
+    public static string GetOptionsSectionTitle(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return string.Empty;
+        }
+
+        return key.Trim().ToLowerInvariant() switch
+        {
+            "audio" or "\u00e1udio" => Choose("\u00c1UDIO", "AUDIO"),
+            "controls" or "controlos" or "controles" => Choose("CONTROLOS", "CONTROLS"),
+            "language" or "idioma" => Choose("IDIOMA", "LANGUAGE"),
+            "game" or "jogo" => Choose("JOGO", "GAME"),
+            "graphics" or "gr\u00e1ficos" or "graficos" => Choose("GR\u00c1FICOS", "GRAPHICS"),
+            _ => key
         };
     }
 

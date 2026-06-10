@@ -37,7 +37,7 @@ public sealed class MenuPanelController : MonoBehaviour
 
         if (panelTransform != null)
         {
-            shownAnchoredPosition = panelTransform.anchoredPosition;
+            shownAnchoredPosition = ResolveShownPosition(panelTransform);
         }
     }
 
@@ -146,7 +146,7 @@ public sealed class MenuPanelController : MonoBehaviour
 
         if (panelTransform != null)
         {
-            shownAnchoredPosition = panelTransform.anchoredPosition;
+            shownAnchoredPosition = ResolveShownPosition(panelTransform);
         }
     }
 
@@ -160,5 +160,21 @@ public sealed class MenuPanelController : MonoBehaviour
 
         Vector2 targetPosition = shownAnchoredPosition + hiddenOffset;
         SetState(false, 0f, targetPosition);
+    }
+
+    private static Vector2 ResolveShownPosition(RectTransform rect)
+    {
+        if (rect == null)
+        {
+            return Vector2.zero;
+        }
+
+        bool isFullscreenStretch =
+            rect.anchorMin == Vector2.zero &&
+            rect.anchorMax == Vector2.one &&
+            rect.offsetMin == Vector2.zero &&
+            rect.offsetMax == Vector2.zero;
+
+        return isFullscreenStretch ? Vector2.zero : rect.anchoredPosition;
     }
 }

@@ -47,10 +47,11 @@ public sealed class OptionsPanelView : MonoBehaviour
         public TMP_Text valueText;
     }
 
+    private static readonly string[] ActiveSectionKeys = { "audio", "controls", "language" };
     private const string AudioModeKey = "MainMenu.AudioMode";
     private const string SubtitlesKey = "MainMenu.Subtitles";
     private const string LanguageKey = "MainMenu.Language";
-    private const float ControlsRowHeight = 60f;
+    private const float ControlsRowHeight = 70f;
     private const float ControlsContentWidth = 780f;
     private static readonly (string RowName, string Label, string Value)[] SupplementalControlRows =
     {
@@ -126,13 +127,16 @@ public sealed class OptionsPanelView : MonoBehaviour
     private int audioModeIndex;
     private int subtitlesIndex;
     private int languageIndex;
-    private int selectedSectionIndex = 2;
+    private int selectedSectionIndex;
     private int hoveredTabIndex = -1;
     private bool hoverEventsBound;
+    private bool layoutRefreshQueued;
     private SettingsSnapshot appliedSnapshot;
 
     private void Awake()
     {
+        EnsureFullscreenLayout();
+        NormalizeLegacySections();
         ResolveControlBindingReferences();
         LoadInitialState();
         ApplyLocalizedStaticLabels();
@@ -141,6 +145,9 @@ public sealed class OptionsPanelView : MonoBehaviour
 
     private void OnEnable()
     {
+        layoutRefreshQueued = true;
+        EnsureFullscreenLayout();
+        NormalizeLegacySections();
         Bind();
         if (LanguageManager.Instance != null)
         {
@@ -164,6 +171,12 @@ public sealed class OptionsPanelView : MonoBehaviour
 
     private void Update()
     {
+        if (layoutRefreshQueued)
+        {
+            EnsureFullscreenLayout();
+            layoutRefreshQueued = false;
+        }
+
 #if ENABLE_INPUT_SYSTEM
         if (!listeningAction.HasValue)
         {
@@ -410,7 +423,7 @@ public sealed class OptionsPanelView : MonoBehaviour
 
         if (sectionTitleText != null && selectedSectionIndex < sectionTitles.Length)
         {
-            sectionTitleText.text = UiText.GetOptionsSectionTitle(selectedSectionIndex);
+            sectionTitleText.text = UiText.GetOptionsSectionTitle(sectionTitles[selectedSectionIndex]);
         }
     }
 
@@ -427,7 +440,8 @@ public sealed class OptionsPanelView : MonoBehaviour
         {
             if (tabLabels[i] != null)
             {
-                tabLabels[i].text = UiText.GetOptionsSectionTitle(i);
+                string key = i < sectionTitles.Length ? sectionTitles[i] : string.Empty;
+                tabLabels[i].text = UiText.GetOptionsSectionTitle(key);
             }
         }
 
@@ -514,6 +528,51 @@ public sealed class OptionsPanelView : MonoBehaviour
         if (languageValueText != null) languageValueText.text = UiText.GetSelectorLabel("language", languageIndex);
     }
 
+    private void EnsureFullscreenLayout()
+    {
+        RectTransform rootRect = transform as RectTransform;
+        if (rootRect != null)
+        {
+            rootRect.anchorMin = Vector2.zero;
+            rootRect.anchorMax = Vector2.one;
+            rootRect.offsetMin = Vector2.zero;
+            rootRect.offsetMax = Vector2.zero;
+            rootRect.anchoredPosition = Vector2.zero;
+            rootRect.sizeDelta = Vector2.zero;
+        }
+
+        StretchChildFull("SettingsBackground");
+        StretchChildFull("PanelShade");
+    }
+
+    private void OnRectTransformDimensionsChange()
+    {
+        layoutRefreshQueued = true;
+    }
+
+    private void NormalizeLegacySections()
+    {
+        tabButtons = FilterArray(tabButtons, button => !ShouldHideSection(GetSectionOwner(button != null ? button.gameObject : null)));
+        tabBackgrounds = FilterArray(tabBackgrounds, image => !ShouldHideSection(GetSectionOwner(image != null ? image.gameObject : null)));
+        tabLabels = FilterArray(tabLabels, text => !ShouldHideSection(GetSectionOwner(text != null ? text.gameObject : null)));
+        selectedMarkers = FilterArray(selectedMarkers, marker => !ShouldHideSection(GetSectionOwner(marker)));
+        sections = FilterArray(sections, section => !ShouldHideSection(section));
+
+        foreach (Transform child in GetComponentsInChildren<Transform>(true))
+        {
+            if (child != null && ShouldHideSection(child.gameObject))
+            {
+                child.gameObject.SetActive(false);
+            }
+        }
+
+        sectionTitles = ActiveSectionKeys;
+        if (selectedSectionIndex >= sectionTitles.Length)
+        {
+            selectedSectionIndex = 0;
+        }
+    }
+
     private void ResolveControlBindingReferences()
     {
         controlsSectionRoot = null;
@@ -533,6 +592,35 @@ public sealed class OptionsPanelView : MonoBehaviour
         EnsureControlsContainer();
         RebuildAllBindingRows();
         ResolveExistingBindingWidgets();
+    }
+
+    private void StretchChildFull(string childName)
+    {
+        RectTransform rect = FindChildByName(childName) as RectTransform;
+        if (rect == null)
+        {
+            return;
+        }
+
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        rect.anchoredPosition = Vector2.zero;
+        rect.sizeDelta = Vector2.zero;
+    }
+
+    private Transform FindChildByName(string childName)
+    {
+        foreach (Transform child in GetComponentsInChildren<Transform>(true))
+        {
+            if (child != null && child.name == childName)
+            {
+                return child;
+            }
+        }
+
+        return null;
     }
 
     private void EnsureControlsContainer()
@@ -710,11 +798,13 @@ public sealed class OptionsPanelView : MonoBehaviour
         labelRect.sizeDelta = new Vector2(330f, ControlsRowHeight);
         TMP_Text labelText = labelGo.GetComponent<TMP_Text>();
         labelText.font = font;
-        labelText.fontSize = 20f;
+        labelText.fontSize = 22f;
         labelText.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
         labelText.color = new Color32(218, 205, 181, 255);
         labelText.alignment = TextAlignmentOptions.MidlineLeft;
         labelText.text = UiText.GetBindingActionLabel(definition.Action);
+        labelText.characterSpacing = 2f;
+        ConfigureLabelText(labelText, true);
 
         GameObject selectorGo = new("SelectorButton", typeof(RectTransform), typeof(Image), typeof(Button));
         selectorGo.transform.SetParent(rowGo.transform, false);
@@ -726,21 +816,34 @@ public sealed class OptionsPanelView : MonoBehaviour
         selectorRect.sizeDelta = new Vector2(260f, 42f);
         Image selectorBg = selectorGo.GetComponent<Image>();
         selectorBg.color = new Color(0.09f, 0.075f, 0.07f, 0.94f);
+        Outline outline = selectorGo.AddComponent<Outline>();
+        outline.effectColor = new Color(0.49f, 0.39f, 0.28f, 0.6f);
+        outline.effectDistance = new Vector2(1f, -1f);
+        Button selectorButton = selectorGo.GetComponent<Button>();
+        ColorBlock colors = selectorButton.colors;
+        colors.normalColor = selectorBg.color;
+        colors.highlightedColor = new Color(0.14f, 0.11f, 0.1f, 1f);
+        colors.pressedColor = new Color(0.18f, 0.14f, 0.13f, 1f);
+        colors.selectedColor = colors.highlightedColor;
+        colors.fadeDuration = 0.08f;
+        selectorButton.colors = colors;
+        selectorButton.transition = Selectable.Transition.ColorTint;
 
         GameObject valueGo = new("ValueText", typeof(RectTransform), typeof(TextMeshProUGUI));
         valueGo.transform.SetParent(selectorGo.transform, false);
         RectTransform valueRect = valueGo.GetComponent<RectTransform>();
         valueRect.anchorMin = new Vector2(0f, 0f);
         valueRect.anchorMax = new Vector2(1f, 1f);
-        valueRect.offsetMin = new Vector2(8f, 0f);
-        valueRect.offsetMax = new Vector2(-28f, 0f);
+        valueRect.anchoredPosition = new Vector2(-12f, 0f);
+        valueRect.sizeDelta = new Vector2(-30f, 0f);
         TMP_Text valueText = valueGo.GetComponent<TMP_Text>();
         valueText.font = font;
-        valueText.fontSize = 20f;
+        valueText.fontSize = 22f;
         valueText.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
         valueText.color = new Color32(225, 212, 188, 255);
         valueText.alignment = TextAlignmentOptions.Center;
         valueText.text = GetBindingLabelFallback(definition.Action);
+        ConfigureLabelText(valueText, false);
 
         GameObject arrowGo = new("Arrow", typeof(RectTransform), typeof(TextMeshProUGUI));
         arrowGo.transform.SetParent(selectorGo.transform, false);
@@ -748,15 +851,16 @@ public sealed class OptionsPanelView : MonoBehaviour
         arrowRect.anchorMin = new Vector2(1f, 0.5f);
         arrowRect.anchorMax = new Vector2(1f, 0.5f);
         arrowRect.pivot = new Vector2(1f, 0.5f);
-        arrowRect.anchoredPosition = new Vector2(-10f, 0f);
-        arrowRect.sizeDelta = new Vector2(16f, 20f);
+        arrowRect.anchoredPosition = new Vector2(-18f, -1f);
+        arrowRect.sizeDelta = new Vector2(18f, 18f);
         TMP_Text arrowText = arrowGo.GetComponent<TMP_Text>();
         arrowText.font = font;
-        arrowText.fontSize = 16f;
+        arrowText.fontSize = 18f;
         arrowText.fontStyle = FontStyles.Bold;
         arrowText.color = new Color32(185, 171, 148, 255);
         arrowText.alignment = TextAlignmentOptions.Center;
-        arrowText.text = "^";
+        arrowText.text = ">";
+        arrowRect.localRotation = Quaternion.Euler(0f, 0f, 90f);
 
         return rowGo.transform;
     }
@@ -778,14 +882,15 @@ public sealed class OptionsPanelView : MonoBehaviour
         labelRect.sizeDelta = new Vector2(330f, ControlsRowHeight);
         TMP_Text labelText = labelGo.GetComponent<TMP_Text>();
         labelText.font = font;
-        labelText.fontSize = 20f;
+        labelText.fontSize = 22f;
         labelText.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
         labelText.color = new Color32(218, 205, 181, 255);
         labelText.alignment = TextAlignmentOptions.MidlineLeft;
         labelText.text = label;
+        labelText.characterSpacing = 2f;
         ConfigureLabelText(labelText, true);
 
-        GameObject valuePanel = new("ValuePanel", typeof(RectTransform), typeof(Image));
+        GameObject valuePanel = new("SelectorButton", typeof(RectTransform), typeof(Image), typeof(Button));
         valuePanel.transform.SetParent(rowGo.transform, false);
         RectTransform panelRect = valuePanel.GetComponent<RectTransform>();
         panelRect.anchorMin = new Vector2(0f, 0.5f);
@@ -795,22 +900,54 @@ public sealed class OptionsPanelView : MonoBehaviour
         panelRect.sizeDelta = new Vector2(260f, 42f);
         Image panelImage = valuePanel.GetComponent<Image>();
         panelImage.color = new Color(0.09f, 0.075f, 0.07f, 0.94f);
+        Outline panelOutline = valuePanel.AddComponent<Outline>();
+        panelOutline.effectColor = new Color(0.49f, 0.39f, 0.28f, 0.6f);
+        panelOutline.effectDistance = new Vector2(1f, -1f);
+        Button panelButton = valuePanel.GetComponent<Button>();
+        ColorBlock colors = panelButton.colors;
+        colors.normalColor = panelImage.color;
+        colors.highlightedColor = new Color(0.14f, 0.11f, 0.1f, 1f);
+        colors.pressedColor = new Color(0.18f, 0.14f, 0.13f, 1f);
+        colors.selectedColor = colors.highlightedColor;
+        colors.fadeDuration = 0.08f;
+        panelButton.colors = colors;
+        panelButton.transition = Selectable.Transition.ColorTint;
+        Navigation navigation = panelButton.navigation;
+        navigation.mode = Navigation.Mode.None;
+        panelButton.navigation = navigation;
 
         GameObject valueGo = new("ValueText", typeof(RectTransform), typeof(TextMeshProUGUI));
         valueGo.transform.SetParent(valuePanel.transform, false);
         RectTransform valueRect = valueGo.GetComponent<RectTransform>();
         valueRect.anchorMin = new Vector2(0f, 0f);
         valueRect.anchorMax = new Vector2(1f, 1f);
-        valueRect.offsetMin = new Vector2(8f, 0f);
-        valueRect.offsetMax = new Vector2(-8f, 0f);
+        valueRect.anchoredPosition = new Vector2(-12f, 0f);
+        valueRect.sizeDelta = new Vector2(-30f, 0f);
         TMP_Text valueText = valueGo.GetComponent<TMP_Text>();
         valueText.font = font;
-        valueText.fontSize = 20f;
+        valueText.fontSize = 22f;
         valueText.fontStyle = FontStyles.SmallCaps | FontStyles.Bold;
         valueText.color = new Color32(225, 212, 188, 255);
         valueText.alignment = TextAlignmentOptions.Center;
         valueText.text = value;
         ConfigureLabelText(valueText, false);
+
+        GameObject arrowGo = new("Arrow", typeof(RectTransform), typeof(TextMeshProUGUI));
+        arrowGo.transform.SetParent(valuePanel.transform, false);
+        RectTransform arrowRect = arrowGo.GetComponent<RectTransform>();
+        arrowRect.anchorMin = new Vector2(1f, 0.5f);
+        arrowRect.anchorMax = new Vector2(1f, 0.5f);
+        arrowRect.pivot = new Vector2(1f, 0.5f);
+        arrowRect.anchoredPosition = new Vector2(-18f, -1f);
+        arrowRect.sizeDelta = new Vector2(18f, 18f);
+        TMP_Text arrowText = arrowGo.GetComponent<TMP_Text>();
+        arrowText.font = font;
+        arrowText.fontSize = 18f;
+        arrowText.fontStyle = FontStyles.Bold;
+        arrowText.color = new Color32(185, 171, 148, 255);
+        arrowText.alignment = TextAlignmentOptions.Center;
+        arrowText.text = ">";
+        arrowRect.localRotation = Quaternion.Euler(0f, 0f, 90f);
 
         return rowGo.transform;
     }
@@ -926,6 +1063,61 @@ public sealed class OptionsPanelView : MonoBehaviour
         text.alignment = leftAligned ? TextAlignmentOptions.MidlineLeft : TextAlignmentOptions.Center;
         text.textWrappingMode = TextWrappingModes.NoWrap;
         text.overflowMode = TextOverflowModes.Ellipsis;
+    }
+
+    private static T[] FilterArray<T>(T[] source, System.Func<T, bool> keep) where T : class
+    {
+        if (source == null || source.Length == 0)
+        {
+            return System.Array.Empty<T>();
+        }
+
+        List<T> filtered = new(source.Length);
+        foreach (T item in source)
+        {
+            if (item != null && keep(item))
+            {
+                filtered.Add(item);
+            }
+        }
+
+        return filtered.ToArray();
+    }
+
+    private static bool ShouldHideSection(GameObject target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        string name = target.name.ToLowerInvariant();
+        return name.Contains("gametab") ||
+               name.Contains("graphicstab") ||
+               name.Contains("gamesection") ||
+               name.Contains("graphicssection");
+    }
+
+    private static GameObject GetSectionOwner(GameObject target)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        Transform current = target.transform;
+        while (current != null)
+        {
+            string name = current.name.ToLowerInvariant();
+            if (name.Contains("tab") || name.Contains("section"))
+            {
+                return current.gameObject;
+            }
+
+            current = current.parent;
+        }
+
+        return target;
     }
 
     private static void SetPercentLabel(TMP_Text label, float value)

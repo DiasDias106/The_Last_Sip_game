@@ -376,8 +376,9 @@ public static class MainMenuSceneBuilder
         MenuPanelController panelController = root.AddComponent<MenuPanelController>();
         SetObjectField(panelController, "canvasGroup", canvasGroup);
         SetObjectField(panelController, "panelTransform", RectOf(root));
-        SetVector2Field(panelController, "hiddenOffset", new Vector2(0f, -26f));
+        SetVector2Field(panelController, "hiddenOffset", Vector2.zero);
         SetFloatField(panelController, "transitionDuration", 0.28f);
+        SetVector3Field(panelController, "hiddenScale", Vector3.one);
 
         GameObject settingsBackground = CreateUIObject("SettingsBackground", root.transform);
         StretchFull(RectOf(settingsBackground));
@@ -443,8 +444,6 @@ public static class MainMenuSceneBuilder
         tabLayout.childForceExpandHeight = false;
         tabLayout.childForceExpandWidth = false;
 
-        GameObject gameTab = CreateSettingsTab(leftTabs.transform, "GameTab", "JOGO", false, tmpFont, tabSelectedSprite);
-        GameObject graphicsTab = CreateSettingsTab(leftTabs.transform, "GraphicsTab", "GRÁFICOS", false, tmpFont, tabSelectedSprite);
         GameObject audioTab = CreateSettingsTab(leftTabs.transform, "AudioTab", "ÁUDIO", true, tmpFont, tabSelectedSprite);
         GameObject controlsTab = CreateSettingsTab(leftTabs.transform, "ControlsTab", "CONTROLOS", false, tmpFont, tabSelectedSprite);
         GameObject languageTab = CreateSettingsTab(leftTabs.transform, "LanguageTab", "IDIOMA", false, tmpFont, tabSelectedSprite);
@@ -464,20 +463,6 @@ public static class MainMenuSceneBuilder
 
         GameObject sectionsRoot = CreateUIObject("SectionsRoot", rightContent.transform);
         SetRect(RectOf(sectionsRoot), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, -74f), new Vector2(860f, 364f));
-
-        GameObject gameSection = CreateUIObject("GameSection", sectionsRoot.transform);
-        StretchFull(RectOf(gameSection));
-        GameObject gamePlaceholder = CreateUIObject("PlaceholderText", gameSection.transform);
-        SetRect(RectOf(gamePlaceholder), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(780f, 70f));
-        TMP_Text gameText = AddText(gamePlaceholder, "Nenhuma opção disponível por agora.", tmpFont, 24, FontStyles.Italic, TextAlignmentOptions.MidlineLeft, new Color32(174, 160, 140, 255));
-        ConfigureSingleLineText(gameText, 18f, 24f, TextOverflowModes.Ellipsis);
-
-        GameObject graphicsSection = CreateUIObject("GraphicsSection", sectionsRoot.transform);
-        StretchFull(RectOf(graphicsSection));
-        GameObject graphicsPlaceholder = CreateUIObject("PlaceholderText", graphicsSection.transform);
-        SetRect(RectOf(graphicsPlaceholder), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(780f, 70f));
-        TMP_Text graphicsText = AddText(graphicsPlaceholder, "Nenhuma opção disponível por agora.", tmpFont, 24, FontStyles.Italic, TextAlignmentOptions.MidlineLeft, new Color32(174, 160, 140, 255));
-        ConfigureSingleLineText(graphicsText, 18f, 24f, TextOverflowModes.Ellipsis);
 
         GameObject audioSection = CreateUIObject("AudioSection", sectionsRoot.transform);
         StretchFull(RectOf(audioSection));
@@ -530,12 +515,12 @@ public static class MainMenuSceneBuilder
         SetObjectField(view, "resetDefaultsButton", resetButton);
         SetObjectField(view, "activeTabSprite", tabSelectedSprite);
         SetObjectField(view, "inactiveTabSprite", null);
-        SetObjectArrayField(view, "tabButtons", new UnityEngine.Object[] { gameTab.GetComponent<Button>(), graphicsTab.GetComponent<Button>(), audioTab.GetComponent<Button>(), controlsTab.GetComponent<Button>(), languageTab.GetComponent<Button>() });
-        SetObjectArrayField(view, "tabBackgrounds", new UnityEngine.Object[] { gameTab.GetComponent<Image>(), graphicsTab.GetComponent<Image>(), audioTab.GetComponent<Image>(), controlsTab.GetComponent<Image>(), languageTab.GetComponent<Image>() });
-        SetObjectArrayField(view, "tabLabels", new UnityEngine.Object[] { FindInChildren<TMP_Text>(gameTab.transform, "Label"), FindInChildren<TMP_Text>(graphicsTab.transform, "Label"), FindInChildren<TMP_Text>(audioTab.transform, "Label"), FindInChildren<TMP_Text>(controlsTab.transform, "Label"), FindInChildren<TMP_Text>(languageTab.transform, "Label") });
-        SetObjectArrayField(view, "selectedMarkers", new UnityEngine.Object[] { FindInChildren<Transform>(gameTab.transform, "SelectedMarker")?.gameObject, FindInChildren<Transform>(graphicsTab.transform, "SelectedMarker")?.gameObject, FindInChildren<Transform>(audioTab.transform, "SelectedMarker")?.gameObject, FindInChildren<Transform>(controlsTab.transform, "SelectedMarker")?.gameObject, FindInChildren<Transform>(languageTab.transform, "SelectedMarker")?.gameObject });
-        SetObjectArrayField(view, "sections", new UnityEngine.Object[] { gameSection, graphicsSection, audioSection, controlsSection, languageSection });
-        SetStringArrayField(view, "sectionTitles", new[] { "JOGO", "GRÁFICOS", "ÁUDIO", "CONTROLOS", "IDIOMA" });
+        SetObjectArrayField(view, "tabButtons", new UnityEngine.Object[] { audioTab.GetComponent<Button>(), controlsTab.GetComponent<Button>(), languageTab.GetComponent<Button>() });
+        SetObjectArrayField(view, "tabBackgrounds", new UnityEngine.Object[] { audioTab.GetComponent<Image>(), controlsTab.GetComponent<Image>(), languageTab.GetComponent<Image>() });
+        SetObjectArrayField(view, "tabLabels", new UnityEngine.Object[] { FindInChildren<TMP_Text>(audioTab.transform, "Label"), FindInChildren<TMP_Text>(controlsTab.transform, "Label"), FindInChildren<TMP_Text>(languageTab.transform, "Label") });
+        SetObjectArrayField(view, "selectedMarkers", new UnityEngine.Object[] { FindInChildren<Transform>(audioTab.transform, "SelectedMarker")?.gameObject, FindInChildren<Transform>(controlsTab.transform, "SelectedMarker")?.gameObject, FindInChildren<Transform>(languageTab.transform, "SelectedMarker")?.gameObject });
+        SetObjectArrayField(view, "sections", new UnityEngine.Object[] { audioSection, controlsSection, languageSection });
+        SetStringArrayField(view, "sectionTitles", new[] { "audio", "controls", "language" });
 
         panelController.HideImmediate();
         return root;
