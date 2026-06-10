@@ -5298,10 +5298,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.4
-  m_Height: 1
+  m_Radius: 1.855
+  m_Height: 3.745
   m_Direction: 1
-  m_Center: {x: 0, y: 0.5, z: 0}
+  m_Center: {x: -0.34, y: 1.82, z: 1.12}
 --- !u!114 &5819706954380857070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5314,7 +5314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1584e528c9ff9048814a8563307e3dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DarkKnightController
-  maxHealth: 150
+  maxHealth: 60
   attackDamage: 20
   attackCooldown: 2
   moveSpeed: 2.5

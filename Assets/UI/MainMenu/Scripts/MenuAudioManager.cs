@@ -283,14 +283,16 @@ public sealed class MenuAudioManager : MonoBehaviour
 
     private void ApplyVolumes()
     {
+        AudioListener.volume = masterVolume;
+
         if (ambientMusicSource != null)
         {
-            ambientMusicSource.volume = masterVolume * musicVolume * runtimeMusicMultiplier;
+            ambientMusicSource.volume = musicVolume * runtimeMusicMultiplier;
         }
 
         if (uiSfxSource != null)
         {
-            uiSfxSource.volume = masterVolume * sfxVolume;
+            uiSfxSource.volume = sfxVolume;
         }
     }
 

@@ -39,6 +39,18 @@ public class DialogueUIManager : MonoBehaviour
         _audioSource = gameObject.AddComponent<AudioSource>();
     }
 
+    private void Update()
+    {
+        if (_dialogueRoutine != null && _panel != null)
+        {
+            bool subtitlesEnabled = PlayerPrefs.GetInt("MainMenu.Subtitles", 0) == 0;
+            if (_panel.activeSelf != subtitlesEnabled)
+            {
+                _panel.SetActive(subtitlesEnabled);
+            }
+        }
+    }
+
     private void EnsureUI()
     {
         if (_canvas != null) return;
@@ -110,7 +122,8 @@ public class DialogueUIManager : MonoBehaviour
 
     private IEnumerator PlayDialogueRoutine(DialogueData data)
     {
-        _panel.SetActive(true);
+        bool subtitlesEnabled = PlayerPrefs.GetInt("MainMenu.Subtitles", 0) == 0;
+        _panel.SetActive(subtitlesEnabled);
 
         if (data.playRandomLine)
         {

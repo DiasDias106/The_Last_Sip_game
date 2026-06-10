@@ -169,8 +169,15 @@ public sealed class PauseMenuController : MonoBehaviour
             return;
         }
 
-        // While the shop is open, Escape should only close the shop.
-        if (ShopMenuController.Instance != null && ShopMenuController.Instance.IsVisible)
+        // If the player is dead, do not allow opening or interacting with the pause menu.
+        var playerHealth = FindFirstObjectByType<PlayerHealth>();
+        if (playerHealth != null && playerHealth.IsDead)
+        {
+            return;
+        }
+
+        // While the shop is open or was closed this exact frame, Escape should only close the shop.
+        if (ShopMenuController.Instance != null && (ShopMenuController.Instance.IsVisible || ShopMenuController.Instance.LastClosedFrame == Time.frameCount))
         {
             return;
         }
