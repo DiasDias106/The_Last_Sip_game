@@ -18,7 +18,6 @@ public sealed class GameMusicManager : MonoBehaviour
     private Coroutine _fadeRoutine;
     private float _sceneMultiplier = 1f;
 
-    private const string MasterKey = "MainMenu.MasterVolume";
     private const string MusicKey  = "MainMenu.MusicVolume";
 
     public static GameMusicManager GetOrCreate()
@@ -41,6 +40,14 @@ public sealed class GameMusicManager : MonoBehaviour
     }
 
     private void OnDestroy() { if (Instance == this) Instance = null; }
+
+    private void Update()
+    {
+        if (_source != null && _fadeRoutine == null)
+        {
+            _source.volume = TargetVolume();
+        }
+    }
 
     public void SetupForScene(AudioClip ambient, AudioClip combat, AudioClip boss, float sceneMultiplier = 1f)
     {
@@ -208,8 +215,7 @@ public sealed class GameMusicManager : MonoBehaviour
 
     private float TargetVolume()
     {
-        float m = PlayerPrefs.GetFloat(MasterKey, 0.8f);
         float t = PlayerPrefs.GetFloat(MusicKey, 0.6f);
-        return m * t * _sceneMultiplier;
+        return t * _sceneMultiplier;
     }
 }
