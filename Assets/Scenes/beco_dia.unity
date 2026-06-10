@@ -95483,9 +95483,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b56a4258135226240a6ee7de1f1e5c30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LimoDayInteractable
-  interactionDistance: 3
-  doorAnchor: {fileID: 1022773193}
-  doorPromptLocalOffset: {x: 0, y: 0.9, z: 1.5}
+  autoWalkSpeed: 2.5
+  doorStopDistance: 0.1
+  maxAutoWalkTime: 5
   entryHoldTime: 2.5
   driveSpeed: 9
   cameraPitch: 16
@@ -95498,6 +95498,8 @@ MonoBehaviour:
   creditsMusicVolume: 0.75
   creditsScrollSpeed: 55
   creditsText: "THE LAST SIP\n\n\nDesenvolvido por\nFrancisco Dias\n\n\nOrienta\xE7\xE3o\nProfessor\n\n\nAgradecimentos\n...\n\n\n\n\n\n"
+  triggerZMin: 17
+  triggerZMax: 22
 --- !u!64 &435805517
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -250761,19 +250763,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 1864893948627024220, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
---- !u!134 &1175902541
-PhysicsMaterial:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  serializedVersion: 2
-  m_DynamicFriction: 0.6
-  m_StaticFriction: 0.6
-  m_Bounciness: 0
-  m_FrictionCombine: 0
-  m_BounceCombine: 0
 --- !u!1 &1176808627
 GameObject:
   m_ObjectHideFlags: 0
@@ -380773,8 +380762,6 @@ GameObject:
   - component: {fileID: 1806812027}
   - component: {fileID: 1806812026}
   - component: {fileID: 1806812029}
-  - component: {fileID: 1806812031}
-  - component: {fileID: 1806812030}
   m_Layer: 0
   m_Name: inicio_fim
   m_TagString: Untagged
@@ -380791,7 +380778,7 @@ Transform:
   m_GameObject: {fileID: 1806812024}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.11, y: 0.02, z: -3.9200003}
+  m_LocalPosition: {x: 1.1124706, y: 0.02, z: -3.91786}
   m_LocalScale: {x: 1.0345824, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -380903,40 +380890,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &1806812030
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1806812024}
-  m_Material: {fileID: 1175902541}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 10, y: 2.5, z: 10}
-  m_Center: {x: 0, y: 1.1, z: 0}
---- !u!114 &1806812031
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1806812024}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c286525d79368db488243c834a5876ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LimoDaySequenceTrigger
-  limoDayInteractable: {fileID: 435805516}
 --- !u!1 &1806814098
 GameObject:
   m_ObjectHideFlags: 0
@@ -395591,6 +395544,73 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4816808559564839995, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!1 &1884045631
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1884045634}
+  - component: {fileID: 1884045633}
+  - component: {fileID: 1884045632}
+  m_Layer: 0
+  m_Name: LimoSequenceTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1884045632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884045631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c286525d79368db488243c834a5876ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LimoDaySequenceTrigger
+  limoDayInteractable: {fileID: 435805516}
+--- !u!65 &1884045633
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884045631}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 80, y: 3, z: 5}
+  m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!4 &1884045634
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884045631}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -15, y: 0.2, z: 19.7}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1885931162
 GameObject:
   m_ObjectHideFlags: 0
@@ -454314,3 +454334,4 @@ SceneRoots:
   - {fileID: 1093805759}
   - {fileID: 1468138691}
   - {fileID: 951642226}
+  - {fileID: 1884045634}

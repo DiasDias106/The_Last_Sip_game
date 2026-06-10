@@ -178,8 +178,7 @@ public static class UserImportedPlayerBootstrap
 
         GameObject visual = Object.Instantiate(modelPrefab, playerRoot.transform);
         visual.name = "Visual";
-        // Scavenger mesh extends ~0.07m below its root (shoe geometry below foot bone)
-        visual.transform.localPosition = useScavengerVisual ? new Vector3(0f, 0.07f, 0f) : Vector3.zero;
+        visual.transform.localPosition = useScavengerVisual ? new Vector3(0f, -0.07f, 0f) : Vector3.zero;
         visual.transform.localRotation = Quaternion.identity;
         visual.transform.localScale = Vector3.one;
         DisableVisualColliders(visual);
