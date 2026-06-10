@@ -194053,7 +194053,7 @@ PrefabInstance:
     - target: {fileID: 701420837181973649, guid: 3ea75a531eaa8f94d8276262493e7f69, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 0b9b900571908234c80513beb486355c, type: 2}
+      objectReference: {fileID: 2100000, guid: 40937dae5c44f9f43a5f8a45305e7275, type: 2}
     - target: {fileID: 919132149155446097, guid: 3ea75a531eaa8f94d8276262493e7f69, type: 3}
       propertyPath: m_Name
       value: PaladinOnBase

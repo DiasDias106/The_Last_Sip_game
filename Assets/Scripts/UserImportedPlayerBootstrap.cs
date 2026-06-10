@@ -507,7 +507,7 @@ public static class UserImportedPlayerBootstrap
             }
             else if (n.Contains("sword"))
             {
-                chosen = sword;
+                chosen = body;
             }
 
             Material[] mats = renderer.materials;
@@ -547,7 +547,7 @@ public static class UserImportedPlayerBootstrap
             }
             else if (n.Contains("sword"))
             {
-                chosen = sword;
+                chosen = body;
             }
 
             Material[] mats = renderer.materials;
