@@ -109,37 +109,54 @@ public class BossHUDController : MonoBehaviour
         _group = canvasGo.AddComponent<CanvasGroup>();
         _group.alpha = 0f;
 
+        // Nome do boss por cima da barra
+        var nameGO = new GameObject("BossNameLabel");
+        nameGO.transform.SetParent(canvasGo.transform, false);
+        _nameLabel = nameGO.AddComponent<TextMeshProUGUI>();
+        _nameLabel.text = "";
+        _nameLabel.fontSize = 18f;
+        _nameLabel.fontStyle = TMPro.FontStyles.Bold;
+        _nameLabel.alignment = TMPro.TextAlignmentOptions.Center;
+        _nameLabel.color = new Color(1f, 0.92f, 0.72f, 1f);
+        var nameLabelRect = nameGO.GetComponent<RectTransform>();
+        nameLabelRect.anchorMin = new Vector2(0.5f, 1f);
+        nameLabelRect.anchorMax = new Vector2(0.5f, 1f);
+        nameLabelRect.pivot = new Vector2(0.5f, 1f);
+        nameLabelRect.sizeDelta = new Vector2(700f, 24f);
+        nameLabelRect.anchoredPosition = new Vector2(0f, -8f);
+
+        // Barra de vida
         var track = new GameObject("BossHpTrack");
         track.transform.SetParent(canvasGo.transform, false);
         var trackImage = track.AddComponent<Image>();
-        trackImage.color = new Color(0.1f, 0.02f, 0.02f, 0.92f);
+        trackImage.color = new Color(0.08f, 0.02f, 0.02f, 0.9f);
 
         var trackRect = track.GetComponent<RectTransform>();
         trackRect.anchorMin = new Vector2(0.5f, 1f);
         trackRect.anchorMax = new Vector2(0.5f, 1f);
         trackRect.pivot = new Vector2(0.5f, 1f);
-        trackRect.sizeDelta = new Vector2(980f, 54f);
-        trackRect.anchoredPosition = new Vector2(0f, -32f);
+        trackRect.sizeDelta = new Vector2(700f, 30f);
+        trackRect.anchoredPosition = new Vector2(0f, -36f);
 
         var outline = new GameObject("BossHpOutline");
         outline.transform.SetParent(track.transform, false);
         var outlineImg = outline.AddComponent<Image>();
-        outlineImg.color = new Color(0f, 0f, 0f, 0.95f);
+        outlineImg.color = new Color(0f, 0f, 0f, 0.9f);
         var outlineRect = outline.GetComponent<RectTransform>();
         outlineRect.anchorMin = Vector2.zero;
         outlineRect.anchorMax = Vector2.one;
-        outlineRect.sizeDelta = new Vector2(10f, 10f);
+        outlineRect.sizeDelta = new Vector2(6f, 6f);
         outline.transform.SetAsFirstSibling();
 
         var fill = new GameObject("BossHpFill");
         fill.transform.SetParent(track.transform, false);
         var fillImage = fill.AddComponent<Image>();
-        fillImage.color = new Color(0.9f, 0.08f, 0.08f, 0.98f);
+        fillImage.color = new Color(0.88f, 0.08f, 0.08f, 1f);
         _fillRect = fill.GetComponent<RectTransform>();
         _fillRect.anchorMin = new Vector2(0f, 0f);
         _fillRect.anchorMax = new Vector2(1f, 1f);
-        _fillRect.offsetMin = new Vector2(6f, 6f);
-        _fillRect.offsetMax = new Vector2(-6f, -6f);
+        _fillRect.offsetMin = new Vector2(4f, 4f);
+        _fillRect.offsetMax = new Vector2(-4f, -4f);
 
         var armorFill = new GameObject("BossArmorFill");
         armorFill.transform.SetParent(track.transform, false);
@@ -148,24 +165,9 @@ public class BossHUDController : MonoBehaviour
         _armorFillRect = armorFill.GetComponent<RectTransform>();
         _armorFillRect.anchorMin = new Vector2(0f, 0f);
         _armorFillRect.anchorMax = new Vector2(1f, 1f);
-        _armorFillRect.offsetMin = new Vector2(6f, 6f);
-        _armorFillRect.offsetMax = new Vector2(-6f, -6f);
+        _armorFillRect.offsetMin = new Vector2(4f, 4f);
+        _armorFillRect.offsetMax = new Vector2(-4f, -4f);
         armorFill.transform.SetAsLastSibling();
-
-        var nameGO = new GameObject("BossNameLabel");
-        nameGO.transform.SetParent(track.transform, false);
-        _nameLabel = nameGO.AddComponent<TextMeshProUGUI>();
-        _nameLabel.text = "";
-        _nameLabel.fontSize = 20f;
-        _nameLabel.fontStyle = TMPro.FontStyles.Bold;
-        _nameLabel.alignment = TMPro.TextAlignmentOptions.Center;
-        _nameLabel.color = new Color(1f, 0.92f, 0.82f, 0.95f);
-        var nameLabelRect = nameGO.GetComponent<RectTransform>();
-        nameLabelRect.anchorMin = Vector2.zero;
-        nameLabelRect.anchorMax = Vector2.one;
-        nameLabelRect.offsetMin = Vector2.zero;
-        nameLabelRect.offsetMax = Vector2.zero;
-        nameGO.transform.SetAsLastSibling();
     }
 
     public void SetName(string bossName)

@@ -147,6 +147,7 @@ public class MemoryPickup : MonoBehaviour, IInteractable
 
     private System.Collections.IEnumerator LoadTargetSceneThroughMainMenu()
     {
+        AudioListener.pause = true;
         isTransitioning = true;
         yield return FadeToBlack();
 
@@ -160,7 +161,7 @@ public class MemoryPickup : MonoBehaviour, IInteractable
         GlobalSceneTransitionRequest.PendingSceneName = targetSceneName;
         PlayerPrefs.SetString(PendingSceneKey, targetSceneName);
         PlayerPrefs.Save();
-        SceneManager.LoadScene(mainMenuSceneName);
+        SceneManager.LoadSceneAsync(mainMenuSceneName);
     }
 
     private System.Collections.IEnumerator FadeToBlack()

@@ -287,7 +287,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         pf.SpawnScene = retrySceneName;
 
         Time.timeScale = 1f;
-        SceneManager.LoadScene(mainMenuSceneName);
+        SceneManager.LoadSceneAsync(mainMenuSceneName);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -311,7 +311,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         loaderGo.AddComponent<PostDeathFader>();   // IsRetry = false by default
 
         Time.timeScale = 1f;
-        SceneManager.LoadScene(mainMenuSceneName);
+        SceneManager.LoadSceneAsync(mainMenuSceneName);
     }
 
     private string ResolveRetrySceneName()
@@ -395,6 +395,11 @@ public class PostDeathFader : MonoBehaviour
 
     IEnumerator Start()
     {
+        while (SceneManager.GetActiveScene().name != "MainMenuScene")
+        {
+            yield return null;
+        }
+
         yield return null; // one frame – let the new scene initialise
 
         if (IsRetry)
@@ -412,7 +417,7 @@ public class PostDeathFader : MonoBehaviour
                 _usedFallback = true;
                 float t = 0.35f;
                 while (t > 0f) { t -= Time.unscaledDeltaTime; yield return null; }
-                SceneManager.LoadScene(SpawnScene);
+                SceneManager.LoadSceneAsync(SpawnScene);
             }
         }
         else

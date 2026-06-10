@@ -270,11 +270,6 @@ public sealed class MenuAudioManager : MonoBehaviour
             ambientMusicSource.loop = true;
             ambientMusicSource.clip = ambientMusicClip;
             ambientMusicSource.ignoreListenerPause = true;
-
-            if (ambientMusicClip != null && !ambientMusicSource.isPlaying)
-            {
-                ambientMusicSource.Play();
-            }
         }
 
         if (uiSfxSource != null)

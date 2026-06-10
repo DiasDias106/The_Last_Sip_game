@@ -5769,6 +5769,8 @@ MonoBehaviour:
   attackRange: 1.9
   damageRadius: 1.45
   attackForwardOffset: 0.9
+  displayName: Fantasma do Passado
+  requireArenaActivation: 1
   resourcesFolder: UserImportedCharacter
   attackHitDelay: 0.34
   attackAnimTime: 0.9
@@ -5831,7 +5833,7 @@ Transform:
   m_GameObject: {fileID: 432842062}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
-  m_LocalPosition: {x: -0.09, y: 4, z: 31.03}
+  m_LocalPosition: {x: 0, y: 4, z: 38}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -9485,6 +9487,59 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2872596721437497262, guid: 2a9b8a25bc63da941a79e7e3bec1e558, type: 3}
   m_PrefabInstance: {fileID: 746271772}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &767899503
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 767899505}
+  - component: {fileID: 767899504}
+  m_Layer: 0
+  m_Name: ArenaInvisibleWall
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!65 &767899504
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 767899503}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 28, y: 18, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &767899505
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 767899503}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 12, z: 24.9}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &771073622
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16486,9 +16541,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3f0343b7e9670c4ab418715b37b5402, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneMusicSetup
-  ambientMusic: {fileID: 8300000, guid: 7c9d9a7e0dc4e284191e609d9bf45b39, type: 3}
+  ambientMusic: {fileID: 8300000, guid: c64fc7112091cc748aad4426e638a71d, type: 3}
   combatMusic: {fileID: 8300000, guid: 8132cb5b43635524fb8043ba859f06da, type: 3}
-  bossMusic: {fileID: 8300000, guid: c64fc7112091cc748aad4426e638a71d, type: 3}
+  bossMusic: {fileID: 8300000, guid: c75be6d7e750e9340b2a857f8e4849c3, type: 3}
 --- !u!4 &1288226740
 Transform:
   m_ObjectHideFlags: 0
@@ -17916,6 +17971,74 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8690171104545380827, guid: 240bd6ab897f87e47a8f454ca576b436, type: 3}
   m_PrefabInstance: {fileID: 1363908028}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1364569264
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1364569267}
+  - component: {fileID: 1364569266}
+  - component: {fileID: 1364569265}
+  m_Layer: 0
+  m_Name: BossArenaEntrance
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1364569265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1364569264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc82fce6d2b27ff4a8d0bdab4500d45f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossArenaTrigger
+  arenaWalls:
+  - {fileID: 767899503}
+--- !u!65 &1364569266
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1364569264}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 28, y: 6, z: 4}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &1364569267
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1364569264}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 4, z: 29}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1375555479
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28637,3 +28760,5 @@ SceneRoots:
   - {fileID: 1934829518}
   - {fileID: 432842066}
   - {fileID: 1288226740}
+  - {fileID: 1364569267}
+  - {fileID: 767899505}

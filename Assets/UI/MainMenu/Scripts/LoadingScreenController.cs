@@ -113,7 +113,6 @@ public sealed class LoadingScreenController : MonoBehaviour
 
     public void ShowLoadingThenLoadScene(string sceneName)
     {
-        menuAudioManager?.EnsureAmbientMusicIsPlaying();
         StartSequence(ShowLoadingThenLoadSceneRoutine(sceneName));
     }
 

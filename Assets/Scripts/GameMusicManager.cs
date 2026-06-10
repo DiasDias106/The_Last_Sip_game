@@ -12,9 +12,11 @@ public sealed class GameMusicManager : MonoBehaviour
     private AudioClip   _ambientClip;
     private AudioClip   _combatClip;
     private AudioClip   _bossClip;
+    private AudioClip   _targetClip;
     private int  _combatCount;
     private bool _bossActive;
     private Coroutine _fadeRoutine;
+    private float _sceneMultiplier = 1f;
 
     private const string MasterKey = "MainMenu.MasterVolume";
     private const string MusicKey  = "MainMenu.MusicVolume";
@@ -40,8 +42,9 @@ public sealed class GameMusicManager : MonoBehaviour
 
     private void OnDestroy() { if (Instance == this) Instance = null; }
 
-    public void SetupForScene(AudioClip ambient, AudioClip combat, AudioClip boss)
+    public void SetupForScene(AudioClip ambient, AudioClip combat, AudioClip boss, float sceneMultiplier = 1f)
     {
+        _sceneMultiplier = sceneMultiplier <= 0f ? 1f : sceneMultiplier;
         _ambientClip = ambient;
         _combatClip  = combat;
         _bossClip    = boss;
@@ -65,11 +68,22 @@ public sealed class GameMusicManager : MonoBehaviour
     /// <summary>True quando inimigos estão a perseguir/atacar o player.</summary>
     public bool IsInCombat => _combatCount > 0 || _bossActive;
 
-    public void StopAll()
+    public void StopAll(bool instant = false)
     {
-        _ambientClip = _combatClip = _bossClip = null;
+        _ambientClip = _combatClip = _bossClip = _targetClip = null;
         _combatCount = 0; _bossActive = false;
-        FadeOutAndStop();
+        
+        if (instant)
+        {
+            if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
+            _source.Stop();
+            _source.volume = 0f;
+            _fadeRoutine = null;
+        }
+        else
+        {
+            FadeOutAndStop();
+        }
     }
 
     public void EnterCombat()
@@ -102,6 +116,7 @@ public sealed class GameMusicManager : MonoBehaviour
     private void StartMusicFadeIn(AudioClip clip)
     {
         if (clip == null) return;
+        _targetClip = clip;
         if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
         _source.Stop();
         _source.clip  = clip;
@@ -113,9 +128,20 @@ public sealed class GameMusicManager : MonoBehaviour
     private void CrossFadeTo(AudioClip clip)
     {
         if (clip == null) return;
-        if (_source.clip == clip && _source.isPlaying) return;
+        if (_targetClip == clip) return;
+        
+        _targetClip = clip;
         if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
-        _fadeRoutine = StartCoroutine(CrossFadeRoutine(clip));
+        
+        if (_source.clip == clip)
+        {
+            if (!_source.isPlaying) _source.Play();
+            _fadeRoutine = StartCoroutine(FadeVolume(_source.volume, TargetVolume(), fadeInDuration));
+        }
+        else
+        {
+            _fadeRoutine = StartCoroutine(CrossFadeRoutine(clip));
+        }
     }
 
     private IEnumerator CrossFadeRoutine(AudioClip newClip)
@@ -181,8 +207,8 @@ public sealed class GameMusicManager : MonoBehaviour
 
     private float TargetVolume()
     {
-        float master = PlayerPrefs.GetFloat(MasterKey, 0.8f);
-        float music  = PlayerPrefs.GetFloat(MusicKey,  0.6f);
-        return master * music;
+        float m = PlayerPrefs.GetFloat(MasterKey, 0.8f);
+        float t = PlayerPrefs.GetFloat(MusicKey, 0.6f);
+        return m * t * _sceneMultiplier;
     }
 }

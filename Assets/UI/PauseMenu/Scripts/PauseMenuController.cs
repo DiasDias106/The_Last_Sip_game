@@ -289,8 +289,8 @@ public sealed class PauseMenuController : MonoBehaviour
         if (PlayerInventory.Instance != null) Destroy(PlayerInventory.Instance.gameObject);
         
         Destroy(gameObject);
-
-        SceneManager.LoadScene(mainMenuSceneName);
+        Time.timeScale = 1f;
+        SceneManager.LoadSceneAsync(mainMenuSceneName);
     }
 
     public void SetFullscreen(bool isFullscreen)

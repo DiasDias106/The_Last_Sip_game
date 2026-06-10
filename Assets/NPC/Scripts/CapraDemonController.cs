@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class CapraDemonController : MonoBehaviour, IDamageable
+public class CapraDemonController : MonoBehaviour, IDamageable, IStaggerable
 {
     [Header("Stats")]
     public float maxHealth         = 300f;
@@ -167,9 +167,14 @@ public class CapraDemonController : MonoBehaviour, IDamageable
         if (_state == State.Dead) return;
         _health -= amount;
         if (_player == null) { _player = GameObject.FindGameObjectWithTag("Player")?.transform; if (!_inCombat) { _inCombat = true; GameMusicManager.Instance?.EnterCombat(); BossHUDController.Instance?.SetName(displayName); BossHUDController.Instance?.Show(); } _state = State.Chasing; }
-        _animator?.SetTrigger(HashTakeDamage);
         BossHUDController.Instance?.Refresh(_health, maxHealth);
         if (_health <= 0f) Die();
+    }
+
+    public void Stagger()
+    {
+        if (_state == State.Dead) return;
+        _animator?.SetTrigger(HashTakeDamage);
     }
 
     private void Die()

@@ -320101,6 +320101,7 @@ MonoBehaviour:
   ambientMusic: {fileID: 8300000, guid: e625157f166f5e8469f50dd6f3cd4375, type: 3}
   combatMusic: {fileID: 0}
   bossMusic: {fileID: 0}
+  volumeMultiplier: 4.0
 --- !u!4 &1509247497
 Transform:
   m_ObjectHideFlags: 0

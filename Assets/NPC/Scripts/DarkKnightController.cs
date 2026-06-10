@@ -3,7 +3,7 @@ using UnityEngine.AI;
 using System.Collections;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class DarkKnightController : MonoBehaviour, IDamageable
+public class DarkKnightController : MonoBehaviour, IDamageable, IStaggerable
 {
     [Header("Stats")]
     public float maxHealth      = 150f;
@@ -211,8 +211,13 @@ public class DarkKnightController : MonoBehaviour, IDamageable
             if (!_inCombat) { _inCombat = true; GameMusicManager.Instance?.EnterCombat(); }
             _state = State.Chasing;
         }
-        _animator?.SetTrigger(HashTakeDamage);
         if (_health <= 0f) Die();
+    }
+
+    public void Stagger()
+    {
+        if (_state == State.Dead) return;
+        _animator?.SetTrigger(HashTakeDamage);
     }
 
     private void Die()
