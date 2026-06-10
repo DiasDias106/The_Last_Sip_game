@@ -129,11 +129,60 @@ public static class UserImportedPlayerBootstrap
                 continue;
             }
 
+            EnsureTrapBaseRootCollider(t);
+
             if (t.GetComponent<BaseArmadilhaFall>() == null)
             {
                 t.gameObject.AddComponent<BaseArmadilhaFall>();
             }
         }
+    }
+
+    private static void EnsureTrapBaseRootCollider(Transform trapRoot)
+    {
+        if (trapRoot == null)
+        {
+            return;
+        }
+
+        Bounds bounds = new Bounds(trapRoot.position, Vector3.zero);
+        bool hasBounds = false;
+
+        Renderer[] renderers = trapRoot.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null)
+            {
+                continue;
+            }
+
+            if (!hasBounds)
+            {
+                bounds = renderer.bounds;
+                hasBounds = true;
+            }
+            else
+            {
+                bounds.Encapsulate(renderer.bounds);
+            }
+        }
+
+        if (!hasBounds)
+        {
+            return;
+        }
+
+        BoxCollider rootBoxCollider = trapRoot.GetComponent<BoxCollider>();
+        if (rootBoxCollider == null)
+        {
+            rootBoxCollider = trapRoot.gameObject.AddComponent<BoxCollider>();
+        }
+
+        rootBoxCollider.isTrigger = false;
+        rootBoxCollider.center = trapRoot.InverseTransformPoint(bounds.center);
+        rootBoxCollider.size = bounds.size;
+        rootBoxCollider.enabled = true;
     }
 
     public static void EnsurePlayerSpawned()
@@ -186,6 +235,7 @@ public static class UserImportedPlayerBootstrap
         visual.transform.localPosition = useScavengerVisual ? new Vector3(0f, -0.07f, 0f) : Vector3.zero;
         visual.transform.localRotation = Quaternion.identity;
         visual.transform.localScale = Vector3.one;
+        ClearVisualAnimatorControllers(visual);
         DisableVisualColliders(visual);
 
         UserImportedPlayerController controller = playerRoot.AddComponent<UserImportedPlayerController>();
@@ -255,6 +305,28 @@ public static class UserImportedPlayerBootstrap
             {
                 colliders[i].enabled = false;
             }
+        }
+    }
+
+    private static void ClearVisualAnimatorControllers(GameObject visualRoot)
+    {
+        if (visualRoot == null)
+        {
+            return;
+        }
+
+        Animator[] animators = visualRoot.GetComponentsInChildren<Animator>(true);
+        for (int i = 0; i < animators.Length; i++)
+        {
+            Animator animator = animators[i];
+            if (animator == null || animator.runtimeAnimatorController == null)
+            {
+                continue;
+            }
+
+            animator.runtimeAnimatorController = null;
+            animator.Rebind();
+            animator.Update(0f);
         }
     }
 
