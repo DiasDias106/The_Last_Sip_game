@@ -108,6 +108,11 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         DisableCollidersOnly();
         FacePlayerToBottle();
 
+        if (GameMusicManager.Instance != null)
+        {
+            GameMusicManager.Instance.StopAll(false, 5f); // Fade out over 5 seconds to match the animation length
+        }
+
         UserImportedPlayerController controller = _player != null ? _player.GetComponent<UserImportedPlayerController>() : null;
         if (controller != null && (drinkIntroClip != null || drinkLoopClip != null))
         {
@@ -160,6 +165,11 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     private void BeginScreenTransition()
     {
         DisableVisualsAndColliders();
+        
+        // Limpar a flag de morte para evitar que toque o diálogo de morte na próxima cena se o jogador tiver morrido no beco
+        PlayerPrefs.SetInt("JustRespawned", 0);
+        PlayerPrefs.Save();
+
         PlayerHealth.PreserveCurrentForSceneTransition(targetSceneName);
         SaveManager.SaveActiveSlotFromCurrentScene(targetSceneName);
         RuntimeSceneTransitionOverlay.BeginTransition(targetSceneName, blackScreenDuration);

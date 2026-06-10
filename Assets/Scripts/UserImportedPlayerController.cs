@@ -28,7 +28,7 @@ public class UserImportedPlayerController : MonoBehaviour
     [SerializeField] private float mouseSensitivity   = 5.0f;
     [SerializeField] private float cameraPitchMin     = -30f;
     [SerializeField] private float cameraPitchMax     = 70f;
-    [SerializeField] private Vector3 cameraLocalOffset = new Vector3(0f, 0.4f, -3.2f);
+    [SerializeField] public Vector3 cameraLocalOffset = new Vector3(0f, 0.4f, -3.2f);
     [SerializeField] private float cameraFollowSpeed  = 15f;
     [SerializeField] private float movementSmoothTime = 0.1f;
 
@@ -131,6 +131,8 @@ public class UserImportedPlayerController : MonoBehaviour
     //  SETUP
     // ═══════════════════════════════════════════════════════════════════════════
     public void AssignVisualRoot(Transform vr) => _visualRoot = vr;
+
+
 
     public void SetExternalControlLocked(bool locked)
     {
@@ -349,6 +351,7 @@ public class UserImportedPlayerController : MonoBehaviour
             UpdateAnimationTransition();
             SampleCurrentClip();
             UpdateFootstepAudio(_controller.enabled ? _controller.isGrounded : true);
+            HandleCameraLook();
             return;
         }
 
@@ -363,7 +366,7 @@ public class UserImportedPlayerController : MonoBehaviour
         if (!grounded) _airTime += Time.deltaTime;
         else _airTime = 0f;
 
-        // Detetar queda prolongada do mapa — ragdoll + morte ao fim de 5s
+        // Detetar queda prolongada do mapa — ragdoll + morte
         if (!grounded && _verticalVelocity < -3f && _moveState != MoveState.Dead)
         {
             _fallTimer += Time.deltaTime;
@@ -452,6 +455,13 @@ public class UserImportedPlayerController : MonoBehaviour
         _currentMovementVelocity = Vector3.zero;
         _movementVelocityRef = Vector3.zero;
         _verticalVelocity = -1f;
+
+        if (_animator != null)
+        {
+            _animator.SetFloat("speed", 0f);
+            _animator.SetBool("isMoving", false);
+        }
+        PlayClip("idle");
 
         AttachBottleToRightHand(bottleTransform);
         yield return WaitForSecondsRoutine(0.1f);

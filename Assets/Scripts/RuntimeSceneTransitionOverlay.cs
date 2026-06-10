@@ -203,14 +203,14 @@ public class RuntimeSceneTransitionOverlay : MonoBehaviour
         if (!Application.CanStreamedLevelBeLoaded(LoadingSceneName))
         {
             _autoFadeOnLoad = true;
-            SceneManager.LoadSceneAsync(targetSceneName);
+            yield return SceneManager.LoadSceneAsync(targetSceneName);
             yield break;
         }
 
         GlobalSceneTransitionRequest.PendingSceneName = targetSceneName;
         PlayerPrefs.SetString(PendingSceneKey, targetSceneName);
         PlayerPrefs.Save();
-        SceneManager.LoadSceneAsync(LoadingSceneName);
+        yield return SceneManager.LoadSceneAsync(LoadingSceneName);
     }
 
     private void HideImmediate()

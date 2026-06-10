@@ -102,6 +102,11 @@ public static class SaveManager
         LevelCompletionState.ClearLegacyGlobal();
         PlayerInventory.ClearPrefsForSlot(clamped);
 
+        PlayerPrefs.DeleteKey($"IntroPlayed_beco_noite_Slot_{clamped}");
+        PlayerPrefs.DeleteKey($"IntroPlayed_masmorra_spawn_Slot_{clamped}");
+        PlayerPrefs.DeleteKey("IntroPlayed_beco_noite");
+        PlayerPrefs.DeleteKey("IntroPlayed_masmorra_spawn");
+
         SaveSlotData data = new SaveSlotData
         {
             slotIndex = clamped,

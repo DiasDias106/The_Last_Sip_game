@@ -98,18 +98,25 @@ public class LimoNightTrigger : MonoBehaviour
         controller.SetExternalControlLocked(true);
         controller.PlayExternalAnimation("walk");
 
-        // Disable CharacterController during the walk so transform.position moves freely
         CharacterController cc = controller.GetComponent<CharacterController>();
         float originalStepOffset = 0f;
-        if (cc != null) { originalStepOffset = cc.stepOffset; cc.enabled = false; }
+        if (cc != null) { originalStepOffset = cc.stepOffset; }
+
+        Vector3 targetPosition = GetImpactDestination(controller);
 
         // Camera anchor that follows the player during the walk so the user can see it
+        Vector3 toTarget = targetPosition - controller.transform.position;
+        toTarget.y = 0f;
+        if (toTarget.sqrMagnitude < 0.01f) toTarget = controller.transform.forward;
+        else toTarget.Normalize();
+
         GameObject walkCameraAnchor = new GameObject("NightWalkCameraAnchor");
-        walkCameraAnchor.transform.position = controller.transform.position;
-        controller.SetCameraFollowOverride(walkCameraAnchor.transform, true, cameraPitch);
+        walkCameraAnchor.transform.SetParent(controller.transform);
+        walkCameraAnchor.transform.localPosition = Vector3.zero;
+        walkCameraAnchor.transform.rotation = Quaternion.LookRotation(toTarget);
+        controller.SetCameraFollowOverride(walkCameraAnchor.transform, true, cameraPitch, snapImmediately: true);
 
         float walkSpeed = controller.CurrentWalkSpeed;
-        Vector3 targetPosition = GetImpactDestination(controller);
         float autoWalkTimer = 0f;
         while (Mathf.Abs(controller.transform.position.z - targetPosition.z) > 0.12f ||
                Mathf.Abs(controller.transform.position.x - targetPosition.x) > 0.12f)
@@ -119,12 +126,10 @@ public class LimoNightTrigger : MonoBehaviour
             if (direction.sqrMagnitude > 0.0001f)
             {
                 controller.FaceDirection(direction);
-                Vector3 step = direction.normalized * walkSpeed * Time.deltaTime;
-                if (step.sqrMagnitude > direction.sqrMagnitude) step = direction;
-                controller.transform.position += step;
+                controller.MoveExternally(direction.normalized * walkSpeed);
             }
 
-            walkCameraAnchor.transform.position = controller.transform.position;
+            walkCameraAnchor.transform.rotation = Quaternion.LookRotation(toTarget);
 
             autoWalkTimer += Time.deltaTime;
             if (autoWalkTimer >= maxAutoWalkTime)
@@ -138,7 +143,7 @@ public class LimoNightTrigger : MonoBehaviour
         controller.ClearCameraFollowOverride();
         Destroy(walkCameraAnchor);
 
-        if (cc != null) { cc.enabled = true; cc.stepOffset = originalStepOffset; }
+        if (cc != null) { cc.stepOffset = originalStepOffset; }
         controller.FaceDirection(Vector3.forward);
         controller.PlayExternalAnimation("idle");
         yield return new WaitForSeconds(limoStartDelay);
@@ -366,9 +371,7 @@ public class LimoNightTrigger : MonoBehaviour
     {
         if (playerImpactPoint != null)
         {
-            Vector3 destination = playerImpactPoint.position;
-            destination.x = controller.transform.position.x;
-            return destination;
+            return playerImpactPoint.position; // Vai exatamente para o centro/ponto definido
         }
 
         Vector3 fallback = controller.transform.position;
