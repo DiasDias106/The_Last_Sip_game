@@ -7095,6 +7095,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: 0579cf2528c7e074c95c7e8a7e08cadd, type: 3}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: promptText
+      value: Entrar
+      objectReference: {fileID: 0}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: promptOffset.y
       value: 2.2
       objectReference: {fileID: 0}
@@ -14147,6 +14151,7 @@ MonoBehaviour:
   ambientMusic: {fileID: 8300000, guid: 85f058d599f153e44b64624c7ac50c68, type: 3}
   combatMusic: {fileID: 0}
   bossMusic: {fileID: 0}
+  volumeMultiplier: 1
 --- !u!4 &433200995
 Transform:
   m_ObjectHideFlags: 0
@@ -38751,6 +38756,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: 0579cf2528c7e074c95c7e8a7e08cadd, type: 3}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: promptText
+      value: Entrar
+      objectReference: {fileID: 0}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: promptOffset.y
       value: 2.2
       objectReference: {fileID: 0}
@@ -53828,6 +53837,10 @@ PrefabInstance:
       propertyPath: enterSound
       value: 
       objectReference: {fileID: 8300000, guid: 0579cf2528c7e074c95c7e8a7e08cadd, type: 3}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: promptText
+      value: Entrar
+      objectReference: {fileID: 0}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: promptOffset.y
       value: 2.2
@@ -71393,6 +71406,10 @@ PrefabInstance:
       propertyPath: enterSound
       value: 
       objectReference: {fileID: 8300000, guid: 0579cf2528c7e074c95c7e8a7e08cadd, type: 3}
+    - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      propertyPath: promptText
+      value: Entrar
+      objectReference: {fileID: 0}
     - target: {fileID: 973945648480650190, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
       propertyPath: promptOffset.y
       value: 2.2
