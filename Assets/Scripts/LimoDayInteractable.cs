@@ -94,6 +94,18 @@ public class LimoDayInteractable : MonoBehaviour
 
         Vector3 target = GetEntryPoint(controller.transform.position);
 
+        // Alinhar câmara atrás do player a olhar em direção à limo
+        Vector3 toTarget = target - controller.transform.position;
+        toTarget.y = 0f;
+        if (toTarget.sqrMagnitude < 0.01f) toTarget = controller.transform.forward;
+        else toTarget.Normalize();
+
+        GameObject walkCamAnchor = new GameObject("LimoDayWalkAnchor");
+        walkCamAnchor.transform.SetParent(controller.transform);
+        walkCamAnchor.transform.localPosition = Vector3.zero;
+        walkCamAnchor.transform.rotation = Quaternion.LookRotation(toTarget);
+        controller.SetCameraFollowOverride(walkCamAnchor.transform, true, cameraPitch, snapImmediately: true);
+
         float walkTimer = 0f;
         float stuckCheckTimer = 0f;
         Vector3 lastCheckPos = controller.transform.position;
@@ -145,6 +157,10 @@ public class LimoDayInteractable : MonoBehaviour
         controller.PlayExternalAnimation("idle");
 
         yield return new WaitForSeconds(entryHoldTime);
+
+        // Destruir anchor de caminhada (se ainda existir) antes de criar o de condução
+        GameObject oldWalkAnchor = GameObject.Find("LimoDayWalkAnchor");
+        if (oldWalkAnchor != null) Destroy(oldWalkAnchor);
 
         GameObject anchor = new GameObject("LimoDayCameraAnchor");
         anchor.transform.position = transform.position + new Vector3(-8f, 3f, 0f);
