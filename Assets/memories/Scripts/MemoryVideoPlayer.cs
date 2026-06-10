@@ -20,6 +20,7 @@ public class MemoryVideoPlayer : MonoBehaviour
     private Image          fadeOverlay;   // overlay preto para fade in/out
     private Text           skipText;
     private VideoPlayer    videoPlayer;
+    private AudioSource    videoAudioSource;
     private RenderTexture  renderTexture;
     private bool           isPlaying;
     private System.Action  onVideoFinishedCallback;
@@ -100,8 +101,8 @@ public class MemoryVideoPlayer : MonoBehaviour
         videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
         videoPlayer.timeReference = VideoTimeReference.Freerun;
 
-        var audioSource = gameObject.AddComponent<AudioSource>();
-        videoPlayer.SetTargetAudioSource(0, audioSource);
+        videoAudioSource = gameObject.AddComponent<AudioSource>();
+        videoPlayer.SetTargetAudioSource(0, videoAudioSource);
 
         renderTexture = new RenderTexture(1920, 1080, 0);
         videoPlayer.targetTexture = renderTexture;
@@ -195,13 +196,24 @@ public class MemoryVideoPlayer : MonoBehaviour
     {
         float elapsed = 0f;
         SetOverlayAlpha(from);
+        
+        float startVol = 1f - from;
+        float endVol = 1f - to;
+        if (videoAudioSource != null) videoAudioSource.volume = startVol;
+
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            SetOverlayAlpha(Mathf.Lerp(from, to, Mathf.Clamp01(elapsed / duration)));
+            float t = Mathf.Clamp01(elapsed / duration);
+            SetOverlayAlpha(Mathf.Lerp(from, to, t));
+            
+            if (videoAudioSource != null)
+                videoAudioSource.volume = Mathf.Lerp(startVol, endVol, t);
+                
             yield return null;
         }
         SetOverlayAlpha(to);
+        if (videoAudioSource != null) videoAudioSource.volume = endVol;
     }
 
     private void SetOverlayAlpha(float alpha)

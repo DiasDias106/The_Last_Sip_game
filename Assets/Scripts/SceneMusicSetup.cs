@@ -5,12 +5,18 @@ public sealed class SceneMusicSetup : MonoBehaviour
     [SerializeField] private AudioClip ambientMusic;
     [SerializeField] private AudioClip combatMusic;
     [SerializeField] private AudioClip bossMusic;
+    [SerializeField] [Range(0.1f, 5f)] private float volumeMultiplier = 1f;
 
     private void Start()
     {
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene() != gameObject.scene)
+        {
+            return;
+        }
+
         foreach (var m in Object.FindObjectsByType<MenuAudioManager>(FindObjectsSortMode.None))
             m.SetAmbientMusicClip(null);
 
-        GameMusicManager.GetOrCreate().SetupForScene(ambientMusic, combatMusic, bossMusic);
+        GameMusicManager.GetOrCreate().SetupForScene(ambientMusic, combatMusic, bossMusic, volumeMultiplier);
     }
 }

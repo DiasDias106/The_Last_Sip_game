@@ -62,6 +62,8 @@ public sealed class MainMenuController : MonoBehaviour
 
     private void Awake()
     {
+        AudioListener.pause = false;
+
         if (menuAudioManager == null)
         {
             menuAudioManager = GetComponent<MenuAudioManager>();
@@ -90,12 +92,6 @@ public sealed class MainMenuController : MonoBehaviour
         {
             defaultCreditsBackgroundSprite = creditsBackgroundImage.sprite;
             defaultCreditsBackgroundColor = creditsBackgroundImage.color;
-        }
-
-        GameMusicManager.Instance?.StopAll();
-        if (menuAudioManager != null && menuAmbientClip != null)
-        {
-            menuAudioManager.SetAmbientMusicClip(menuAmbientClip);
         }
 
         if (versionText != null)
@@ -134,6 +130,15 @@ public sealed class MainMenuController : MonoBehaviour
         {
             consumePendingCreditsFlagOnStart = true;
             pendingCreditsLaunchQueued = true;
+        }
+
+        GameMusicManager.Instance?.StopAll(true);
+        if (!pendingSceneLaunchQueued && !pendingCreditsLaunchQueued)
+        {
+            if (menuAudioManager != null && menuAmbientClip != null)
+            {
+                menuAudioManager.SetAmbientMusicClip(menuAmbientClip, false);
+            }
         }
 
         ApplyCreditsBackground(pendingCreditsLaunchQueued);
@@ -273,7 +278,7 @@ public sealed class MainMenuController : MonoBehaviour
         ApplyCreditsBackground(isBlackBackground: true);
 
         if (menuAudioManager != null && creditsAmbientClip != null)
-            menuAudioManager.SetAmbientMusicClip(creditsAmbientClip);
+            menuAudioManager.SetAmbientMusicClip(creditsAmbientClip, false);
 
         optionsPanel?.HideImmediate();
         slotSelectionController?.HideImmediate();
@@ -497,7 +502,7 @@ public sealed class MainMenuController : MonoBehaviour
         mainMenuPanel?.SetActive(true);
         if (menuAudioManager != null && menuAmbientClip != null)
         {
-            menuAudioManager.SetAmbientMusicClip(menuAmbientClip);
+            menuAudioManager.SetAmbientMusicClip(menuAmbientClip, false);
         }
         UpdateMainMenuPresentation();
 
@@ -518,7 +523,7 @@ public sealed class MainMenuController : MonoBehaviour
 
         if (menuAudioManager != null && creditsAmbientClip != null)
         {
-            menuAudioManager.SetAmbientMusicClip(creditsAmbientClip);
+            menuAudioManager.SetAmbientMusicClip(creditsAmbientClip, false);
         }
 
         optionsPanel?.HideImmediate();
