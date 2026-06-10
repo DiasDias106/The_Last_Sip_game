@@ -10,18 +10,17 @@ public class LimoDaySequenceTrigger : MonoBehaviour
 
     private void Reset()
     {
-        if (TryGetComponent<BoxCollider>(out BoxCollider triggerCollider))
-        {
-            triggerCollider.isTrigger = true;
-        }
+        if (TryGetComponent<BoxCollider>(out BoxCollider col))
+            col.isTrigger = true;
     }
 
     private void Awake()
     {
-        if (TryGetComponent<BoxCollider>(out BoxCollider triggerCollider))
-        {
-            triggerCollider.isTrigger = true;
-        }
+        if (TryGetComponent<BoxCollider>(out BoxCollider col))
+            col.isTrigger = true;
+
+        if (limoDayInteractable == null)
+            limoDayInteractable = Object.FindFirstObjectByType<LimoDayInteractable>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -36,6 +35,14 @@ public class LimoDaySequenceTrigger : MonoBehaviour
 
     private void TryStart(Collider other)
     {
-        // Sequence is now triggered by F key inside LimoDayInteractable — nothing to do here.
+        if (_triggered || limoDayInteractable == null) return;
+        if (!other.CompareTag("Player")) return;
+
+        UserImportedPlayerController ctrl = other.GetComponent<UserImportedPlayerController>()
+            ?? other.GetComponentInParent<UserImportedPlayerController>();
+        if (ctrl == null) return;
+
+        _triggered = true;
+        limoDayInteractable.TryBeginAutoWalk();
     }
 }
