@@ -25391,6 +25391,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 7789188230720001590, guid: 0861c39d90924f7418200d4a7ba7ed9b, type: 3}
+--- !u!134 &798912503
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1001 &799705323
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27774,6 +27787,32 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 5874977512735481681, guid: 0861c39d90924f7418200d4a7ba7ed9b, type: 3}
+--- !u!1 &854052136 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6717087551740606249, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+  m_PrefabInstance: {fileID: 2009550731}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &854052140
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854052136}
+  m_Material: {fileID: 798912503}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.03, y: 0.22, z: 0.25}
+  m_Center: {x: 0, y: -0.14, z: 0}
 --- !u!64 &854705232
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -71380,7 +71419,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6717087551740606249, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 854052140}
   m_SourcePrefab: {fileID: 100100000, guid: a095b8423b5483b44b0496c9fbc8bc43, type: 3}
 --- !u!1001 &2010254180
 PrefabInstance:

@@ -5813,10 +5813,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.4
-  m_Height: 1
+  m_Radius: 1.446
+  m_Height: 1.647
   m_Direction: 1
-  m_Center: {x: 0, y: 0.5, z: 0}
+  m_Center: {x: -0.6, y: 0.79, z: -0.44}
 --- !u!114 &8261754444760871798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5829,7 +5829,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17f9a22f5960dd847848a4e3f644c546, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SifController
-  maxHealth: 200
+  maxHealth: 40
   attackDamage: 22
   attackCooldown: 1.8
   moveSpeed: 4

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 
@@ -6,7 +6,7 @@ using System.Collections;
 public class SifController : MonoBehaviour, IDamageable, IStaggerable
 {
     [Header("Stats")]
-    public float maxHealth      = 200f;
+    public float maxHealth      = 40f;
     public float attackDamage   = 22f;
     public float attackCooldown = 1.8f;
     public float moveSpeed      = 4f;
@@ -212,10 +212,7 @@ public class SifController : MonoBehaviour, IDamageable, IStaggerable
         if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); }
         if (_agent.isOnNavMesh) _agent.isStopped = true;
         _agent.enabled = false;
-        // Voltar ao idle antes de morrer (pose neutra, nao pose de ataque)
-        _animator?.SetBool(HashIsWalking, false);
-        _animator?.SetBool(HashIsRunning, false);
-        _animator?.Play("Idle");
+        
         var col = GetComponent<CapsuleCollider>();
         if (col != null) col.isTrigger = true;
         PlayerInventory.Instance?.AddCoins(coinReward);
@@ -224,10 +221,30 @@ public class SifController : MonoBehaviour, IDamageable, IStaggerable
 
     private IEnumerator DeathRoutine()
     {
-        // Deixar transicionar para idle (0.4s)
-        yield return new WaitForSeconds(0.4f);
-        // Congelar na pose idle
-        if (_animator != null) _animator.enabled = false;
+        if (_animator != null)
+        {
+            _animator.enabled = false; // Para as animações
+            
+            // Tira o lobo para o lado (roda 90 graus no eixo Z para deitar de lado)
+            float elapsedTip = 0f;
+            float tipDuration = 0.5f;
+            Quaternion startRot = _animator.transform.localRotation;
+            Quaternion endRot = startRot * Quaternion.Euler(0f, 0f, 90f);
+            Vector3 startPos = _animator.transform.localPosition;
+            Vector3 endPos = startPos + new Vector3(0f, 0.50f, 0f); // Sobe para compensar a rotação e assentar no chão
+            
+            while (elapsedTip < tipDuration)
+            {
+                elapsedTip += Time.deltaTime;
+                float t = elapsedTip / tipDuration;
+                _animator.transform.localRotation = Quaternion.Slerp(startRot, endRot, t);
+                _animator.transform.localPosition = Vector3.Lerp(startPos, endPos, t);
+                yield return null;
+            }
+        }
+        
+        yield return new WaitForSeconds(1.5f); // Fica deitado por 1.5 segundos
+
         // Encolher igual ao skeleton
         float elapsed = 0f;
         float shrinkDuration = 1.2f;

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 
@@ -6,7 +6,7 @@ using System.Collections;
 public class DarkKnightController : MonoBehaviour, IDamageable, IStaggerable
 {
     [Header("Stats")]
-    public float maxHealth      = 150f;
+    public float maxHealth      = 60f;
     public float attackDamage   = 20f;
     public float attackCooldown = 2.0f;
     public float moveSpeed      = 2f;
@@ -226,10 +226,9 @@ public class DarkKnightController : MonoBehaviour, IDamageable, IStaggerable
         if (_inCombat) { _inCombat = false; GameMusicManager.Instance?.ExitCombat(); }
         if (_agent.isOnNavMesh) _agent.isStopped = true;
         _agent.enabled = false;
-        // Voltar ao idle antes de morrer (pose neutra, nao pose de ataque)
-        _animator?.SetBool(HashIsWalking, false);
-        _animator?.SetBool(HashIsRunning, false);
-        _animator?.Play("Idle");
+        
+        _animator?.SetTrigger(HashDie);
+        
         var col = GetComponent<CapsuleCollider>();
         if (col != null) col.isTrigger = true;
         PlayerInventory.Instance?.AddCoins(coinReward);
@@ -238,10 +237,13 @@ public class DarkKnightController : MonoBehaviour, IDamageable, IStaggerable
 
     private IEnumerator DeathRoutine()
     {
-        // Deixar transicionar para idle (0.4s)
-        yield return new WaitForSeconds(0.4f);
-        // Congelar na pose idle
+        // A animação de morte do Dark Knight atinge o chão aos 1.13 segundos.
+        // Esperamos 1.13s e congelamos a animação para ele ficar deitado no chão (sem levantar-se de novo).
+        yield return new WaitForSeconds(1.13f);
         if (_animator != null) _animator.enabled = false;
+        
+        yield return new WaitForSeconds(0.87f); // Fica deitado no chão mais 0.87s (total de 2 segundos)
+
         // Encolher igual ao skeleton
         float elapsed = 0f;
         float shrinkDuration = 1.2f;
