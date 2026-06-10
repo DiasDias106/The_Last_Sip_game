@@ -156,6 +156,8 @@ public class MemoryPickup : MonoBehaviour, IInteractable
             LevelCompletionState.SetCompleted(completedLevelSceneName, true);
         }
 
+        PlayerHealth.PreserveCurrentForSceneTransition(targetSceneName);
+
         GlobalSceneTransitionRequest.PendingSceneName = targetSceneName;
         PlayerPrefs.SetString(PendingSceneKey, targetSceneName);
         PlayerPrefs.Save();

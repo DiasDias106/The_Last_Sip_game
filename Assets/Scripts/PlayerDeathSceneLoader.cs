@@ -43,6 +43,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
     {
         if (_triggered) return;
         _triggered = true;
+        PlayerHealth.ClearPreservedState();
         StartCoroutine(DeathSequence());
     }
 

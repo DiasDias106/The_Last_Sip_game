@@ -544,6 +544,12 @@ public static class MainMenuSceneBuilder
     private static GameObject CreateCreditsPanel(Transform parent, TMP_FontAsset tmpFont, Sprite background, Sprite vignette, Sprite title, Sprite panelWood, Sprite buttonNormal, Sprite buttonHover, Sprite buttonPressed, Sprite buttonGlow, Sprite bottle, Sprite glass, Sprite newspaper, MenuAudioManager audioManager)
     {
         GameObject panelRoot = CreatePanelState("CreditsPanel", parent, tmpFont, background, vignette, title, panelWood, out GameObject bodyRoot, out MenuPanelController controller);
+        Transform titleImage = panelRoot.transform.Find("TitleImage");
+        if (titleImage != null)
+        {
+            SetRect(RectOf(titleImage.gameObject), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -58f), new Vector2(360f, 148f));
+        }
+
         BuildCreditsBackdrop(panelRoot.transform, bottle, glass, newspaper);
         BuildCreditsPaper(bodyRoot, tmpFont);
 

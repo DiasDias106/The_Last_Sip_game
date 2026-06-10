@@ -62,7 +62,7 @@ public sealed class MainMenuController : MonoBehaviour
 
     private void Awake()
     {
-        AudioListener.pause = false;
+        EnsureMenuInputState();
 
         if (menuAudioManager == null)
         {
@@ -133,6 +133,11 @@ public sealed class MainMenuController : MonoBehaviour
         }
 
         GameMusicManager.Instance?.StopAll(true);
+        if (!pendingSceneLaunchQueued)
+        {
+            PlayerHealth.ClearPreservedState();
+        }
+
         if (!pendingSceneLaunchQueued && !pendingCreditsLaunchQueued)
         {
             if (menuAudioManager != null && menuAmbientClip != null)
@@ -214,6 +219,7 @@ public sealed class MainMenuController : MonoBehaviour
 
     private void Start()
     {
+        EnsureMenuInputState();
         ConsumeStartupTransitionFlags();
 
         if (pendingSceneLaunchQueued)
@@ -274,6 +280,7 @@ public sealed class MainMenuController : MonoBehaviour
     {
         isTransitioning = true;
         SetMainMenuInputBlocked(true);
+        EnsureMenuInputState();
         mainMenuPanel?.SetActive(false);
         ApplyCreditsBackground(isBlackBackground: true);
 
@@ -291,6 +298,7 @@ public sealed class MainMenuController : MonoBehaviour
         if (sceneFadeController != null)
             yield return sceneFadeController.FadeToAlpha(0f, 0.5f);
 
+        EnsureMenuInputState();
         SetMainMenuInputBlocked(false);
         isTransitioning = false;
         UpdateMainMenuPresentation();
@@ -491,6 +499,7 @@ public sealed class MainMenuController : MonoBehaviour
     {
         isTransitioning = true;
         SetMainMenuInputBlocked(true);
+        EnsureMenuInputState();
 
         if (sceneFadeController != null)
         {
@@ -511,6 +520,7 @@ public sealed class MainMenuController : MonoBehaviour
             yield return sceneFadeController.FadeToAlpha(0f, 0.22f);
         }
 
+        EnsureMenuInputState();
         SetMainMenuInputBlocked(false);
         isTransitioning = false;
     }
@@ -723,6 +733,7 @@ public sealed class MainMenuController : MonoBehaviour
 
     private void HandleLoadingSequenceFinished()
     {
+        EnsureMenuInputState();
         isTransitioning = false;
         SetMainMenuInputBlocked(false);
         activePanel = creditsPanel != null && creditsPanel.IsVisible ? creditsPanel : null;
@@ -765,6 +776,14 @@ public sealed class MainMenuController : MonoBehaviour
     {
         isMainMenuInputBlocked = blocked;
         UpdateMainMenuPresentation();
+    }
+
+    private static void EnsureMenuInputState()
+    {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     private void HandleLanguageChanged()
