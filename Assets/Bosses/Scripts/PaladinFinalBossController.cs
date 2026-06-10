@@ -271,6 +271,19 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         }
     }
 
+    public void RevealEncounterUI()
+    {
+        if (isDead)
+        {
+            return;
+        }
+
+        ResolvePlayer();
+        EnsureBossHud();
+        BossHUDController.Instance?.Show();
+        BossHUDController.Instance?.RefreshWithArmor(currentHealth, maxHealth, currentArmor, maxArmor);
+    }
+
     private IEnumerator HitReactRoutine()
     {
         isHitReacting = true;

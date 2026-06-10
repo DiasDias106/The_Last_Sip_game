@@ -160,6 +160,7 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     private void BeginScreenTransition()
     {
         DisableVisualsAndColliders();
+        PlayerHealth.PreserveCurrentForSceneTransition(targetSceneName);
         SaveManager.SaveActiveSlotFromCurrentScene(targetSceneName);
         RuntimeSceneTransitionOverlay.BeginTransition(targetSceneName, blackScreenDuration);
     }

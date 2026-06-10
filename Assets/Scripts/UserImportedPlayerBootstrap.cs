@@ -70,6 +70,11 @@ public static class UserImportedPlayerBootstrap
         EnsurePlayerSpawned();
         EnsureHUDStateForScene(sceneName);
 
+        if (IsGameplayLevelScene(sceneName))
+        {
+            SetupBossEntranceDoorSeal(sceneName);
+        }
+
         if (IsBecoScene(sceneName))
         {
             SetupBecoEncounter();
@@ -259,6 +264,151 @@ public static class UserImportedPlayerBootstrap
         return sceneName == SceneName
             || sceneName == Level2SceneName
             || sceneName == Level3SceneName;
+    }
+
+    private static void SetupBossEntranceDoorSeal(string sceneName)
+    {
+        BossController[] bosses = Object.FindObjectsByType<BossController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        PaladinFinalBossController finalBoss = FindLevel3FinalBoss();
+        if (Object.FindObjectOfType<BossEntranceDoorSeal>() != null)
+        {
+            return;
+        }
+
+        GameObject playerGo = GameObject.FindGameObjectWithTag("Player");
+        Vector3 referencePosition = playerGo != null ? playerGo.transform.position : GetFallbackSpawnForScene(sceneName);
+
+        DoorInteractable nearestDoorInteractable = null;
+        Transform nearestLargeDoor = null;
+        Transform sealAnchor = null;
+        Transform proximityTarget = null;
+        BossEntranceDoorSeal.TriggerMode triggerMode = BossEntranceDoorSeal.TriggerMode.CrossAnchor;
+
+        if (sceneName == SceneName)
+        {
+            nearestDoorInteractable = FindLevel1BossDoor(referencePosition);
+            sealAnchor = nearestDoorInteractable != null ? nearestDoorInteractable.transform : null;
+        }
+        else if (sceneName == Level2SceneName)
+        {
+            nearestLargeDoor = FindNamedLargeDoor("COMP_Door_01_large (2)");
+            sealAnchor = nearestLargeDoor;
+        }
+        else if (sceneName == Level3SceneName)
+        {
+            nearestLargeDoor = FindLevel3BossDoor();
+            sealAnchor = nearestLargeDoor;
+            proximityTarget = finalBoss != null ? finalBoss.transform : null;
+            triggerMode = proximityTarget != null
+                ? BossEntranceDoorSeal.TriggerMode.BossProximity
+                : BossEntranceDoorSeal.TriggerMode.CrossAnchor;
+        }
+
+        if (nearestDoorInteractable == null && nearestLargeDoor == null)
+        {
+            return;
+        }
+
+        GameObject trigger = new GameObject("BossEntranceDoorSeal");
+        trigger.transform.position = sealAnchor != null ? sealAnchor.position : referencePosition;
+
+        BossEntranceDoorSeal seal = trigger.AddComponent<BossEntranceDoorSeal>();
+        seal.Initialize(bosses, nearestDoorInteractable, nearestLargeDoor, sealAnchor, triggerMode, proximityTarget, finalBoss);
+    }
+
+    private static DoorInteractable FindLevel1BossDoor(Vector3 position)
+    {
+        DoorInteractable[] doors = Object.FindObjectsOfType<DoorInteractable>(true);
+        DoorInteractable best = null;
+        float bestDistSq = float.MinValue;
+
+        for (int i = 0; i < doors.Length; i++)
+        {
+            DoorInteractable door = doors[i];
+            if (door == null || door.DoorGroupId != "level1_gate_root")
+            {
+                continue;
+            }
+
+            float distSq = (door.transform.position - position).sqrMagnitude;
+            if (distSq > bestDistSq)
+            {
+                bestDistSq = distSq;
+                best = door;
+            }
+        }
+
+        return best;
+    }
+
+    private static Transform FindNamedLargeDoor(string exactName)
+    {
+        Transform[] transforms = Object.FindObjectsOfType<Transform>(true);
+
+        for (int i = 0; i < transforms.Length; i++)
+        {
+            Transform t = transforms[i];
+            if (t == null || t.name != exactName)
+            {
+                continue;
+            }
+
+            return t;
+        }
+
+        return null;
+    }
+
+    private static Transform FindLevel3BossDoor()
+    {
+        Transform[] transforms = Object.FindObjectsOfType<Transform>(true);
+        Transform best = null;
+        float bestScore = float.MaxValue;
+        Vector3 expectedPosition = new Vector3(2f, -1f, -28f);
+
+        for (int i = 0; i < transforms.Length; i++)
+        {
+            Transform t = transforms[i];
+            if (t == null || !t.name.StartsWith("COMP_Door_01_large"))
+            {
+                continue;
+            }
+
+            float score = (t.position - expectedPosition).sqrMagnitude;
+            if (score < bestScore)
+            {
+                bestScore = score;
+                best = t;
+            }
+        }
+
+        return best;
+    }
+
+    private static PaladinFinalBossController FindLevel3FinalBoss()
+    {
+        PaladinFinalBossController[] bosses = Object.FindObjectsByType<PaladinFinalBossController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        if (bosses == null || bosses.Length == 0)
+        {
+            return null;
+        }
+
+        return bosses[0];
+    }
+
+    private static Vector3 GetFallbackSpawnForScene(string sceneName)
+    {
+        if (sceneName == SceneName)
+        {
+            return FallbackSpawn;
+        }
+
+        if (sceneName == Level2SceneName || sceneName == Level3SceneName)
+        {
+            return TavernSpawnFallback;
+        }
+
+        return Vector3.zero;
     }
 
     private static bool IsPlayerSpawnScene(string sceneName)

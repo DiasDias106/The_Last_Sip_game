@@ -138,6 +138,11 @@ public sealed class MainMenuController : MonoBehaviour
             pendingCreditsLaunchQueued = true;
         }
 
+        if (!pendingSceneLaunchQueued)
+        {
+            PlayerHealth.ClearPreservedState();
+        }
+
         ApplyCreditsBackground(pendingCreditsLaunchQueued);
 
         optionsPanel?.HideImmediate();
