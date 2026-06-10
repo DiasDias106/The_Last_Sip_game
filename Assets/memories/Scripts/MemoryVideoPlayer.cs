@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 using System.Collections;
+using System.IO;
 
 public class MemoryVideoPlayer : MonoBehaviour
 {
@@ -142,11 +143,46 @@ public class MemoryVideoPlayer : MonoBehaviour
         onVideoFinishedCallback = onComplete;
         ClearRenderTexture();
 
-        string pathStr = System.IO.Path.Combine(Application.dataPath, "videos", videoFileName + ".mp4");
+        string pathStr = ResolveVideoPath(videoFileName);
+        if (string.IsNullOrEmpty(pathStr))
+        {
+            Debug.LogWarning($"[MemoryVideoPlayer] Could not find video file for '{videoFileName}'.");
+            onVideoFinishedCallback = null;
+            onComplete?.Invoke();
+            return;
+        }
+
         videoPlayer.source = VideoSource.Url;
         videoPlayer.url = pathStr;
         videoDisplay.texture = renderTexture;
         StartCoroutine(PlayWithFade());
+    }
+
+    private static string ResolveVideoPath(string videoFileName)
+    {
+        string fileName = videoFileName + ".mp4";
+        string streamingAssetsPath = Path.Combine(Application.streamingAssetsPath, "videos", fileName);
+        if (File.Exists(streamingAssetsPath))
+        {
+            return streamingAssetsPath;
+        }
+
+        string legacyAssetsPath = Path.Combine(Application.dataPath, "videos", fileName);
+        if (File.Exists(legacyAssetsPath))
+        {
+            return legacyAssetsPath;
+        }
+
+#if UNITY_EDITOR
+        string editorAssetsPath = Path.Combine(Application.dataPath, "..", "Assets", "videos", fileName);
+        editorAssetsPath = Path.GetFullPath(editorAssetsPath);
+        if (File.Exists(editorAssetsPath))
+        {
+            return editorAssetsPath;
+        }
+#endif
+
+        return null;
     }
 
     private IEnumerator PlayWithFade()

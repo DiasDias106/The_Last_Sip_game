@@ -17,7 +17,27 @@ public class BaseArmadilhaFall : MonoBehaviour
             _rb = gameObject.AddComponent<Rigidbody>();
         }
 
-        MeshCollider[] meshColliders = GetComponents<MeshCollider>();
+        EnsureCollisionSetup();
+
+        _rb.isKinematic = true;
+        _rb.useGravity = false;
+    }
+
+    private void EnsureCollisionSetup()
+    {
+        Collider[] colliders = GetComponentsInChildren<Collider>(true);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider collider = colliders[i];
+            if (collider == null)
+            {
+                continue;
+            }
+
+            collider.enabled = true;
+        }
+
+        MeshCollider[] meshColliders = GetComponentsInChildren<MeshCollider>(true);
         for (int i = 0; i < meshColliders.Length; i++)
         {
             MeshCollider meshCollider = meshColliders[i];
@@ -27,8 +47,44 @@ public class BaseArmadilhaFall : MonoBehaviour
             }
         }
 
-        _rb.isKinematic = true;
-        _rb.useGravity = false;
+        Bounds combinedBounds = new Bounds(transform.position, Vector3.zero);
+        bool hasBounds = false;
+
+        Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null)
+            {
+                continue;
+            }
+
+            if (!hasBounds)
+            {
+                combinedBounds = renderer.bounds;
+                hasBounds = true;
+            }
+            else
+            {
+                combinedBounds.Encapsulate(renderer.bounds);
+            }
+        }
+
+        if (!hasBounds)
+        {
+            return;
+        }
+
+        BoxCollider rootBoxCollider = GetComponent<BoxCollider>();
+        if (rootBoxCollider == null)
+        {
+            rootBoxCollider = gameObject.AddComponent<BoxCollider>();
+        }
+
+        rootBoxCollider.isTrigger = false;
+        rootBoxCollider.center = transform.InverseTransformPoint(combinedBounds.center);
+        rootBoxCollider.size = combinedBounds.size;
+        rootBoxCollider.enabled = true;
     }
 
     public void TriggerFall()

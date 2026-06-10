@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c0f93eb88d64ccb89304f0f4ad6d4ef, type: 3}
+  m_Name: RuntimeAnimationLibrary
+  m_EditorClassIdentifier: 
+  drunkIdle: {fileID: 8993902097722301239, guid: 79c58cdfac9406945a8cf154de22fa87, type: 3}
+  drunkWalk: {fileID: 8993902097722301239, guid: ddadcb5d01a6aed4eae2dd291e0841d3, type: 3}
+  drunkWalkNoRootMotion: {fileID: 8993902097722301239, guid: f1faa3d9595ab90499ffa0464874cb8b, type: 3}
+  moonshineIntro: {fileID: 8993902097722301239, guid: 44f3cf9adc6abda49887a528b20f70ea, type: 3}
+  moonshineLoop: {fileID: 8993902097722301239, guid: 0a317c9c86907e5449cf06760470f5e4, type: 3}

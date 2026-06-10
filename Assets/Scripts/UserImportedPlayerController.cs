@@ -17,6 +17,7 @@ public class UserImportedPlayerController : MonoBehaviour
     private const string BecoNoiteSceneName = "beco_noite";
     private const string BecoDiaSceneName = "beco_dia";
     private const string RuntimePaladinClipsResourceFolder = "RuntimePaladinClips";
+    private const string RuntimeAnimationLibraryResourcePath = "RuntimeAnimationLibrary";
     // ── Inspector ────────────────────────────────────────────────────────────────
     [SerializeField] private float walkSpeed          = 2.25f;
     public float CurrentWalkSpeed => walkSpeed;
@@ -90,6 +91,7 @@ public class UserImportedPlayerController : MonoBehaviour
 
     // ── Animation ────────────────────────────────────────────────────────────────
     private readonly Dictionary<string, AnimationClip> _clips = new Dictionary<string, AnimationClip>();
+    private static RuntimeAnimationLibrary _runtimeAnimationLibrary;
     private Animator _animator;
     private PlayableGraph _playableGraph;
     private AnimationPlayableOutput _animOutput;
@@ -1086,8 +1088,25 @@ public class UserImportedPlayerController : MonoBehaviour
         Override("idle",       ki + "Idles/HumanM@Idle01.fbx");
         Override("idleStatic", ki + "Idles/HumanM@Idle01.fbx");
 
-        bool isBecoNoite = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == BecoNoiteSceneName;
-        Override("walk", isBecoNoite ? "Assets/MoCapCentral/MC_Sample/Animations/Drunk/MCU_am_Drunk_Loco_Walk_01.FBX" : ki + "Movement/Walk/HumanM@Walk01_Forward.fbx");
+        string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        bool isBecoNoite = activeSceneName == BecoNoiteSceneName;
+        bool isBecoDia = activeSceneName == BecoDiaSceneName;
+        if (isBecoDia)
+        {
+            Override("idle",       "Assets/MoCapCentral/MC_Sample/Animations/Injured/MCU_am_InjuredBelly_Idle_01.FBX");
+            Override("idleStatic", "Assets/MoCapCentral/MC_Sample/Animations/Injured/MCU_am_InjuredBelly_Idle_01.FBX");
+            Override("walk",       "Assets/MoCapCentral/MC_Sample/Animations/Injured/MCU_am_InjuredBelly_Loco_Walk_Fwd.FBX");
+        }
+        else if (isBecoNoite)
+        {
+            Override("idle",       "Assets/MoCapCentral/MC_Sample/Animations/Drunk/MCU_am_StandDrunk_Idle_01.FBX");
+            Override("idleStatic", "Assets/MoCapCentral/MC_Sample/Animations/Drunk/MCU_am_StandDrunk_Idle_01.FBX");
+            Override("walk",       "Assets/MoCapCentral/MC_Sample/Animations/Drunk/MCU_am_Drunk_Loco_Walk_01.FBX");
+        }
+        else
+        {
+            Override("walk", ki + "Movement/Walk/HumanM@Walk01_Forward.fbx");
+        }
 
         Override("run",        ki + "Movement/Run/HumanM@Run01_Forward.fbx");
         Override("roll",       ua + "DiveRoll-Forward1.FBX");
@@ -1150,6 +1169,11 @@ public class UserImportedPlayerController : MonoBehaviour
             _potionDrinkLoopClip = FindRuntimeClipByName("Drinking");
         }
 
+        if (_potionDrinkLoopClip == null)
+        {
+            _potionDrinkLoopClip = FindRuntimeClipByName("MCU_am_Moonshine_01_Drink_Loop");
+        }
+
 #if UNITY_EDITOR
         if (_potionDrinkLoopClip == null)
         {
@@ -1176,6 +1200,16 @@ public class UserImportedPlayerController : MonoBehaviour
 
     static AnimationClip FindRuntimeClipByName(string clipName)
     {
+        RuntimeAnimationLibrary library = LoadRuntimeAnimationLibrary();
+        if (library != null)
+        {
+            AnimationClip libraryClip = library.FindClip(clipName);
+            if (libraryClip != null)
+            {
+                return libraryClip;
+            }
+        }
+
         AnimationClip[] clips = Resources.FindObjectsOfTypeAll<AnimationClip>();
         for (int i = 0; i < clips.Length; i++)
         {
@@ -1187,6 +1221,16 @@ public class UserImportedPlayerController : MonoBehaviour
         }
 
         return null;
+    }
+
+    static RuntimeAnimationLibrary LoadRuntimeAnimationLibrary()
+    {
+        if (_runtimeAnimationLibrary == null)
+        {
+            _runtimeAnimationLibrary = Resources.Load<RuntimeAnimationLibrary>(RuntimeAnimationLibraryResourcePath);
+        }
+
+        return _runtimeAnimationLibrary;
     }
 
 #if UNITY_EDITOR
@@ -1239,15 +1283,39 @@ public class UserImportedPlayerController : MonoBehaviour
             return;
         }
 
-        OverrideRuntimeClip(runtimeClips, "idle", "Unarmed-Idle");
-        OverrideRuntimeClip(runtimeClips, "idleStatic", "Unarmed-Idle");
+        string activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        bool isBecoNoite = activeSceneName == BecoNoiteSceneName;
+        bool isBecoDia = activeSceneName == BecoDiaSceneName;
 
-        bool isBecoNoite = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == BecoNoiteSceneName;
-        OverrideRuntimeClip(runtimeClips, "walk", isBecoNoite ? "MCU_am_Drunk_Loco_Walk_01" : "Unarmed-Strafe-Forward");
+        if (isBecoDia)
+        {
+            OverrideRuntimeClip(runtimeClips, "idle", "MCU_am_InjuredBelly_Idle_01");
+            OverrideRuntimeClip(runtimeClips, "idleStatic", "MCU_am_InjuredBelly_Idle_01");
+            OverrideRuntimeClip(runtimeClips, "walk", "MCU_am_InjuredBelly_Loco_Walk_Fwd");
+        }
+        else if (isBecoNoite)
+        {
+            OverrideRuntimeClip(runtimeClips, "idle", "MCU_am_StandDrunk_Idle_01");
+            OverrideRuntimeClip(runtimeClips, "idleStatic", "MCU_am_StandDrunk_Idle_01");
+            OverrideRuntimeClip(runtimeClips, "walk", "MCU_am_Drunk_Loco_Walk_01");
+        }
+        else
+        {
+            OverrideRuntimeClip(runtimeClips, "idle", "HumanM@Idle01");
+            OverrideRuntimeClip(runtimeClips, "idle", "Unarmed-Idle");
+            OverrideRuntimeClip(runtimeClips, "idleStatic", "HumanM@Idle01");
+            OverrideRuntimeClip(runtimeClips, "idleStatic", "Unarmed-Idle");
+            OverrideRuntimeClip(runtimeClips, "walk", "HumanM@Walk01_Forward");
+            OverrideRuntimeClip(runtimeClips, "walk", "Unarmed-Strafe-Forward");
+        }
 
+        OverrideRuntimeClip(runtimeClips, "run", "HumanM@Run01_Forward");
         OverrideRuntimeClip(runtimeClips, "run", "Unarmed-Run-Forward");
         OverrideRuntimeClip(runtimeClips, "roll", "Unarmed-DiveRoll-Forward1");
+        OverrideRuntimeClip(runtimeClips, "jump", "HumanM@Jump01");
+        OverrideRuntimeClip(runtimeClips, "fall", "HumanM@Fall01");
         OverrideRuntimeClip(runtimeClips, "walkCombat", "2Hand-Sword-Strafe-Forward");
+        OverrideRuntimeClip(runtimeClips, "idleCombat", "2Hand-Sword-Idle");
         OverrideRuntimeClip(runtimeClips, "attack1", "2Hand-Sword-Attack1");
         OverrideRuntimeClip(runtimeClips, "attack2", "2Hand-Sword-Attack2");
         OverrideRuntimeClip(runtimeClips, "attack3", "2Hand-Sword-Attack3");
@@ -1503,6 +1571,12 @@ public class UserImportedPlayerController : MonoBehaviour
         if (_graphCreated || _visualRoot == null) return;
         _animator = _visualRoot.GetComponent<Animator>()
                     ?? _visualRoot.gameObject.AddComponent<Animator>();
+        if (_animator != null && _animator.runtimeAnimatorController != null)
+        {
+            _animator.runtimeAnimatorController = null;
+            _animator.Rebind();
+            _animator.Update(0f);
+        }
         if (_animator?.avatar == null || !_animator.avatar.isValid || !_animator.avatar.isHuman) return;
         _animator.applyRootMotion = false;
         _playableGraph = PlayableGraph.Create("PlayerGraph");
