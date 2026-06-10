@@ -19,6 +19,8 @@ public class LimoDaySequenceTrigger : MonoBehaviour
         if (TryGetComponent<BoxCollider>(out BoxCollider col))
             col.isTrigger = true;
 
+        gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+
         if (limoDayInteractable == null)
             limoDayInteractable = Object.FindFirstObjectByType<LimoDayInteractable>();
     }

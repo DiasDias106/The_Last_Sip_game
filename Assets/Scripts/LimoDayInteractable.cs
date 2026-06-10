@@ -9,6 +9,7 @@ public class LimoDayInteractable : MonoBehaviour
     private const string SkipSplashKey = "__SKIP_SPLASH__";
 
     [Header("Auto Caminhar")]
+    [SerializeField] private Transform doorEnterPoint;
     [SerializeField] private float autoWalkSpeed = 2.5f;
     [SerializeField] private float doorStopDistance = 0.35f;
     [SerializeField] private float maxAutoWalkTime = 12f;
@@ -40,7 +41,6 @@ public class LimoDayInteractable : MonoBehaviour
         "Agradecimentos\n" +
         "...\n\n\n\n\n\n";
 
-    // Zona de ativacao: player chega ao calcamento (sul da limo)
     [Header("Zona de Ativação")]
     [SerializeField] private float triggerZMin = 25f;
     [SerializeField] private float triggerZMax = 30f;
@@ -73,9 +73,14 @@ public class LimoDayInteractable : MonoBehaviour
         return _player != null ? _player.GetComponent<UserImportedPlayerController>() : null;
     }
 
-    // Player caminha em frente (Z), para a face da limo mais proxima
+    // Player caminha para o ponto definido (porta de trás), ou como fallback para a face mais próxima
     private Vector3 GetEntryPoint(Vector3 playerPos)
     {
+        if (doorEnterPoint != null)
+        {
+            return doorEnterPoint.position;
+        }
+
         Renderer[] rends = GetComponentsInChildren<Renderer>();
         if (rends.Length > 0)
         {
@@ -106,39 +111,25 @@ public class LimoDayInteractable : MonoBehaviour
         walkCamAnchor.transform.rotation = Quaternion.LookRotation(toTarget);
         controller.SetCameraFollowOverride(walkCamAnchor.transform, true, cameraPitch, snapImmediately: true);
 
+        float walkSpeed = controller.CurrentWalkSpeed;
         float walkTimer = 0f;
-        float stuckCheckTimer = 0f;
-        Vector3 lastCheckPos = controller.transform.position;
-        bool pastInitialDelay = false;
 
         while (true)
         {
             Vector3 dir = target - controller.transform.position;
             dir.y = 0f;
 
-            if (dir.sqrMagnitude < 0.01f || walkTimer >= maxAutoWalkTime)
+            // Usamos uma distância mínima de 0.5f para garantir que a cápsula de colisão do jogador não bate no carro antes de chegar ao alvo
+            float safeStopDistance = Mathf.Max(0.5f, doorStopDistance);
+            
+            // Removemos a limitação de tempo ou aumentamos muito para garantir que ele chega
+            if (dir.magnitude <= safeStopDistance || walkTimer >= 30f)
             {
                 break;
             }
 
-            // Detetar se o player ficou preso (lancil ou MeshCollider da limo)
-            stuckCheckTimer += Time.deltaTime;
-            if (stuckCheckTimer >= 0.5f)
-            {
-                if (pastInitialDelay)
-                {
-                    float moved = new Vector2(
-                        controller.transform.position.x - lastCheckPos.x,
-                        controller.transform.position.z - lastCheckPos.z).magnitude;
-                    if (moved < 0.05f) break;
-                }
-                lastCheckPos = controller.transform.position;
-                stuckCheckTimer = 0f;
-                pastInitialDelay = true;
-            }
-
             controller.FaceDirection(dir);
-            controller.MoveExternally(dir.normalized * autoWalkSpeed);
+            controller.MoveExternally(dir.normalized * walkSpeed);
             
             // Forçar a rotação no mundo para garantir que não treme quando o player roda
             walkCamAnchor.transform.rotation = Quaternion.LookRotation(toTarget);
@@ -155,14 +146,12 @@ public class LimoDayInteractable : MonoBehaviour
         CharacterController cc = controller.GetComponent<CharacterController>();
         if (cc != null) cc.enabled = false;
 
-        // Snap do player para junto da face da limo antes de esconder
-        Vector3 entryPoint = GetEntryPoint(controller.transform.position);
-        Vector3 snapPos = controller.transform.position;
-        snapPos.z = entryPoint.z + (controller.transform.position.z > entryPoint.z ? 0.15f : -0.15f);
-        controller.transform.position = snapPos;
+        controller.PlayExternalAnimation("idle");
+        
+        // Pequena pausa para o jogador perceber que chegou e parou em frente à porta
+        yield return new WaitForSeconds(0.5f);
 
         controller.SetVisualVisible(false);
-        controller.PlayExternalAnimation("idle");
 
         yield return new WaitForSeconds(entryHoldTime);
 
