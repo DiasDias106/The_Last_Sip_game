@@ -1,10 +1,12 @@
 using UnityEngine;
 
-// Coloca este script num trigger box que cobre a entrada da arena do boss.
-// Quando o player entra, o boss começa a detetar/perseguir.
+using UnityEngine;
+
 [RequireComponent(typeof(Collider))]
 public class BossArenaTrigger : MonoBehaviour
 {
+    [SerializeField] private GameObject[] arenaWalls;
+
     private void Awake()
     {
         GetComponent<Collider>().isTrigger = true;
@@ -17,7 +19,13 @@ public class BossArenaTrigger : MonoBehaviour
         foreach (var boss in Object.FindObjectsByType<BossController>(FindObjectsSortMode.None))
             boss.ActivateArena();
 
-        // Trigger só ativa uma vez
+        foreach (var boss in Object.FindObjectsByType<PaladinFinalBossController>(FindObjectsSortMode.None))
+            boss.ActivateArena();
+
+        if (arenaWalls != null)
+            foreach (var wall in arenaWalls)
+                if (wall != null) wall.SetActive(true);
+
         gameObject.SetActive(false);
     }
 }

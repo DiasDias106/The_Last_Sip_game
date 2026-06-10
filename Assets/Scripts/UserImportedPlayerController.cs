@@ -832,8 +832,9 @@ public class UserImportedPlayerController : MonoBehaviour
         if (!_hitDealt && _stateTimer >= AttackHitTime)
         {
             _hitDealt = true;
-            float dmg = _comboStep == 3 ? heavyAttackDamage : attackDamage;
-            DealAttackDamage(dmg);
+            bool isHeavy = _comboStep == 3;
+            float dmg = isHeavy ? heavyAttackDamage : attackDamage;
+            DealAttackDamage(dmg, isHeavy);
         }
 
         // Buffer next combo input (only for light attack chain, not heavy)
@@ -858,7 +859,7 @@ public class UserImportedPlayerController : MonoBehaviour
         }
     }
 
-    void DealAttackDamage(float damage)
+    void DealAttackDamage(float damage, bool isHeavy = false)
     {
         Vector3 origin = transform.position + Vector3.up * 0.9f + transform.forward * attackFwdOffset;
 
@@ -871,6 +872,7 @@ public class UserImportedPlayerController : MonoBehaviour
             var dmg = col.GetComponentInParent<IDamageable>();
             if (dmg == null || dmg is PlayerHealth) continue;
             dmg.TakeDamage(damage);
+            if (isHeavy) (dmg as IStaggerable)?.Stagger();
             already.Add(root);
         }
     }

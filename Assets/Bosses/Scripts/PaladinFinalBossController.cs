@@ -25,6 +25,10 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
     [SerializeField] private float damageRadius = 1.45f;
     [SerializeField] private float attackForwardOffset = 0.9f;
 
+    [Header("Arena")]
+    [SerializeField] private string displayName = "Fantasma do Passado";
+    [SerializeField] public bool requireArenaActivation = true;
+
     [Header("Animation")]
     [SerializeField] private string resourcesFolder = "UserImportedCharacter";
     [SerializeField] private float attackHitDelay = 0.34f;
@@ -49,6 +53,8 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
     private bool isDead;
     private bool isAttacking;
     private bool isHitReacting;
+    private bool _arenaActive;
+    private bool _combatMusicStarted;
     private AudioClip _deathSound;
 
     private PlayableGraph playableGraph;
@@ -305,6 +311,7 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         isDead = true;
         isAttacking = false;
         isHitReacting = false;
+        if (_combatMusicStarted) { _combatMusicStarted = false; GameMusicManager.Instance?.ExitBoss(); }
         if (agent.enabled)
         {
             if (agent.isOnNavMesh)
@@ -371,20 +378,30 @@ public class PaladinFinalBossController : MonoBehaviour, IDamageable
         }
     }
 
+    public void ActivateArena()
+    {
+        _arenaActive = true;
+    }
+
     private void ResolvePlayer()
     {
-        if (player != null)
-        {
-            return;
-        }
+        if (requireArenaActivation && !_arenaActive) return;
+        if (player != null) return;
 
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-        if (playerObject != null)
+        foreach (Collider col in Physics.OverlapSphere(transform.position, detectionRange))
         {
-            player = playerObject.transform;
+            if (!col.CompareTag("Player")) continue;
+            player = col.transform;
             EnsureBossHud();
+            BossHUDController.Instance?.SetName(displayName);
             BossHUDController.Instance?.Show();
             BossHUDController.Instance?.RefreshWithArmor(currentHealth, maxHealth, currentArmor, maxArmor);
+            if (!_combatMusicStarted)
+            {
+                _combatMusicStarted = true;
+                GameMusicManager.Instance?.EnterBoss();
+            }
+            break;
         }
     }
 

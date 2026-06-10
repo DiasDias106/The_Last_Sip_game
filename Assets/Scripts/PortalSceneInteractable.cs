@@ -88,7 +88,7 @@ public class PortalSceneInteractable : MonoBehaviour
 
     private void OnGUI()
     {
-        if (!_isPlayerNear || _transitionStarted)
+        if (!_isPlayerNear || _transitionStarted || _isLocked)
         {
             return;
         }
@@ -108,10 +108,8 @@ public class PortalSceneInteractable : MonoBehaviour
             return;
         }
 
-        if (_isLocked) return; // Portal trancado — não mostra nada
-
         EnsureStyle();
-        string currentPrompt = BuildPromptText();
+        string currentPrompt = _isLocked ? UiText.LocalizeKnownText(lockedPromptText) : BuildPromptText();
         GUIContent content = new GUIContent(currentPrompt);
         float width = Mathf.Min(PromptMaxWidth, Mathf.Max(120f, _promptStyle.CalcSize(content).x));
         float height = _promptStyle.CalcHeight(content, width);
