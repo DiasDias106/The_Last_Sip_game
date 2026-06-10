@@ -23973,6 +23973,7 @@ MonoBehaviour:
   ambientMusic: {fileID: 8300000, guid: 7c9d9a7e0dc4e284191e609d9bf45b39, type: 3}
   combatMusic: {fileID: 8300000, guid: 8132cb5b43635524fb8043ba859f06da, type: 3}
   bossMusic: {fileID: 8300000, guid: 20007430090a4ec46a791db45e52a164, type: 3}
+  volumeMultiplier: 1
 --- !u!4 &578610022
 Transform:
   m_ObjectHideFlags: 0
@@ -44913,6 +44914,53 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 1156747242537331392, guid: 9d5cfce66de1fa7418abd6ea842507c1, type: 3}
+--- !u!1 &1032147204
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1032147206}
+  - component: {fileID: 1032147205}
+  m_Layer: 0
+  m_Name: PeriodicDialogueTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1032147205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1032147204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fef3263c3264b1d46a11a90272a87916, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PeriodicDialogueTrigger
+  fightDialogue: {fileID: 11400000, guid: 74037b9f51eb7a54eb2f2215782a6992, type: 2}
+  minInterval: 20
+  maxInterval: 40
+--- !u!4 &1032147206
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1032147204}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1034269795
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -97375,3 +97423,4 @@ SceneRoots:
   - {fileID: 1965506976}
   - {fileID: 1316710475}
   - {fileID: 1118268649}
+  - {fileID: 1032147206}
