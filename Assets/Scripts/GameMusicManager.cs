@@ -68,7 +68,7 @@ public sealed class GameMusicManager : MonoBehaviour
     /// <summary>True quando inimigos estão a perseguir/atacar o player.</summary>
     public bool IsInCombat => _combatCount > 0 || _bossActive;
 
-    public void StopAll(bool instant = false)
+    public void StopAll(bool instant = false, float customFadeDuration = -1f)
     {
         _ambientClip = _combatClip = _bossClip = _targetClip = null;
         _combatCount = 0; _bossActive = false;
@@ -82,7 +82,7 @@ public sealed class GameMusicManager : MonoBehaviour
         }
         else
         {
-            FadeOutAndStop();
+            FadeOutAndStop(customFadeDuration);
         }
     }
 
@@ -171,20 +171,21 @@ public sealed class GameMusicManager : MonoBehaviour
         _fadeRoutine = null;
     }
 
-    private void FadeOutAndStop()
+    private void FadeOutAndStop(float customDuration = -1f)
     {
         if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
-        _fadeRoutine = StartCoroutine(FadeOutStopRoutine());
+        _fadeRoutine = StartCoroutine(FadeOutStopRoutine(customDuration));
     }
 
-    private IEnumerator FadeOutStopRoutine()
+    private IEnumerator FadeOutStopRoutine(float customDuration)
     {
+        float duration = customDuration > 0f ? customDuration : fadeOutDuration;
         float startVol = _source.volume;
         float elapsed  = 0f;
-        while (elapsed < fadeOutDuration)
+        while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            _source.volume = Mathf.Lerp(startVol, 0f, elapsed / fadeOutDuration);
+            _source.volume = Mathf.Lerp(startVol, 0f, elapsed / duration);
             yield return null;
         }
         _source.Stop();

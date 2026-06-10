@@ -88,6 +88,18 @@ interacoes loja:
 		Um alívio rápido, mas sabes bem que o preço não se paga só em moedas.
 		Quick relief, but you know well the price isn't just paid in coin.
 
+inicio beco_noite
+
+	18
+	Como é que eu vim parar aqui?... Espera, acho que vejo uma garrafa ao longe.
+	How did I end up here?… Wait, I think I see a bottle in the distance.
+
+inicio masmorra
+
+	19
+	Não me lembro de como cheguei aqui. Mas aqueles portais na parede... parecem ser a minha única saída daqui.
+	I don't remember how I got here. But those portals on the wall... they look like my only way out.
+
 
 
 

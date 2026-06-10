@@ -42078,6 +42078,54 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 1864893948627024220, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!1 &182388527
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 182388529}
+  - component: {fileID: 182388528}
+  m_Layer: 0
+  m_Name: IntroCinematicManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &182388528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182388527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6326cc5659944545b076ab055195e3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IntroCinematicManager
+  introDialogue: {fileID: 11400000, guid: 34990dc2664b2544182c2bf155fc4b13, type: 2}
+  descentDuration: 3.5
+  startHeight: 6
+  startBackward: 2
+--- !u!4 &182388529
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182388527}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &182857462
 GameObject:
   m_ObjectHideFlags: 0
@@ -320101,7 +320149,7 @@ MonoBehaviour:
   ambientMusic: {fileID: 8300000, guid: e625157f166f5e8469f50dd6f3cd4375, type: 3}
   combatMusic: {fileID: 0}
   bossMusic: {fileID: 0}
-  volumeMultiplier: 4.0
+  volumeMultiplier: 4
 --- !u!4 &1509247497
 Transform:
   m_ObjectHideFlags: 0
@@ -456138,3 +456186,4 @@ SceneRoots:
   - {fileID: 1381819820}
   - {fileID: 944062854}
   - {fileID: 1954673959}
+  - {fileID: 182388529}

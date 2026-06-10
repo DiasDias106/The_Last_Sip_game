@@ -27,7 +27,7 @@ public class UserImportedPlayerController : MonoBehaviour
     [SerializeField] private float mouseSensitivity   = 5.0f;
     [SerializeField] private float cameraPitchMin     = -30f;
     [SerializeField] private float cameraPitchMax     = 70f;
-    [SerializeField] private Vector3 cameraLocalOffset = new Vector3(0f, 0.4f, -3.2f);
+    [SerializeField] public Vector3 cameraLocalOffset = new Vector3(0f, 0.4f, -3.2f);
     [SerializeField] private float cameraFollowSpeed  = 15f;
     [SerializeField] private float movementSmoothTime = 0.1f;
 
@@ -347,6 +347,7 @@ public class UserImportedPlayerController : MonoBehaviour
             UpdateAnimationTransition();
             SampleCurrentClip();
             UpdateFootstepAudio(_controller.enabled ? _controller.isGrounded : true);
+            HandleCameraLook();
             return;
         }
 

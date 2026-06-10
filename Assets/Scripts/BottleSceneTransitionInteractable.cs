@@ -108,6 +108,11 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         DisableCollidersOnly();
         FacePlayerToBottle();
 
+        if (GameMusicManager.Instance != null)
+        {
+            GameMusicManager.Instance.StopAll(false, 5f); // Fade out over 5 seconds to match the animation length
+        }
+
         UserImportedPlayerController controller = _player != null ? _player.GetComponent<UserImportedPlayerController>() : null;
         if (controller != null && (drinkIntroClip != null || drinkLoopClip != null))
         {
