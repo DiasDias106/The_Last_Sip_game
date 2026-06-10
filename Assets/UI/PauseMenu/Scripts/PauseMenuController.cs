@@ -168,6 +168,13 @@ public sealed class PauseMenuController : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
+        // While the shop is open, Escape should only close the shop.
+        if (ShopMenuController.Instance != null && ShopMenuController.Instance.IsVisible)
+        {
+            return;
+        }
+
         if (!IsEscapePressedThisFrame() || isTransitioning)
         {
             return;

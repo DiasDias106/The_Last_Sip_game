@@ -9,6 +9,13 @@ using UnityEngine.UI;
 public class PlayerDeathSceneLoader : MonoBehaviour
 {
     private const string DeathRetryKey    = "__DR__";
+    private const string DeathRetrySlotKey = "__DR_SLOT__";
+    private const string BecoNoiteSceneName = "beco_noite";
+    private const int RetryCoins = 0;
+    private const int RetryGems = 0;
+    private const int RetryRedPotions = 1;
+    private const int RetryBluePotions = 1;
+    private const int RetryGreenPotions = 1;
 
     [SerializeField] private string mainMenuSceneName = "MainMenuScene";
     [SerializeField] private string spawnSceneName    = "masmorra_spawn";
@@ -264,6 +271,10 @@ public class PlayerDeathSceneLoader : MonoBehaviour
 
         if (_deathCanvas != null) Destroy(_deathCanvas);
 
+        string retrySceneName = ResolveRetrySceneName();
+        PersistRetrySlotAndInventory();
+        SaveManager.SaveActiveSlotFromCurrentScene(retrySceneName);
+
         PlayerPrefs.SetInt(DeathRetryKey, 1);
         PlayerPrefs.SetInt("JustRespawned", 1);
         PlayerPrefs.Save();
@@ -272,7 +283,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         DontDestroyOnLoad(loaderGo);
         var pf = loaderGo.AddComponent<PostDeathFader>();
         pf.IsRetry   = true;
-        pf.SpawnScene = spawnSceneName;
+        pf.SpawnScene = retrySceneName;
 
         Time.timeScale = 1f;
         SceneManager.LoadScene(mainMenuSceneName);
@@ -290,12 +301,52 @@ public class PlayerDeathSceneLoader : MonoBehaviour
 
         if (_deathCanvas != null) Destroy(_deathCanvas);
 
+        string resumeSceneName = ResolveRetrySceneName();
+        PersistRetrySlotAndInventory();
+        SaveManager.SaveActiveSlotFromCurrentScene(resumeSceneName);
+
         var loaderGo = new GameObject("__PostDeathFader__");
         DontDestroyOnLoad(loaderGo);
         loaderGo.AddComponent<PostDeathFader>();   // IsRetry = false by default
 
         Time.timeScale = 1f;
         SceneManager.LoadScene(mainMenuSceneName);
+    }
+
+    private string ResolveRetrySceneName()
+    {
+        string activeSceneName = SceneManager.GetActiveScene().name;
+        if (activeSceneName == BecoNoiteSceneName)
+        {
+            return BecoNoiteSceneName;
+        }
+
+        return string.IsNullOrWhiteSpace(spawnSceneName) ? "masmorra_spawn" : spawnSceneName;
+    }
+
+    private void PersistRetrySlotAndInventory()
+    {
+        int activeSlot = SaveManager.GetActiveSlot();
+        PlayerPrefs.SetInt(DeathRetrySlotKey, activeSlot);
+
+        if (SceneManager.GetActiveScene().name == BecoNoiteSceneName)
+        {
+            if (PlayerInventory.Instance != null)
+            {
+                PlayerInventory.Instance.SaveToPrefs();
+            }
+
+            return;
+        }
+
+        LevelCompletionState.ClearForSlot(activeSlot);
+        PlayerInventory.ResetPrefsForSlot(
+            activeSlot,
+            RetryCoins,
+            RetryGems,
+            RetryRedPotions,
+            RetryBluePotions,
+            RetryGreenPotions);
     }
 }
 

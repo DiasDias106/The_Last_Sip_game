@@ -76,6 +76,16 @@ public class PlayerInventory : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    public static void ResetPrefsForSlot(int slot, int coins, int gems, int redPotions, int bluePotions, int greenPotions)
+    {
+        PlayerPrefs.SetInt($"Inv_Coins_{slot}", Mathf.Max(0, coins));
+        PlayerPrefs.SetInt($"Inv_Gems_{slot}", Mathf.Max(0, gems));
+        PlayerPrefs.SetInt($"Inv_RedP_{slot}", Mathf.Max(0, redPotions));
+        PlayerPrefs.SetInt($"Inv_BlueP_{slot}", Mathf.Max(0, bluePotions));
+        PlayerPrefs.SetInt($"Inv_GreenP_{slot}", Mathf.Max(0, greenPotions));
+        PlayerPrefs.Save();
+    }
+
     public void AddCoins(int amount)  { Coins += amount; SaveToPrefs(); onCoinsChanged?.Invoke(Coins); }
     public void AddGems(int amount)   { Gems  += amount; SaveToPrefs(); onGemsChanged?.Invoke(Gems); }
 

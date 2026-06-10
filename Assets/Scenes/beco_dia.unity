@@ -95456,10 +95456,10 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 435805517}
+      addedObject: {fileID: 435805516}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 435805516}
+      addedObject: {fileID: 435805517}
   m_SourcePrefab: {fileID: 100100000, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
 --- !u!1 &435805514 stripped
 GameObject:
@@ -95498,14 +95498,14 @@ MonoBehaviour:
   creditsMusicVolume: 0.75
   creditsScrollSpeed: 55
   creditsText: "THE LAST SIP\n\n\nDesenvolvido por\nFrancisco Dias\n\n\nOrienta\xE7\xE3o\nProfessor\n\n\nAgradecimentos\n...\n\n\n\n\n\n"
---- !u!65 &435805517
-BoxCollider:
+--- !u!64 &435805517
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 435805514}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2111856121}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -95513,12 +95513,13 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 4.4, y: 2.2, z: 11.5}
-  m_Center: {x: 0, y: 0.9, z: 0}
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 5461320835613783329, guid: 9ed0d558916445f4f83d7fc664183eac, type: 3}
 --- !u!1 &436238184
 GameObject:
   m_ObjectHideFlags: 0
@@ -250760,6 +250761,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 1864893948627024220, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &1175902541
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &1176808627
 GameObject:
   m_ObjectHideFlags: 0
@@ -348617,6 +348631,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4669324765686323524, guid: 3737603b0923c004480660284d9a1453, type: 3}
+--- !u!134 &1661466458
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &1662906300
 GameObject:
   m_ObjectHideFlags: 0
@@ -380777,7 +380804,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1806812024}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 1661466458}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -380883,7 +380910,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1806812024}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 1175902541}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -446641,6 +446668,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4816808559564839995, guid: ee5e7addb9821fc46a3dd8de869d5f78, type: 3}
+--- !u!134 &2111856121
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &2111896779
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,6 +17,16 @@ public class BaseArmadilhaFall : MonoBehaviour
             _rb = gameObject.AddComponent<Rigidbody>();
         }
 
+        MeshCollider[] meshColliders = GetComponents<MeshCollider>();
+        for (int i = 0; i < meshColliders.Length; i++)
+        {
+            MeshCollider meshCollider = meshColliders[i];
+            if (meshCollider != null && !meshCollider.convex)
+            {
+                meshCollider.convex = true;
+            }
+        }
+
         _rb.isKinematic = true;
         _rb.useGravity = false;
     }
