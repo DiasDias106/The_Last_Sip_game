@@ -169,8 +169,8 @@ public sealed class PauseMenuController : MonoBehaviour
             return;
         }
 
-        // While the shop is open, Escape should only close the shop.
-        if (ShopMenuController.Instance != null && ShopMenuController.Instance.IsVisible)
+        // While the shop is open or was closed this exact frame, Escape should only close the shop.
+        if (ShopMenuController.Instance != null && (ShopMenuController.Instance.IsVisible || ShopMenuController.Instance.LastClosedFrame == Time.frameCount))
         {
             return;
         }
