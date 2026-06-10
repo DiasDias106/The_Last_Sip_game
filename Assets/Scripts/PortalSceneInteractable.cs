@@ -142,6 +142,7 @@ public class PortalSceneInteractable : MonoBehaviour
 
         if (Application.CanStreamedLevelBeLoaded(targetSceneName))
         {
+            PlayerHealth.PreserveCurrentForSceneTransition(targetSceneName);
             RuntimeSceneTransitionOverlay.TransitionInstantlyToLoading(targetSceneName);
             return;
         }
@@ -154,6 +155,7 @@ public class PortalSceneInteractable : MonoBehaviour
         if (buildIndex >= 0)
         {
             string resolvedSceneName = System.IO.Path.GetFileNameWithoutExtension(candidatePath);
+            PlayerHealth.PreserveCurrentForSceneTransition(resolvedSceneName);
             RuntimeSceneTransitionOverlay.TransitionInstantlyToLoading(resolvedSceneName);
             return;
         }

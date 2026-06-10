@@ -10,12 +10,14 @@ public class DoorInteractable : MonoBehaviour
     [SerializeField] private bool disableCollidersWhenOpen = true;
 
     private bool _isOpen;
+    private bool _lockedClosed;
     private Quaternion _closedRotation;
     private Quaternion _openRotation;
     private Collider[] _ownColliders;
 
     public float InteractionDistance => interactionDistance;
     public Vector3 PromptWorldPosition => transform.position + promptOffset;
+    public string DoorGroupId => doorGroupId;
 
     private void Awake()
     {
@@ -33,7 +35,17 @@ public class DoorInteractable : MonoBehaviour
 
     public void Interact()
     {
+        if (_lockedClosed)
+        {
+            return;
+        }
+
         ToggleGroup(doorGroupId);
+    }
+
+    public void ForceCloseAndLock()
+    {
+        SetGroupState(doorGroupId, open: false, lockClosed: true);
     }
 
     private static void ToggleGroup(string groupId)
@@ -64,6 +76,12 @@ public class DoorInteractable : MonoBehaviour
         }
 
         bool targetOpen = !anyOpen;
+        SetGroupState(groupId, targetOpen, lockClosed: false);
+    }
+
+    private static void SetGroupState(string groupId, bool open, bool lockClosed)
+    {
+        DoorInteractable[] doors = Object.FindObjectsOfType<DoorInteractable>(true);
         for (int i = 0; i < doors.Length; i++)
         {
             DoorInteractable d = doors[i];
@@ -72,7 +90,8 @@ public class DoorInteractable : MonoBehaviour
                 continue;
             }
 
-            d.SetOpen(targetOpen);
+            d._lockedClosed = lockClosed;
+            d.SetOpen(lockClosed ? false : open);
         }
     }
 
