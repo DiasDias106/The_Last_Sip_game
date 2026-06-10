@@ -52,7 +52,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
     IEnumerator DeathSequence()
     {
-        float t = deathScreenDelay;
+        float t = SceneManager.GetActiveScene().name == BecoNoiteSceneName ? 0f : deathScreenDelay;
         while (t > 0f) { t -= Time.unscaledDeltaTime; yield return null; }
 
         Cursor.visible   = true;
@@ -60,11 +60,11 @@ public class PlayerDeathSceneLoader : MonoBehaviour
 
         BuildDeathUI();
 
-        // Fade the death canvas in (0 → 1 alpha) without using ScreenFader
         var cg = _deathCanvas.GetComponent<CanvasGroup>();
         if (cg != null)
         {
-            float dur = 0.5f, el = 0f;
+            float dur = SceneManager.GetActiveScene().name == BecoNoiteSceneName ? 0.05f : 0.5f;
+            float el = 0f;
             while (el < dur)
             {
                 el += Time.unscaledDeltaTime;

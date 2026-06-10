@@ -111,15 +111,19 @@ public class LimoDayInteractable : MonoBehaviour
         Vector3 lastCheckPos = controller.transform.position;
         bool pastInitialDelay = false;
 
-        while (walkTimer < maxAutoWalkTime)
+        while (true)
         {
             Vector3 dir = target - controller.transform.position;
             dir.y = 0f;
-            if (dir.magnitude <= doorStopDistance) break;
+
+            if (dir.sqrMagnitude < 0.01f || walkTimer >= maxAutoWalkTime)
+            {
+                break;
+            }
 
             // Detetar se o player ficou preso (lancil ou MeshCollider da limo)
             stuckCheckTimer += Time.deltaTime;
-            if (stuckCheckTimer >= 0.4f)
+            if (stuckCheckTimer >= 0.5f)
             {
                 if (pastInitialDelay)
                 {
@@ -135,6 +139,10 @@ public class LimoDayInteractable : MonoBehaviour
 
             controller.FaceDirection(dir);
             controller.MoveExternally(dir.normalized * autoWalkSpeed);
+            
+            // Forçar a rotação no mundo para garantir que não treme quando o player roda
+            walkCamAnchor.transform.rotation = Quaternion.LookRotation(toTarget);
+            
             walkTimer += Time.deltaTime;
             yield return null;
         }
