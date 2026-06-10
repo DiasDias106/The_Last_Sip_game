@@ -169,6 +169,11 @@ public class SifController : MonoBehaviour, IDamageable, IStaggerable
         if (dir != Vector3.zero)
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10f * Time.deltaTime);
 
+        if (_animator != null)
+        {
+            var info = _animator.GetCurrentAnimatorStateInfo(0);
+            if ((info.IsName("Attack1") || info.IsName("Attack2")) && info.normalizedTime < 0.9f) return;
+        }
         _attackingExitTimer += Time.deltaTime;
         if (_attackingExitTimer >= 0.4f && dist > attackRange * 1.5f)
         {

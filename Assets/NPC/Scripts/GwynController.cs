@@ -7,7 +7,7 @@ using System.Collections;
 public class GwynController : MonoBehaviour, IDamageable, IStaggerable
 {
     [Header("Stats")]
-    public float maxHealth         = 300f;
+    public float maxHealth         = 400f;
     public float lightAttackDamage = 10f;
     public float heavyAttackDamage = 20f;
     public float attackCooldown    = 1.2f;
@@ -172,6 +172,11 @@ public class GwynController : MonoBehaviour, IDamageable, IStaggerable
         float dist = Vector3.Distance(transform.position, _player.position);
         Vector3 dir = _player.position - transform.position; dir.y = 0f;
         if (dir != Vector3.zero) transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10f * Time.deltaTime);
+        if (_animator != null)
+        {
+            var info = _animator.GetCurrentAnimatorStateInfo(0);
+            if ((info.IsName("Attack1") || info.IsName("Attack2") || info.IsName("Attack3")) && info.normalizedTime < 0.9f) return;
+        }
         _attackingExitTimer += Time.deltaTime;
         if (_attackingExitTimer >= 0.4f && dist > attackRange * 1.5f) { _state = State.Chasing; if (_agent.isOnNavMesh) _agent.isStopped = false; return; }
         if (Time.time >= _lastAttackTime + attackCooldown && _player != null && _player.CompareTag("Player"))

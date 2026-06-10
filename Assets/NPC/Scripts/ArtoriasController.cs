@@ -14,8 +14,8 @@ public class ArtoriasController : MonoBehaviour, IDamageable, IStaggerable
     public float moveSpeed      = 1.8f;
 
     [Header("Detection")]
-    public float detectionRange = 6f;
-    public float attackRange    = 1.2f;
+    public float detectionRange = 12f;
+    public float attackRange    = 2.5f;
 
     [Header("Patrol")]
     public float patrolRadius   = 8f;
@@ -33,9 +33,9 @@ public class ArtoriasController : MonoBehaviour, IDamageable, IStaggerable
 
     private static readonly int HashIsWalking  = Animator.StringToHash("IsWalking");
     private static readonly int HashIsRunning  = Animator.StringToHash("IsRunning");
-    private static readonly int HashAttack     = Animator.StringToHash("Attack");
     private static readonly int HashAttack2    = Animator.StringToHash("Attack2");
     private static readonly int HashAttack3    = Animator.StringToHash("Attack3");
+    private static readonly int HashAttack4    = Animator.StringToHash("Attack4");
     private static readonly int HashTakeDamage = Animator.StringToHash("TakeDamage");
     private static readonly int HashDie        = Animator.StringToHash("Die");
 
@@ -148,13 +148,16 @@ public class ArtoriasController : MonoBehaviour, IDamageable, IStaggerable
         if (arrived) { _patrolWaitTimer = patrolWaitTime; _state = State.Idle; }
     }
 
+    // Distância ignorando Y — evita que diferenças de altura impeçam o ataque
+    private float FlatDist() { var d = _player.position - transform.position; d.y = 0f; return d.magnitude; }
+
     private void UpdateChase()
     {
         if (_player == null) { _state = State.Idle; return; }
-        float dist = Vector3.Distance(transform.position, _player.position);
-        if (dist <= attackRange && _player != null && _player.CompareTag("Player"))
+        float dist = FlatDist();
+        if (dist <= attackRange && _player.CompareTag("Player"))
         {
-            if (_agent.isOnNavMesh) _agent.isStopped = true;
+            if (_agent.isOnNavMesh) { _agent.isStopped = true; _agent.ResetPath(); _agent.velocity = Vector3.zero; }
             _state = State.Attacking; _attackingExitTimer = 0f; _lastAttackTime = Time.time;
             _animator?.SetBool(HashIsWalking, false); _animator?.SetBool(HashIsRunning, false);
         }
@@ -169,16 +172,29 @@ public class ArtoriasController : MonoBehaviour, IDamageable, IStaggerable
     private void UpdateAttack()
     {
         if (_player == null) { _state = State.Idle; return; }
-        float dist = Vector3.Distance(transform.position, _player.position);
+        if (_agent.isOnNavMesh) { _agent.isStopped = true; _agent.velocity = Vector3.zero; }
+        _animator?.SetBool(HashIsRunning, false);
+
+        float dist = FlatDist();
         Vector3 dir = _player.position - transform.position; dir.y = 0f;
         if (dir != Vector3.zero) transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), 10f * Time.deltaTime);
+
+        // Enquanto a animação de ataque não terminar, não fazer mais nada
+        if (_animator != null)
+        {
+            var info = _animator.GetCurrentAnimatorStateInfo(0);
+            bool attackPlaying = (info.IsName("Attack2") || info.IsName("Attack3") || info.IsName("Attack4"))
+                                 && info.normalizedTime < 0.9f;
+            if (attackPlaying) return;
+        }
+
         _attackingExitTimer += Time.deltaTime;
-        if (_attackingExitTimer >= 0.4f && dist > attackRange * 1.5f) { _state = State.Chasing; if (_agent.isOnNavMesh) _agent.isStopped = false; return; }
-        if (Time.time >= _lastAttackTime + attackCooldown && _player != null && _player.CompareTag("Player"))
+        if (_attackingExitTimer >= 1.5f && dist > attackRange * 2f) { _state = State.Chasing; if (_agent.isOnNavMesh) _agent.isStopped = false; return; }
+        if (Time.time >= _lastAttackTime + attackCooldown && _player.CompareTag("Player"))
         {
             _lastAttackTime = Time.time;
             bool isHeavy = (_attackStep % 3) == 1;
-            var hash = (_attackStep % 3) == 0 ? HashAttack : (_attackStep % 3) == 1 ? HashAttack2 : HashAttack3;
+            var hash = (_attackStep % 3) == 0 ? HashAttack2 : (_attackStep % 3) == 1 ? HashAttack3 : HashAttack4;
             _animator?.SetTrigger(hash); _attackStep++;
             var ph = _player.GetComponentInParent<PlayerHealth>() ?? _player.GetComponentInChildren<PlayerHealth>();
             if (ph != null && !ph.IsDead) ph.TakeDamage(isHeavy ? heavyAttackDamage : lightAttackDamage);
