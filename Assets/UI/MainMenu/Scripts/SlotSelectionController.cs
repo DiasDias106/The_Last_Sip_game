@@ -20,7 +20,7 @@ public sealed class SlotSelectionController : MonoBehaviour
     public event Action<int, SlotSelectionMode, bool> SlotDeleteRequested;
     public event Action BackRequested;
 
-    public bool IsVisible => panel != null && panel.IsVisible;
+    public bool IsVisible => panel != null && panel.gameObject.activeSelf;
     public SlotSelectionMode CurrentMode { get; private set; } = SlotSelectionMode.NewGame;
 
     private void OnEnable()

@@ -31,6 +31,8 @@ public class ShopMenuController : MonoBehaviour
     private bool _comprouAlgo;
     private AudioClip _buySound;
     private AudioSource _audioSource;
+    private float _lastDialogueTime = -100f;
+    private const float DialogueCooldown = 3f;
 
     [System.Serializable]
     private struct DrinkData
@@ -403,9 +405,10 @@ public class ShopMenuController : MonoBehaviour
         if (!hasSpace)
         {
             SetStatus(UiText.LocalizeKnownText("Ja tens o maximo de 5 dessa garrafa."));
-            if (dialogoInventarioCheio != null) 
+            if (dialogoInventarioCheio != null && Time.unscaledTime - _lastDialogueTime > DialogueCooldown) 
             {
                 DialogueUIManager.Instance.StartDialogue(dialogoInventarioCheio);
+                _lastDialogueTime = Time.unscaledTime;
             }
             return;
         }
@@ -434,9 +437,10 @@ public class ShopMenuController : MonoBehaviour
             _audioSource.PlayOneShot(_buySound, 1.0f);
         }
         
-        if (dialogoComprar != null) 
+        if (dialogoComprar != null && Time.unscaledTime - _lastDialogueTime > DialogueCooldown) 
         {
             DialogueUIManager.Instance.StartDialogue(dialogoComprar);
+            _lastDialogueTime = Time.unscaledTime;
         }
         _comprouAlgo = true;
     }
@@ -494,10 +498,13 @@ public class ShopMenuController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
     }
 
+    public int LastClosedFrame { get; private set; } = -1;
+
     public void Hide()
     {
         if (!IsVisible) return;
 
+        LastClosedFrame = Time.frameCount;
         _shopPanel.SetActive(false);
         SetStatus(string.Empty);
         Time.timeScale = 1f;
@@ -505,9 +512,10 @@ public class ShopMenuController : MonoBehaviour
         Cursor.visible = _wasCursorVisible;
         Cursor.lockState = _previousLockMode;
 
-        if (!_comprouAlgo && dialogoSairSemComprar != null)
+        if (!_comprouAlgo && dialogoSairSemComprar != null && Time.unscaledTime - _lastDialogueTime > DialogueCooldown)
         {
             DialogueUIManager.Instance.StartDialogue(dialogoSairSemComprar);
+            _lastDialogueTime = Time.unscaledTime;
         }
     }
 
