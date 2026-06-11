@@ -449954,7 +449954,7 @@ MonoBehaviour:
   enginePitch: 0.5
   playerWalkSpeed: 0.7
   limoSpeed: 12
-  killDistance: 3.8
+  killDistance: 3.5
   impactPointDistance: 1.6
   limoStartDelay: 0.15
   preImpactLookDelay: 0.35
