@@ -5205,6 +5205,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 137620386}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 137620387}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &137620383 stripped
 Transform:
@@ -5235,7 +5238,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!114 &137620386
@@ -5251,6 +5254,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
   fallDelay: 1
+--- !u!54 &137620387
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137620384}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &140313055
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18097,6 +18127,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1285453126}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1285453127}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!1 &465231735 stripped
 GameObject:
@@ -18973,6 +19006,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1413150328}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1413150329}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!1 &479233429 stripped
 GameObject:
@@ -24623,6 +24659,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 599339899}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 599339900}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &599339896 stripped
 Transform:
@@ -24653,7 +24692,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!114 &599339899
@@ -24669,6 +24708,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
   fallDelay: 1
+--- !u!54 &599339900
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 599339897}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &603601417
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -53008,6 +53074,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2108178961}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2108178962}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!1 &1186848991 stripped
 GameObject:
@@ -58398,7 +58467,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!114 &1285453126
@@ -58414,6 +58483,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
   fallDelay: 1
+--- !u!54 &1285453127
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 465231735}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &1289406179
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -64269,7 +64365,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!114 &1413150328
@@ -64285,6 +64381,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
   fallDelay: 1
+--- !u!54 &1413150329
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 479233429}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &1416616478
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -77602,6 +77725,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1714833366}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1714833367}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &1714833363 stripped
 Transform:
@@ -77632,7 +77758,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!114 &1714833366
@@ -77648,6 +77774,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
   fallDelay: 1
+--- !u!54 &1714833367
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1714833364}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &1715228900
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -80651,6 +80804,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1787013593}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1787013594}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &1787013590 stripped
 Transform:
@@ -80681,7 +80837,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!114 &1787013593
@@ -80697,6 +80853,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
   fallDelay: 1
+--- !u!54 &1787013594
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1787013591}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &1788077008
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -82542,6 +82725,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1834805532}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1834805533}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &1834805529 stripped
 Transform:
@@ -82572,7 +82758,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!114 &1834805532
@@ -82588,6 +82774,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
   fallDelay: 1
+--- !u!54 &1834805533
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1834805530}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &1835382609
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -90746,6 +90959,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2003169954}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2003169955}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &2003169951 stripped
 Transform:
@@ -90776,7 +90992,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!114 &2003169954
@@ -90792,6 +91008,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
   fallDelay: 1
+--- !u!54 &2003169955
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2003169952}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &2004151907
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -96283,6 +96526,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2105266180}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2105266181}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &2105266177 stripped
 Transform:
@@ -96313,7 +96559,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!114 &2105266180
@@ -96329,6 +96575,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
   fallDelay: 1
+--- !u!54 &2105266181
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105266178}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &2105910755
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -96449,7 +96722,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!114 &2108178961
@@ -96465,6 +96738,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
   fallDelay: 1
+--- !u!54 &2108178962
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1186848991}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &2108367604
 PrefabInstance:
   m_ObjectHideFlags: 0
