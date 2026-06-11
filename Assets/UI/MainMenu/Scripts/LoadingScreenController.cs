@@ -449,6 +449,8 @@ public sealed class LoadingScreenController : MonoBehaviour
 
     private void MuteAudioForLoading()
     {
+        GameMusicManager.Instance?.StopAll(false, 0.25f);
+
         if (menuAudioManager == null)
         {
             return;

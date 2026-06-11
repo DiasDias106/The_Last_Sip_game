@@ -311,6 +311,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         DontDestroyOnLoad(loaderGo);
         loaderGo.AddComponent<PostDeathFader>();   // IsRetry = false by default
 
+        GlobalSceneTransitionRequest.PendingReturnFromGame = true;
         Time.timeScale = 1f;
         SceneManager.LoadSceneAsync(mainMenuSceneName);
     }
@@ -423,8 +424,7 @@ public class PostDeathFader : MonoBehaviour
         }
         else
         {
-            var fader = ScreenFader.Instance;
-            if (fader != null) yield return fader.FadeIn(0.55f);
+            yield return StartCoroutine(DelayedScreenFaderReveal());
             Destroy(gameObject);
         }
     }

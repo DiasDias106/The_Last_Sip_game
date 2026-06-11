@@ -26,7 +26,17 @@ public class MoveLava : MonoBehaviour
         // quer esteja num objeto "Pai" vazio como o 'lava_piso'! Ele vai procurar todos os filhos e controlá-los.
         renderers = GetComponentsInChildren<Renderer>();
         meshFilters = GetComponentsInChildren<MeshFilter>();
-        
+
+        // Garantir colliders para que PlayerLavaRespawn (OnControllerColliderHit) funcione
+        foreach (var mf in meshFilters)
+        {
+            if (mf.sharedMesh != null && mf.GetComponent<MeshCollider>() == null)
+            {
+                var mc = mf.gameObject.AddComponent<MeshCollider>();
+                mc.sharedMesh = mf.sharedMesh;
+            }
+        }
+
         foreach (var mf in meshFilters)
         {
             if (mf.sharedMesh != null)
