@@ -295,6 +295,7 @@ public sealed class PauseMenuController : MonoBehaviour
         if (PlayerHUDController.Instance != null) Destroy(PlayerHUDController.Instance.gameObject);
         if (PlayerInventory.Instance != null) Destroy(PlayerInventory.Instance.gameObject);
         
+        GlobalSceneTransitionRequest.PendingReturnFromGame = true;
         Destroy(gameObject);
         Time.timeScale = 1f;
         SceneManager.LoadSceneAsync(mainMenuSceneName);

@@ -59,6 +59,8 @@ public sealed class MainMenuController : MonoBehaviour
     private bool consumePendingCreditsFlagOnStart;
     private bool restoreDeathRetrySlotOnStart;
     private int pendingDeathRetrySlot = -1;
+    private bool pendingReturnFromGameQueued;
+    private bool consumeReturnFromGameFlagOnStart;
 
     private void Awake()
     {
@@ -132,6 +134,12 @@ public sealed class MainMenuController : MonoBehaviour
             pendingCreditsLaunchQueued = true;
         }
 
+        if (GlobalSceneTransitionRequest.PendingReturnFromGame)
+        {
+            consumeReturnFromGameFlagOnStart = true;
+            pendingReturnFromGameQueued = true;
+        }
+
         GameMusicManager.Instance?.StopAll(true);
         if (!pendingSceneLaunchQueued)
         {
@@ -153,7 +161,7 @@ public sealed class MainMenuController : MonoBehaviour
         slotSelectionController?.HideImmediate();
         confirmOverwritePanel?.HideImmediate();
         loadingScreenController?.HideLoading();
-        if (pendingSceneLaunchQueued || pendingCreditsLaunchQueued)
+        if (pendingSceneLaunchQueued || pendingCreditsLaunchQueued || pendingReturnFromGameQueued)
         {
             mainMenuPanel?.SetActive(false);
             if (mainMenuCanvasGroup != null)
@@ -232,6 +240,22 @@ public sealed class MainMenuController : MonoBehaviour
         {
             pendingCreditsLaunchQueued = false;
             StartCoroutine(OpenCreditsFromGameTransition());
+            return;
+        }
+
+        if (pendingReturnFromGameQueued)
+        {
+            pendingReturnFromGameQueued = false;
+            loadingScreenController?.ShowReturnToMenuLoading(() =>
+            {
+                mainMenuPanel?.SetActive(true);
+                if (mainMenuCanvasGroup != null)
+                {
+                    mainMenuCanvasGroup.alpha = 1f;
+                    mainMenuCanvasGroup.interactable = true;
+                    mainMenuCanvasGroup.blocksRaycasts = true;
+                }
+            });
         }
     }
 
@@ -267,6 +291,12 @@ public sealed class MainMenuController : MonoBehaviour
         {
             GlobalSceneTransitionRequest.PendingOpenCredits = false;
             consumePendingCreditsFlagOnStart = false;
+        }
+
+        if (consumeReturnFromGameFlagOnStart)
+        {
+            GlobalSceneTransitionRequest.PendingReturnFromGame = false;
+            consumeReturnFromGameFlagOnStart = false;
         }
 
         if (prefsChanged)

@@ -59,7 +59,7 @@ public sealed class StartupSplashController : MonoBehaviour
                 splashPanel.SetActive(false);
             }
 
-            if (mainMenuPanel != null)
+            if (mainMenuPanel != null && !GlobalSceneTransitionRequest.PendingReturnFromGame)
             {
                 mainMenuPanel.SetActive(true);
             }

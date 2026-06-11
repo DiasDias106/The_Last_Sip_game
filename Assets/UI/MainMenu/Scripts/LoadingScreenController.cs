@@ -23,6 +23,7 @@ public sealed class LoadingScreenController : MonoBehaviour
     [SerializeField] private TMP_Text quoteText;
     [SerializeField] private TMP_Text loadingText;
     [SerializeField] private float loadingDuration = 4.5f;
+    [SerializeField] private float returnToMenuLoadingDuration = 2.5f;
     [SerializeField] private float shortFadeDuration = 0.22f;
     [SerializeField] private float loadingFadeDuration = 0.4f;
     [SerializeField] private float iconRotationSpeed = 160f;
@@ -30,6 +31,31 @@ public sealed class LoadingScreenController : MonoBehaviour
     [SerializeField] private float quotePulseSpeed = 1.25f;
     [SerializeField] private float titleRevealDuration = 0.55f;
     [SerializeField] private float quoteRevealDuration = 0.8f;
+
+    [Header("Loading Tips")]
+    [SerializeField] private string[] loadingTips =
+    {
+        "Guarda o jogo regularmente — um progresso perdido é uma aventura perdida.",
+        "Explora cada canto da masmorra. Os melhores tesouros escondem-se nos lugares mais sombrios.",
+        "Os inimigos ficam mais perigosos à medida que avanças. Prepara-te antes de mergulhares fundo.",
+        "A tua saúde não se regenera sozinha. Usa as poções com sabedoria.",
+        "Observa os padrões de ataque dos inimigos antes de te lançares ao combate.",
+        "O mercador pode ter exactamente o que precisas para sobreviver à próxima sala.",
+        "Nem todos os confrontos precisam de ser ganhos pela força bruta.",
+        "Um golpe bem cronometrado vale mais do que cem ataques precipitados.",
+        "A escuridão da masmorra esconde tanto perigo como recompensa.",
+        "Cada morte é uma lição. Os mais sábios aprendem com ela.",
+        "Mantém o inventário organizado — nunca sabes quando vais precisar de um item urgente.",
+        "Os chefes têm padrões previsíveis. Estuda os seus movimentos antes de atacar.",
+        "A paciência é uma virtude no combate. Espera sempre pelo momento certo.",
+        "Dinheiro bem gasto no mercador pode ser a diferença entre a vida e a morte.",
+        "Atenção aos detalhes do ambiente — podem indicar armadilhas à frente.",
+        "Recolhe tudo o que encontrares. Nunca sabes o que pode ser útil mais tarde.",
+        "A beco guarda segredos que apenas os mais atentos conseguem descobrir.",
+        "O teu personagem tem mais força do que imaginas — aprende a dominá-lo.",
+        "Alguns inimigos são melhor evitados do que confrontados directamente.",
+        "A masmorra tem memória — os teus actos têm consequências.",
+    };
 
     public event Action SequenceFinished;
 
@@ -212,8 +238,55 @@ public sealed class LoadingScreenController : MonoBehaviour
         asyncOp.allowSceneActivation = true;
     }
 
+    public void ShowReturnToMenuLoading(System.Action onMenuReady)
+    {
+        StartSequence(ShowReturnToMenuLoadingRoutine(onMenuReady));
+    }
+
+    private IEnumerator ShowReturnToMenuLoadingRoutine(System.Action onMenuReady)
+    {
+        SetRandomTip();
+        MuteAudioForLoading();
+        RuntimeSceneTransitionOverlay.HideOverlay();
+
+        if (loadingPanel != null) loadingPanel.SetActive(true);
+        if (loadingCanvasGroup != null)
+        {
+            loadingCanvasGroup.alpha = 0f;
+            loadingCanvasGroup.interactable = true;
+            loadingCanvasGroup.blocksRaycasts = true;
+        }
+        if (loadingIconRoot != null) loadingIconRoot.localRotation = iconInitialRotation;
+        if (loadingTitleRoot != null) loadingTitleRoot.localScale = titleInitialScale * 0.95f;
+        if (quoteText != null) { Color c = quoteBaseColor; c.a = 0f; quoteText.color = c; }
+        if (loadingText != null) { Color c = loadingBaseColor; c.a = 0f; loadingText.color = c; }
+
+        yield return FadeCanvasGroup(loadingCanvasGroup, 0f, 1f, loadingFadeDuration);
+        yield return StartCoroutine(AnimateTitleAndQuoteIntro());
+        yield return FadeFromBlack();
+
+        yield return WaitForUnscaledSeconds(returnToMenuLoadingDuration);
+
+        yield return FadeToBlack();
+        if (loadingPanel != null) loadingPanel.SetActive(false);
+
+        onMenuReady?.Invoke();
+
+        yield return FadeFromBlack();
+        RestoreAudioAfterLoading();
+        FinishSequence();
+    }
+
+    private void SetRandomTip()
+    {
+        if (quoteText == null || loadingTips == null || loadingTips.Length == 0) return;
+        string tip = loadingTips[UnityEngine.Random.Range(0, loadingTips.Length)];
+        quoteText.text = UiText.LocalizeKnownText(tip);
+    }
+
     private IEnumerator PlayLoadingIntro()
     {
+        SetRandomTip();
         MuteAudioForLoading();
 
         if (sceneFadeController != null)
