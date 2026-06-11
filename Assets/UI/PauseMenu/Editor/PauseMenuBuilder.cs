@@ -111,7 +111,7 @@ public static class PauseMenuBuilder
 
         AnimatedMenuButton continueButton = CreateMenuButton(pauseBody.transform, "ContinueButton", "CONTINUAR", iconContinue, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
         AnimatedMenuButton saveButton = CreateMenuButton(pauseBody.transform, "SaveButton", "GUARDAR", iconSave, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
-        AnimatedMenuButton settingsButton = CreateMenuButton(pauseBody.transform, "SettingsButton", "DEFINICOES", iconSettings, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
+        AnimatedMenuButton settingsButton = CreateMenuButton(pauseBody.transform, "SettingsButton", "OPÇÕES", iconSettings, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
         AnimatedMenuButton exitButton = CreateMenuButton(pauseBody.transform, "ExitButton", "SAIR", iconExit, tmpFont, buttonNormal, buttonHover, buttonPressed, buttonGlow, audioManager);
 
         GameObject saveFeedbackGo = CreateUIObject("SaveFeedbackText", pausePanel.transform);

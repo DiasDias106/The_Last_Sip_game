@@ -468,7 +468,7 @@ public sealed class PauseMenuController : MonoBehaviour
     {
         continueButton?.SetLabel(UiText.GetMainMenuButtonLabel("continue"));
         saveButton?.SetLabel(UiText.LocalizeKnownText("GUARDAR"));
-        settingsButton?.SetLabel(UiText.LocalizeKnownText("DEFINICOES"));
+        settingsButton?.SetLabel(UiText.LocalizeKnownText("OPÇÕES"));
         exitButton?.SetLabel(UiText.GetMainMenuButtonLabel("exit"));
         settingsBackButton?.SetLabel(UiText.GetMainMenuButtonLabel("back"));
     }
