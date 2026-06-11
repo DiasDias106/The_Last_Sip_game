@@ -13,7 +13,7 @@ public class DarkKnightController : MonoBehaviour, IDamageable, IStaggerable
 
     [Header("Detection")]
     public float detectionRange = 5f;
-    public float attackRange    = 1.2f;
+    public float attackRange    = 0.7f;
 
     [Header("Patrol")]
     public float patrolRadius   = 6f;
@@ -196,7 +196,7 @@ public class DarkKnightController : MonoBehaviour, IDamageable, IStaggerable
             return;
         }
 
-        if (Time.time >= _lastAttackTime + attackCooldown && _player != null && _player.CompareTag("Player"))
+        if (Time.time >= _lastAttackTime + attackCooldown && _player != null && _player.CompareTag("Player") && dist <= attackRange)
         {
             _lastAttackTime = Time.time;
             _animator?.SetTrigger(_attackStep % 2 == 0 ? HashAttack : HashAttack2);

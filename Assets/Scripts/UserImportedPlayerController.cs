@@ -123,6 +123,13 @@ public class UserImportedPlayerController : MonoBehaviour
     public bool IsExternalControlLocked => _externalControlLocked;
     public Transform VisualRoot => _visualRoot;
 
+    [Header("Locomotion Clips")]
+    [SerializeField] private AnimationClip runtimeIdleClip;
+    [SerializeField] private AnimationClip runtimeWalkClip;
+    [SerializeField] private AnimationClip runtimeRunClip;
+    [SerializeField] private AnimationClip runtimeJumpClip;
+    [SerializeField] private AnimationClip runtimeFallClip;
+
     private const string AnimBase = "Assets/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/";
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -1233,46 +1240,76 @@ public class UserImportedPlayerController : MonoBehaviour
 
     void LoadRuntimePaladinClipOverrides()
     {
-        AnimationClip[] runtimeClips = Resources.LoadAll<AnimationClip>(RuntimePaladinClipsResourceFolder);
-        if (runtimeClips == null || runtimeClips.Length == 0)
-        {
-            return;
-        }
-
-        OverrideRuntimeClip(runtimeClips, "idle", "Unarmed-Idle");
-        OverrideRuntimeClip(runtimeClips, "idleStatic", "Unarmed-Idle");
+        // Locomotion clips assigned in the Inspector are always available in builds
+        if (runtimeIdleClip != null) { _clips["idle"] = runtimeIdleClip; _clips["idleStatic"] = runtimeIdleClip; }
+        if (runtimeRunClip != null) _clips["run"] = runtimeRunClip;
+        if (runtimeJumpClip != null) _clips["jump"] = runtimeJumpClip;
+        if (runtimeFallClip != null) _clips["fall"] = runtimeFallClip;
 
         bool isBecoNoite = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == BecoNoiteSceneName;
-        OverrideRuntimeClip(runtimeClips, "walk", isBecoNoite ? "MCU_am_Drunk_Loco_Walk_01" : "Unarmed-Strafe-Forward");
+        if (!isBecoNoite && runtimeWalkClip != null) _clips["walk"] = runtimeWalkClip;
 
-        // MCU clips (e.g. drunk walk) import as "Unreal Take" in builds — fall back to Scavenger's native clip
-        if (isBecoNoite && !_clips.ContainsKey("walk"))
+        AnimationClip[] runtimeClips = Resources.LoadAll<AnimationClip>(RuntimePaladinClipsResourceFolder);
+        if (runtimeClips == null || runtimeClips.Length == 0) return;
+
+        if (!_clips.ContainsKey("idle"))
         {
-            AnimationClip fallback = FindRuntimeClipByName("Scavenger_demo_walk");
-            if (fallback == null && _visualRoot != null)
-            {
-                Animator va = _visualRoot.GetComponent<Animator>();
-                if (va != null && va.runtimeAnimatorController != null)
-                {
-                    foreach (AnimationClip c in va.runtimeAnimatorController.animationClips)
-                    {
-                        if (c != null && !c.name.StartsWith("__preview__")) { fallback = c; break; }
-                    }
-                }
-            }
-            if (fallback != null) _clips["walk"] = fallback;
+            OverrideRuntimeClip(runtimeClips, "idle",       "HumanM@Idle01");
+            OverrideRuntimeClip(runtimeClips, "idleStatic", "HumanM@Idle01");
+        }
+        if (!_clips.ContainsKey("idle"))
+        {
+            OverrideRuntimeClip(runtimeClips, "idle",       "Unarmed-Idle");
+            OverrideRuntimeClip(runtimeClips, "idleStatic", "Unarmed-Idle");
         }
 
-        OverrideRuntimeClip(runtimeClips, "run", "Unarmed-Run-Forward");
-        OverrideRuntimeClip(runtimeClips, "roll", "Unarmed-DiveRoll-Forward1");
+        if (isBecoNoite)
+        {
+            OverrideRuntimeClip(runtimeClips, "walk", "MCU_am_Drunk_Loco_Walk_01");
+            if (!_clips.ContainsKey("walk"))
+            {
+                AnimationClip fallback = FindRuntimeClipByName("Scavenger_demo_walk");
+                if (fallback == null && _visualRoot != null)
+                {
+                    Animator va = _visualRoot.GetComponent<Animator>();
+                    if (va != null && va.runtimeAnimatorController != null)
+                    {
+                        foreach (AnimationClip c in va.runtimeAnimatorController.animationClips)
+                        {
+                            if (c != null && !c.name.StartsWith("__preview__")) { fallback = c; break; }
+                        }
+                    }
+                }
+                if (fallback != null) _clips["walk"] = fallback;
+            }
+        }
+        else if (!_clips.ContainsKey("walk"))
+        {
+            OverrideRuntimeClip(runtimeClips, "walk", "HumanM@Walk01_Forward");
+            if (!_clips.ContainsKey("walk"))
+                OverrideRuntimeClip(runtimeClips, "walk", "Unarmed-Strafe-Forward");
+        }
+
+        if (!_clips.ContainsKey("run"))
+        {
+            OverrideRuntimeClip(runtimeClips, "run", "HumanM@Run01_Forward");
+            if (!_clips.ContainsKey("run"))
+                OverrideRuntimeClip(runtimeClips, "run", "Unarmed-Run-Forward");
+        }
+
+        if (!_clips.ContainsKey("jump")) OverrideRuntimeClip(runtimeClips, "jump", "HumanM@Jump01");
+        if (!_clips.ContainsKey("fall")) OverrideRuntimeClip(runtimeClips, "fall", "HumanM@Fall01");
+
+        OverrideRuntimeClip(runtimeClips, "roll",       "Unarmed-DiveRoll-Forward1");
+        OverrideRuntimeClip(runtimeClips, "idleCombat", "2Hand-Sword-Idle");
         OverrideRuntimeClip(runtimeClips, "walkCombat", "2Hand-Sword-Strafe-Forward");
-        OverrideRuntimeClip(runtimeClips, "attack1", "2Hand-Sword-Attack1");
-        OverrideRuntimeClip(runtimeClips, "attack2", "2Hand-Sword-Attack2");
-        OverrideRuntimeClip(runtimeClips, "attack3", "2Hand-Sword-Attack3");
-        OverrideRuntimeClip(runtimeClips, "attack4", "2Hand-Sword-Attack4");
-        OverrideRuntimeClip(runtimeClips, "block", "2Hand-Sword-Idle");
-        OverrideRuntimeClip(runtimeClips, "getHit", "2Hand-Sword-GetHit-F1");
-        OverrideRuntimeClip(runtimeClips, "knockdown", "2Hand-Sword-Knockdown1");
+        OverrideRuntimeClip(runtimeClips, "attack1",    "2Hand-Sword-Attack1");
+        OverrideRuntimeClip(runtimeClips, "attack2",    "2Hand-Sword-Attack2");
+        OverrideRuntimeClip(runtimeClips, "attack3",    "2Hand-Sword-Attack3");
+        OverrideRuntimeClip(runtimeClips, "attack4",    "2Hand-Sword-Attack4");
+        OverrideRuntimeClip(runtimeClips, "block",      "2Hand-Sword-Idle");
+        OverrideRuntimeClip(runtimeClips, "getHit",     "2Hand-Sword-GetHit-F1");
+        OverrideRuntimeClip(runtimeClips, "knockdown",  "2Hand-Sword-Knockdown1");
     }
 
     void OverrideRuntimeClip(AnimationClip[] clips, string key, string clipName)

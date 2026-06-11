@@ -289,15 +289,15 @@ public sealed class PauseMenuController : MonoBehaviour
             return;
         }
 
-        menuAudioManager?.SetRuntimeMusicMultiplier(1f);
+        AudioListener.pause = false;
         Time.timeScale = 1f;
+        menuAudioManager?.SetRuntimeMusicMultiplier(1f);
 
         if (PlayerHUDController.Instance != null) Destroy(PlayerHUDController.Instance.gameObject);
         if (PlayerInventory.Instance != null) Destroy(PlayerInventory.Instance.gameObject);
-        
+
         GlobalSceneTransitionRequest.PendingReturnFromGame = true;
         Destroy(gameObject);
-        Time.timeScale = 1f;
         SceneManager.LoadSceneAsync(mainMenuSceneName);
     }
 

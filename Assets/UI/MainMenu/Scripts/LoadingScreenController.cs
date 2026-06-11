@@ -77,6 +77,11 @@ public sealed class LoadingScreenController : MonoBehaviour
             }
         }
 
+        if (sceneFadeController == null)
+        {
+            sceneFadeController = FindFirstObjectByType<SceneFadeController>(FindObjectsInactive.Include);
+        }
+
         if (loadingIconRoot != null)
         {
             iconInitialRotation = loadingIconRoot.localRotation;
