@@ -17817,7 +17817,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d00e4c938f997f478ea358f6bf95247, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GwynController
-  maxHealth: 400
+  maxHealth: 200
   lightAttackDamage: 10
   heavyAttackDamage: 20
   attackCooldown: 1.2

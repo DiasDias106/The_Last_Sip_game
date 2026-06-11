@@ -136,9 +136,10 @@ MonoBehaviour:
   attackRange: 1.8
   patrolRadius: 5
   patrolWaitTime: 3
-  maxHealth: 80
+  maxHealth: 40
   attackDamage: 10
   attackCooldown: 1.5
   moveSpeed: 2.5
   deathAnimDuration: 2
   shrinkDuration: 0.6
+  coinReward: 10

@@ -3688,7 +3688,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e73b50d8f6d82174991331193a772758, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CapraDemonController
-  maxHealth: 120
+  maxHealth: 200
   lightAttackDamage: 10
   heavyAttackDamage: 20
   attackCooldown: 1.6

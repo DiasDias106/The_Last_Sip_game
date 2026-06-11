@@ -2051,7 +2051,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5973b6e58dc7f854992d45d6705a221b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArtoriasController
-  maxHealth: 300
+  maxHealth: 200
   lightAttackDamage: 10
   heavyAttackDamage: 20
   attackCooldown: 1.5
