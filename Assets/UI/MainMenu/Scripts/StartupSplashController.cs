@@ -26,7 +26,7 @@ public sealed class StartupSplashController : MonoBehaviour
     [SerializeField] private float promptFadeDuration = 0.35f;
     [SerializeField] private float fadeOutDuration = 0.4f;
     [SerializeField] private float promptPulseSpeed = 1.15f;
-    [SerializeField] private string promptMessage = "CLIQUE EM QUALQUER TELA PARA COMECAR";
+    [SerializeField] private string promptMessage = "PRIME QUALQUER TECLA PARA COMEÇAR";
 
     private bool waitingForInput;
     private bool skipSplashForSceneTransition;

@@ -12,7 +12,7 @@ public static class UiText
         ["Este slot j\u00e1 tem um jogo guardado. Queres apagar este progresso e come\u00e7ar um novo jogo?"] = "This slot already has a saved game. Do you want to erase this progress and start a new game?",
         ["Queres apagar este jogo guardado deste slot?"] = "Do you want to delete the saved game in this slot?",
         ["Quando vires este circulo a rodar, o jogo est\u00e1 a guardar automaticamente"] = "When you see this circle spinning, the game is saving automatically",
-        ["CLIQUE EM QUALQUER TELA PARA COMECAR"] = "CLICK ANYWHERE TO START",
+        ["PRIME QUALQUER TECLA PARA COMEÇAR"] = "PRESS ANY KEY TO START",
         ["PRESS SPACE PARA CONTINUAR"] = "PRESS SPACE TO CONTINUE",
         ["Aprende as teclas antes de entrar no jogo."] = "Learn the keys before entering the game.",
         ["ANTES DE COME\u00c7AR"] = "BEFORE YOU START",

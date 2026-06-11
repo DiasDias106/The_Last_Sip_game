@@ -24,6 +24,8 @@ public class PlayerDeathSceneLoader : MonoBehaviour
     private PlayerHealth _playerHealth;
     private bool         _triggered;
     private GameObject   _deathCanvas;
+    
+    public float DeathScreenDelay { get => deathScreenDelay; set => deathScreenDelay = value; }
 
     void Awake() => _playerHealth = GetComponent<PlayerHealth>();
 
@@ -63,7 +65,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         var cg = _deathCanvas.GetComponent<CanvasGroup>();
         if (cg != null)
         {
-            float dur = 0.5f;
+            float dur = deathScreenDelay <= 0.01f ? 0.1f : 0.5f;
             float el = 0f;
             while (el < dur)
             {

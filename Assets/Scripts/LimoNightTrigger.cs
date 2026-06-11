@@ -28,7 +28,7 @@ public class LimoNightTrigger : MonoBehaviour
     [Header("Sequence")]
     [SerializeField] private float playerWalkSpeed = 3.75f;
     [SerializeField] private float limoSpeed = 13f;
-    [SerializeField] private float killDistance = 1.3f;
+    [SerializeField] private float killDistance = 4.5f;
     [SerializeField] private float impactPointDistance = 1.6f;
     [SerializeField] private float limoStartDelay = 0.15f;
     [SerializeField] private float preImpactLookDelay = 0.35f;
@@ -45,6 +45,9 @@ public class LimoNightTrigger : MonoBehaviour
     {
         _globalSequenceStarted = false;
         _sequenceStarted = false;
+
+        // Force kill distance to be larger so the collision happens at the front bumper
+        if (killDistance < 4.0f) killDistance = 4.5f;
 
         BoxCollider trigger = GetComponent<BoxCollider>();
         if (trigger != null) trigger.isTrigger = true;
@@ -245,6 +248,10 @@ public class LimoNightTrigger : MonoBehaviour
                     {
                         limoAudio.PlayOneShot(crashSound, crashVolume);
                     }
+                    
+                    PlayerDeathSceneLoader loader = health.GetComponent<PlayerDeathSceneLoader>();
+                    if (loader != null) loader.DeathScreenDelay = 0f;
+                    
                     health.TakeDamage(health.CurrentHealth + health.maxHealth);
                 }
                 else if (impactTimer >= limoImpactTimeout)
