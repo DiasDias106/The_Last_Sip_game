@@ -14,7 +14,7 @@ public class ShopInteractable : MonoBehaviour
 
     private bool _isPlayerNear;
     private GUIStyle _promptStyle;
-    private const float PromptMaxWidth = 220f;
+    private const float PromptMaxWidth = 360f;
 
     private void Update()
     {
@@ -57,8 +57,8 @@ public class ShopInteractable : MonoBehaviour
         EnsureStyle();
         string text = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - " + UiText.LocalizeKnownText("Abrir Loja");
         GUIContent content = new GUIContent(text);
-        float width = Mathf.Min(PromptMaxWidth, Mathf.Max(120f, _promptStyle.CalcSize(content).x));
-        float height = _promptStyle.CalcHeight(content, width);
+        float width = Mathf.Min(PromptMaxWidth, Mathf.Max(180f, _promptStyle.CalcSize(content).x + 10f));
+        float height = _promptStyle.CalcHeight(content, width) + 8f;
         
         Vector2 screenPos;
         GameObject targetObj = GameObject.Find("leather (1)");

@@ -11,21 +11,16 @@ public class BaseArmadilhaFall : MonoBehaviour
 
     private void Awake()
     {
-        _rb = GetComponent<Rigidbody>();
-        if (_rb == null)
+        // Set convex BEFORE adding Rigidbody to avoid PhysX non-convex + non-kinematic error
+        foreach (var mc in GetComponents<MeshCollider>())
         {
-            _rb = gameObject.AddComponent<Rigidbody>();
+            if (mc != null && !mc.convex)
+                mc.convex = true;
         }
 
-        MeshCollider[] meshColliders = GetComponents<MeshCollider>();
-        for (int i = 0; i < meshColliders.Length; i++)
-        {
-            MeshCollider meshCollider = meshColliders[i];
-            if (meshCollider != null && !meshCollider.convex)
-            {
-                meshCollider.convex = true;
-            }
-        }
+        _rb = GetComponent<Rigidbody>();
+        if (_rb == null)
+            _rb = gameObject.AddComponent<Rigidbody>();
 
         _rb.isKinematic = true;
         _rb.useGravity = false;

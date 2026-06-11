@@ -250,6 +250,10 @@ public sealed class LoadingScreenController : MonoBehaviour
 
     private IEnumerator ShowReturnToMenuLoadingRoutine(System.Action onMenuReady)
     {
+        // Garantir que SceneFadeController está preto imediatamente — evita flash da scene
+        // se SceneFadeController.Awake() tiver corrido depois de MainMenuController.Awake()
+        sceneFadeController?.SetVisibleImmediate(true);
+
         SetRandomTip();
         MuteAudioForLoading();
         RuntimeSceneTransitionOverlay.HideOverlay();
@@ -276,6 +280,7 @@ public sealed class LoadingScreenController : MonoBehaviour
         if (loadingPanel != null) loadingPanel.SetActive(false);
 
         onMenuReady?.Invoke();
+        yield return null; // aguardar um frame para o menu principal inicializar antes de revelar
 
         yield return FadeFromBlack();
         RestoreAudioAfterLoading();
@@ -449,6 +454,8 @@ public sealed class LoadingScreenController : MonoBehaviour
 
     private void MuteAudioForLoading()
     {
+        GameMusicManager.Instance?.StopAll(false, 0.25f);
+
         if (menuAudioManager == null)
         {
             return;

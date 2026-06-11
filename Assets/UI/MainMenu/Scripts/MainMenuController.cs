@@ -146,14 +146,6 @@ public sealed class MainMenuController : MonoBehaviour
             PlayerHealth.ClearPreservedState();
         }
 
-        if (!pendingSceneLaunchQueued && !pendingCreditsLaunchQueued)
-        {
-            if (menuAudioManager != null && menuAmbientClip != null)
-            {
-                menuAudioManager.SetAmbientMusicClip(menuAmbientClip, false);
-            }
-        }
-
         ApplyCreditsBackground(pendingCreditsLaunchQueued);
 
         optionsPanel?.HideImmediate();
@@ -243,6 +235,12 @@ public sealed class MainMenuController : MonoBehaviour
             return;
         }
 
+        // Iniciar música após o primeiro frame renderizado (cobre arranque normal e retorno do jogo)
+        // Para retorno do jogo: MuteAudioForLoading() já foi chamado, música começa em silêncio
+        // e é revelada por RestoreAudioAfterLoading() no fim do loading screen
+        if (!pendingSceneLaunchQueued && !pendingCreditsLaunchQueued)
+            StartCoroutine(DelayedMenuMusicStart());
+
         if (pendingReturnFromGameQueued)
         {
             pendingReturnFromGameQueued = false;
@@ -257,6 +255,13 @@ public sealed class MainMenuController : MonoBehaviour
                 }
             });
         }
+    }
+
+    private System.Collections.IEnumerator DelayedMenuMusicStart()
+    {
+        yield return new WaitForEndOfFrame();
+        if (menuAudioManager != null && menuAmbientClip != null)
+            menuAudioManager.SetAmbientMusicClip(menuAmbientClip, false);
     }
 
     private void ConsumeStartupTransitionFlags()

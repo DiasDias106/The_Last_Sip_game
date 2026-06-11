@@ -10,7 +10,7 @@ public class DoorInteractor : MonoBehaviour
 
     private DoorInteractable _nearestDoor;
     private GUIStyle _promptStyle;
-    private const float PromptMaxWidth = 220f;
+    private const float PromptMaxWidth = 360f;
 
     private void Start()
     {
@@ -85,9 +85,10 @@ public class DoorInteractor : MonoBehaviour
         EnsureStyle();
         string text = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact);
         GUIContent content = new GUIContent(text);
-        float width = Mathf.Min(PromptMaxWidth, Mathf.Max(120f, _promptStyle.CalcSize(content).x));
-        float height = _promptStyle.CalcHeight(content, width);
-        Rect rect = new Rect(screen.x - width * 0.5f, Screen.height - screen.y - height * 0.5f, width, height);
+        float width = Mathf.Min(PromptMaxWidth, Mathf.Max(180f, _promptStyle.CalcSize(content).x + 10f));
+        float height = _promptStyle.CalcHeight(content, width) + 8f;
+        float x = Mathf.Max(0f, screen.x - width * 0.5f);
+        Rect rect = new Rect(x, Screen.height - screen.y - height * 0.5f, width, height);
         GUI.Label(rect, text, _promptStyle);
     }
 

@@ -22,7 +22,7 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     private GUIStyle _promptStyle;
     private bool _isPlayerNear;
     private bool _transitionStarted;
-    private const float PromptMaxWidth = 220f;
+    private const float PromptMaxWidth = 360f;
 
 #if UNITY_EDITOR
     // Drink intro: transição para beber do MoCap Central
@@ -96,9 +96,10 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         EnsureStyle();
         string fullPrompt = BuildPromptText();
         GUIContent content = new GUIContent(fullPrompt);
-        float width = Mathf.Min(PromptMaxWidth, Mathf.Max(120f, _promptStyle.CalcSize(content).x));
-        float height = _promptStyle.CalcHeight(content, width);
-        Rect rect = new Rect(screen.x - width * 0.5f, Screen.height - screen.y - height * 0.5f, width, height);
+        float width = Mathf.Min(PromptMaxWidth, Mathf.Max(180f, _promptStyle.CalcSize(content).x + 10f));
+        float height = _promptStyle.CalcHeight(content, width) + 8f;
+        float x = Mathf.Max(0f, screen.x - width * 0.5f);
+        Rect rect = new Rect(x, Screen.height - screen.y - height * 0.5f, width, height);
         GUI.Label(rect, fullPrompt, _promptStyle);
     }
 

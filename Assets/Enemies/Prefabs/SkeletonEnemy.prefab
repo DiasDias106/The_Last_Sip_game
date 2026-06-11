@@ -136,7 +136,7 @@ MonoBehaviour:
   attackRange: 1.8
   patrolRadius: 5
   patrolWaitTime: 3
-  maxHealth: 40
+  maxHealth: 80
   attackDamage: 10
   attackCooldown: 1.5
   moveSpeed: 2.5

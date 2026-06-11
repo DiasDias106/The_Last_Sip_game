@@ -5314,7 +5314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1584e528c9ff9048814a8563307e3dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DarkKnightController
-  maxHealth: 60
+  maxHealth: 120
   attackDamage: 20
   attackCooldown: 2
   moveSpeed: 2.5
