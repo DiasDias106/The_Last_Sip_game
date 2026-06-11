@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueData
   lines:
   - textEN: Blessed are those who find happiness outside of alcohol, my friend.
-    textPT: bem aventurados sejam os que encontram a felicidade fora da bebida meu
+    textPT: Bem aventurados sejam os que encontram a felicidade fora da bebida meu
       amigo.
     audioClip: {fileID: 8300000, guid: 4bfb9c4e282a47b4ea0d3d18706d24e0, type: 3}
   - textEN: Ironic, isn't it? You fight them out there, yet you come here looking
