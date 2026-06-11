@@ -6,7 +6,7 @@ using System.Collections;
 public class DarkKnightController : MonoBehaviour, IDamageable, IStaggerable
 {
     [Header("Stats")]
-    public float maxHealth      = 120f;
+    public float maxHealth      = 60f;
     public float attackDamage   = 20f;
     public float attackCooldown = 2.0f;
     public float moveSpeed      = 2f;

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 using System.Collections;
@@ -7,7 +7,7 @@ using System.Collections;
 public class GwynController : MonoBehaviour, IDamageable, IStaggerable
 {
     [Header("Stats")]
-    public float maxHealth         = 400f;
+    public float maxHealth         = 200f;
     public float lightAttackDamage = 10f;
     public float heavyAttackDamage = 20f;
     public float attackCooldown    = 1.2f;

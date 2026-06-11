@@ -6,7 +6,7 @@ using System.Collections;
 public class SifController : MonoBehaviour, IDamageable, IStaggerable
 {
     [Header("Stats")]
-    public float maxHealth      = 80f;
+    public float maxHealth      = 40f;
     public float attackDamage   = 22f;
     public float attackCooldown = 1.8f;
     public float moveSpeed      = 4f;
