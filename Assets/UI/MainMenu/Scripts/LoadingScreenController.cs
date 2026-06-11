@@ -23,7 +23,7 @@ public sealed class LoadingScreenController : MonoBehaviour
     [SerializeField] private TMP_Text quoteText;
     [SerializeField] private TMP_Text loadingText;
     [SerializeField] private float loadingDuration = 4.5f;
-    [SerializeField] private float returnToMenuLoadingDuration = 2.5f;
+    [SerializeField] private float returnToMenuLoadingDuration = 6f;
     [SerializeField] private float shortFadeDuration = 0.22f;
     [SerializeField] private float loadingFadeDuration = 0.4f;
     [SerializeField] private float iconRotationSpeed = 160f;
