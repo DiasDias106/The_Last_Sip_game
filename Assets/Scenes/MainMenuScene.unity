@@ -12354,7 +12354,7 @@ MonoBehaviour:
   quoteText: {fileID: 214114758}
   loadingText: {fileID: 1130021363}
   loadingDuration: 2.5
-  returnToMenuLoadingDuration: 6
+  returnToMenuLoadingDuration: 10
   shortFadeDuration: 0.22
   loadingFadeDuration: 0.4
   iconRotationSpeed: 160
