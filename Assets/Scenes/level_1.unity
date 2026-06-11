@@ -5202,6 +5202,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 137620385}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 137620386}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &137620383 stripped
 Transform:
@@ -5235,6 +5238,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+--- !u!114 &137620386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137620384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a93361cb077fe4daaba73d2dfa0888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
+  fallDelay: 1
 --- !u!1001 &140313055
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18078,6 +18094,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1285453125}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1285453126}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!1 &465231735 stripped
 GameObject:
@@ -18951,6 +18970,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1413150327}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1413150328}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!1 &479233429 stripped
 GameObject:
@@ -24598,6 +24620,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 599339898}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 599339899}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &599339896 stripped
 Transform:
@@ -24631,6 +24656,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+--- !u!114 &599339899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 599339897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a93361cb077fe4daaba73d2dfa0888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
+  fallDelay: 1
 --- !u!1001 &603601417
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -52967,6 +53005,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2108178960}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2108178961}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!1 &1186848991 stripped
 GameObject:
@@ -58360,6 +58401,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+--- !u!114 &1285453126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 465231735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a93361cb077fe4daaba73d2dfa0888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
+  fallDelay: 1
 --- !u!1001 &1289406179
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -64218,6 +64272,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+--- !u!114 &1413150328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 479233429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a93361cb077fe4daaba73d2dfa0888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
+  fallDelay: 1
 --- !u!1001 &1416616478
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -77532,6 +77599,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1714833365}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1714833366}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &1714833363 stripped
 Transform:
@@ -77565,6 +77635,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+--- !u!114 &1714833366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1714833364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a93361cb077fe4daaba73d2dfa0888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
+  fallDelay: 1
 --- !u!1001 &1715228900
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -80565,6 +80648,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1787013592}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1787013593}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &1787013590 stripped
 Transform:
@@ -80598,6 +80684,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+--- !u!114 &1787013593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1787013591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a93361cb077fe4daaba73d2dfa0888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
+  fallDelay: 1
 --- !u!1001 &1788077008
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -82440,6 +82539,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1834805531}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1834805532}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &1834805529 stripped
 Transform:
@@ -82473,6 +82575,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+--- !u!114 &1834805532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1834805530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a93361cb077fe4daaba73d2dfa0888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
+  fallDelay: 1
 --- !u!1001 &1835382609
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -90628,6 +90743,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2003169953}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2003169954}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &2003169951 stripped
 Transform:
@@ -90661,6 +90779,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+--- !u!114 &2003169954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2003169952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a93361cb077fe4daaba73d2dfa0888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
+  fallDelay: 1
 --- !u!1001 &2004151907
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -96149,6 +96280,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2105266179}
+    - targetCorrespondingSourceObject: {fileID: -927199367670048503, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2105266180}
   m_SourcePrefab: {fileID: 100100000, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
 --- !u!4 &2105266177 stripped
 Transform:
@@ -96182,6 +96316,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+--- !u!114 &2105266180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105266178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a93361cb077fe4daaba73d2dfa0888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
+  fallDelay: 1
 --- !u!1001 &2105910755
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -96305,6 +96452,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2859856895660755060, guid: d4931afe423a5cd4e921936c43fc14f8, type: 3}
+--- !u!114 &2108178961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1186848991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3a93361cb077fe4daaba73d2dfa0888, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseArmadilhaFall
+  fallDelay: 1
 --- !u!1001 &2108367604
 PrefabInstance:
   m_ObjectHideFlags: 0
