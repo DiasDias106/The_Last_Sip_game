@@ -61,7 +61,7 @@ public class DoorInteractor : MonoBehaviour
 
     private void OnGUI()
     {
-        if (_nearestDoor == null)
+        if (Time.timeScale <= 0f || _nearestDoor == null)
         {
             return;
         }

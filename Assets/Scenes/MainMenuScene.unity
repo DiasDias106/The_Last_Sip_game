@@ -12354,6 +12354,7 @@ MonoBehaviour:
   quoteText: {fileID: 214114758}
   loadingText: {fileID: 1130021363}
   loadingDuration: 2.5
+  returnToMenuLoadingDuration: 6
   shortFadeDuration: 0.22
   loadingFadeDuration: 0.4
   iconRotationSpeed: 160
@@ -12361,6 +12362,33 @@ MonoBehaviour:
   quotePulseSpeed: 1.25
   titleRevealDuration: 0.55
   quoteRevealDuration: 0.8
+  loadingTips:
+  - "Guarda o jogo regularmente \u2014 um progresso perdido \xE9 uma aventura perdida."
+  - Explora cada canto da masmorra. Os melhores tesouros escondem-se nos lugares
+    mais sombrios.
+  - "Os inimigos ficam mais perigosos \xE0 medida que avan\xE7as. Prepara-te antes
+    de mergulhares fundo."
+  - "A tua sa\xFAde n\xE3o se regenera sozinha. Usa as po\xE7\xF5es com sabedoria."
+  - "Observa os padr\xF5es de ataque dos inimigos antes de te lan\xE7ares ao combate."
+  - "O mercador pode ter exactamente o que precisas para sobreviver \xE0 pr\xF3xima
+    sala."
+  - "Nem todos os confrontos precisam de ser ganhos pela for\xE7a bruta."
+  - Um golpe bem cronometrado vale mais do que cem ataques precipitados.
+  - "A escurid\xE3o da masmorra esconde tanto perigo como recompensa."
+  - "Cada morte \xE9 uma li\xE7\xE3o. Os mais s\xE1bios aprendem com ela."
+  - "Mant\xE9m o invent\xE1rio organizado \u2014 nunca sabes quando vais precisar
+    de um item urgente."
+  - "Os chefes t\xEAm padr\xF5es previs\xEDveis. Estuda os seus movimentos antes
+    de atacar."
+  - "A paci\xEAncia \xE9 uma virtude no combate. Espera sempre pelo momento certo."
+  - "Dinheiro bem gasto no mercador pode ser a diferen\xE7a entre a vida e a morte."
+  - "Aten\xE7\xE3o aos detalhes do ambiente \u2014 podem indicar armadilhas \xE0
+    frente."
+  - "Recolhe tudo o que encontrares. Nunca sabes o que pode ser \xFAtil mais tarde."
+  - A beco guarda segredos que apenas os mais atentos conseguem descobrir.
+  - "O teu personagem tem mais for\xE7a do que imaginas \u2014 aprende a domin\xE1-lo."
+  - "Alguns inimigos s\xE3o melhor evitados do que confrontados directamente."
+  - "A masmorra tem mem\xF3ria \u2014 os teus actos t\xEAm consequ\xEAncias."
 --- !u!114 &970711836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12996,7 +13024,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &991265057
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13292,7 +13320,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1010794168
 RectTransform:
   m_ObjectHideFlags: 0
@@ -21133,7 +21161,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1547097200
 RectTransform:
   m_ObjectHideFlags: 0
@@ -28018,7 +28046,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -280}
+  m_AnchoredPosition: {x: 0, y: -210}
   m_SizeDelta: {x: 780, y: 70}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &2061823763

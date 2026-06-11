@@ -52,7 +52,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
     IEnumerator DeathSequence()
     {
-        float t = SceneManager.GetActiveScene().name == BecoNoiteSceneName ? 0f : deathScreenDelay;
+        float t = deathScreenDelay;
         while (t > 0f) { t -= Time.unscaledDeltaTime; yield return null; }
 
         Cursor.visible   = true;
@@ -63,7 +63,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         var cg = _deathCanvas.GetComponent<CanvasGroup>();
         if (cg != null)
         {
-            float dur = SceneManager.GetActiveScene().name == BecoNoiteSceneName ? 0.05f : 0.5f;
+            float dur = 0.5f;
             float el = 0f;
             while (el < dur)
             {
@@ -90,6 +90,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         var canvas = _deathCanvas.AddComponent<Canvas>();
         canvas.renderMode   = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 200;
+        canvas.pixelPerfect = true;
         var scaler = _deathCanvas.AddComponent<CanvasScaler>();
         scaler.uiScaleMode         = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920, 1080);
@@ -190,7 +191,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         rt.sizeDelta        = new Vector2(390f, 56f);
         rt.anchoredPosition = pos;
 
-        AddBorder(go.transform, new Color(0.52f, 0.40f, 0.10f, 0.85f), 1.5f);
+        AddBorder(go.transform, new Color(0.52f, 0.40f, 0.10f, 0.85f), 2f);
 
         // Glow overlay — hidden by default, appears on hover
         var glowGo = new GameObject("Glow");

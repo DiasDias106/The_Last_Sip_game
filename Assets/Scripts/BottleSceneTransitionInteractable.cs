@@ -73,7 +73,7 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
 
     private void OnGUI()
     {
-        if (!_isPlayerNear || _transitionStarted)
+        if (Time.timeScale <= 0f || !_isPlayerNear || _transitionStarted)
         {
             return;
         }

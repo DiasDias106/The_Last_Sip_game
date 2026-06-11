@@ -215,6 +215,7 @@ public sealed class OptionsPanelView : MonoBehaviour
         }
         MovementKeyBindings.Save();
         SyncPendingBindingsFromRuntime();
+        RefreshBindingLabels();
 #endif
         PlayerPrefs.Save();
         appliedSnapshot = CaptureCurrentSnapshot();
@@ -223,26 +224,35 @@ public sealed class OptionsPanelView : MonoBehaviour
 
     public void ResetDefaults()
     {
-        if (menuAudioManager != null)
+        if (selectedSectionIndex == 2) // Audio
         {
-            menuAudioManager.ResetToDefaults(false);
-            SetSliderWithoutNotify(masterSlider, menuAudioManager.DefaultMasterVolume);
-            SetSliderWithoutNotify(musicSlider, menuAudioManager.DefaultMusicVolume);
-            SetSliderWithoutNotify(sfxSlider, menuAudioManager.DefaultSfxVolume);
+            if (menuAudioManager != null)
+            {
+                menuAudioManager.ResetToDefaults(false);
+                SetSliderWithoutNotify(masterSlider, menuAudioManager.DefaultMasterVolume);
+                SetSliderWithoutNotify(musicSlider, menuAudioManager.DefaultMusicVolume);
+                SetSliderWithoutNotify(sfxSlider, menuAudioManager.DefaultSfxVolume);
+            }
+            else
+            {
+                SetSliderWithoutNotify(masterSlider, 0.8f);
+                SetSliderWithoutNotify(musicSlider, 0.6f);
+                SetSliderWithoutNotify(sfxSlider, 0.7f);
+            }
+            audioModeIndex = 0;
+            subtitlesIndex = 0;
         }
-        else
+        else if (selectedSectionIndex == 4) // Language
         {
-            SetSliderWithoutNotify(masterSlider, 0.8f);
-            SetSliderWithoutNotify(musicSlider, 0.6f);
-            SetSliderWithoutNotify(sfxSlider, 0.7f);
+            languageIndex = 0;
+        }
+        else if (selectedSectionIndex == 3) // Controls
+        {
+#if ENABLE_INPUT_SYSTEM
+            ResetPendingBindingsToDefaults();
+#endif
         }
 
-        audioModeIndex = 0;
-        subtitlesIndex = 0;
-        languageIndex = 0;
-#if ENABLE_INPUT_SYSTEM
-        ResetPendingBindingsToDefaults();
-#endif
         ApplyLocalizedStaticLabels();
         RefreshAllLabels();
     }
@@ -624,6 +634,7 @@ public sealed class OptionsPanelView : MonoBehaviour
         for (int i = controlsContentRoot.childCount - 1; i >= 0; i--)
         {
             Transform child = controlsContentRoot.GetChild(i);
+            child.SetParent(null);
             Destroy(child.gameObject);
         }
 
@@ -802,7 +813,7 @@ public sealed class OptionsPanelView : MonoBehaviour
         valueRect.anchorMin = new Vector2(0f, 0f);
         valueRect.anchorMax = new Vector2(1f, 1f);
         valueRect.offsetMin = new Vector2(8f, 0f);
-        valueRect.offsetMax = new Vector2(-8f, 0f);
+        valueRect.offsetMax = new Vector2(-28f, 0f);
         TMP_Text valueText = valueGo.GetComponent<TMP_Text>();
         valueText.font = font;
         valueText.fontSize = 20f;
@@ -811,6 +822,22 @@ public sealed class OptionsPanelView : MonoBehaviour
         valueText.alignment = TextAlignmentOptions.Center;
         valueText.text = value;
         ConfigureLabelText(valueText, false);
+
+        GameObject arrowGo = new("Arrow", typeof(RectTransform), typeof(TextMeshProUGUI));
+        arrowGo.transform.SetParent(valuePanel.transform, false);
+        RectTransform arrowRect = arrowGo.GetComponent<RectTransform>();
+        arrowRect.anchorMin = new Vector2(1f, 0.5f);
+        arrowRect.anchorMax = new Vector2(1f, 0.5f);
+        arrowRect.pivot = new Vector2(1f, 0.5f);
+        arrowRect.anchoredPosition = new Vector2(-10f, 0f);
+        arrowRect.sizeDelta = new Vector2(16f, 20f);
+        TMP_Text arrowText = arrowGo.GetComponent<TMP_Text>();
+        arrowText.font = font;
+        arrowText.fontSize = 16f;
+        arrowText.fontStyle = FontStyles.Bold;
+        arrowText.color = new Color32(185, 171, 148, 255);
+        arrowText.alignment = TextAlignmentOptions.Center;
+        arrowText.text = "^";
 
         return rowGo.transform;
     }
@@ -1056,7 +1083,7 @@ public sealed class OptionsPanelView : MonoBehaviour
             return UiText.LocalizeKnownText("PRIME UMA TECLA");
         }
 
-        string keyName = MovementKeyBindings.GetDisplayName(MovementKeyBindings.GetKey(action));
+        string keyName = MovementKeyBindings.GetDisplayName(GetPendingKey(action));
         return action switch
         {
             MovementKeyBindings.GameAction.Attack => "MOUSE LEFT",

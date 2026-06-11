@@ -97,6 +97,8 @@ return closest;
 
     void OnGUI()
     {
+        if (Time.timeScale <= 0f) return;
+
         if (_currentClosest != null)
         {
             var interactableMono = _currentClosest as MonoBehaviour;

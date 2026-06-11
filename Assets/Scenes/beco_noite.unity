@@ -175888,7 +175888,7 @@ Transform:
   m_GameObject: {fileID: 817022357}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -63.07, y: 0.9, z: 33}
+  m_LocalPosition: {x: -63.07, y: 0.06, z: 33}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -382888,7 +382888,7 @@ Transform:
   m_GameObject: {fileID: 1808096355}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 40.42, y: 0.9, z: 33}
+  m_LocalPosition: {x: 40.42, y: 0.06, z: 33}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -449941,7 +449941,7 @@ MonoBehaviour:
   playerImpactPoint: {fileID: 1073215104}
   limoExitPoint: {fileID: 1808096356}
   roadZOffset: -4.5
-  limoSpawnYOffset: 0.85
+  limoSpawnYOffset: 0.693
   limoScale: {x: 2, y: 1.5, z: 2}
   limoDriveEuler: {x: 270, y: 0, z: 0}
   limoMaterialOverride: {fileID: 0}
@@ -449954,7 +449954,7 @@ MonoBehaviour:
   enginePitch: 0.5
   playerWalkSpeed: 0.7
   limoSpeed: 12
-  killDistance: 1.3
+  killDistance: 3.8
   impactPointDistance: 1.6
   limoStartDelay: 0.15
   preImpactLookDelay: 0.35

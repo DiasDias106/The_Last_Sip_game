@@ -88,7 +88,7 @@ public class PortalSceneInteractable : MonoBehaviour
 
     private void OnGUI()
     {
-        if (!_isPlayerNear || _transitionStarted || _isLocked)
+        if (Time.timeScale <= 0f || !_isPlayerNear || _transitionStarted || _isLocked)
         {
             return;
         }
