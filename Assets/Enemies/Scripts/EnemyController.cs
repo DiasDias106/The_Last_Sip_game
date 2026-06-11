@@ -15,7 +15,7 @@ public class EnemyController : MonoBehaviour, IDamageable
     public float patrolWaitTime = 3f;
 
     [Header("Stats")]
-    public float maxHealth      = 40f;
+    public float maxHealth      = 80f;
     public float attackDamage   = 10f;
     public float attackCooldown = 1.5f;
     public float moveSpeed      = 2.5f;
