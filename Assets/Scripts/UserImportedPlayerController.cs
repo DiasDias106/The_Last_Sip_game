@@ -1245,6 +1245,24 @@ public class UserImportedPlayerController : MonoBehaviour
         bool isBecoNoite = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == BecoNoiteSceneName;
         OverrideRuntimeClip(runtimeClips, "walk", isBecoNoite ? "MCU_am_Drunk_Loco_Walk_01" : "Unarmed-Strafe-Forward");
 
+        // MCU clips (e.g. drunk walk) import as "Unreal Take" in builds — fall back to Scavenger's native clip
+        if (isBecoNoite && !_clips.ContainsKey("walk"))
+        {
+            AnimationClip fallback = FindRuntimeClipByName("Scavenger_demo_walk");
+            if (fallback == null && _visualRoot != null)
+            {
+                Animator va = _visualRoot.GetComponent<Animator>();
+                if (va != null && va.runtimeAnimatorController != null)
+                {
+                    foreach (AnimationClip c in va.runtimeAnimatorController.animationClips)
+                    {
+                        if (c != null && !c.name.StartsWith("__preview__")) { fallback = c; break; }
+                    }
+                }
+            }
+            if (fallback != null) _clips["walk"] = fallback;
+        }
+
         OverrideRuntimeClip(runtimeClips, "run", "Unarmed-Run-Forward");
         OverrideRuntimeClip(runtimeClips, "roll", "Unarmed-DiveRoll-Forward1");
         OverrideRuntimeClip(runtimeClips, "walkCombat", "2Hand-Sword-Strafe-Forward");
