@@ -3697,7 +3697,7 @@ MonoBehaviour:
   attackRange: 2
   patrolRadius: 6
   patrolWaitTime: 3
-  coinReward: 10
+  coinReward: 50
   displayName: O Bode Viciado
   memoryPrefab: {fileID: 3393817763262611787, guid: e92c546103937ca41a38601eeaef8f4c, type: 3}
   videoIndex: 1
