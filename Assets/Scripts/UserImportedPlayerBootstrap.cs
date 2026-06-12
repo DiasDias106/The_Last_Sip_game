@@ -3,7 +3,6 @@ using UnityEngine.SceneManagement;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
 public static class UserImportedPlayerBootstrap
 {
     private const string SceneName = "level_1";
@@ -30,7 +29,6 @@ public static class UserImportedPlayerBootstrap
     private static readonly Vector3 TavernSpawnFallback = new Vector3(4.5f, 1.2f, -2.5f);
     private static bool _levelCollidersEnsured;
     private static bool _sceneHookRegistered;
-
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneHooks()
     {
@@ -38,22 +36,18 @@ public static class UserImportedPlayerBootstrap
         {
             return;
         }
-
         SceneManager.sceneLoaded += OnSceneLoaded;
         _sceneHookRegistered = true;
     }
-
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void BootstrapInitialScene()
     {
         HandleSceneLoaded(SceneManager.GetActiveScene());
     }
-
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         HandleSceneLoaded(scene);
     }
-
     private static void HandleSceneLoaded(Scene scene)
     {
         string sceneName = scene.name;
@@ -61,29 +55,24 @@ public static class UserImportedPlayerBootstrap
         {
             SetupTavernShop();
         }
-        else if (sceneName == SceneName) // Apenas no level_1
+        else if (sceneName == SceneName)
         {
             EnsureLevel1Colliders();
             EnsureTrapBasesConfigured();
         }
-
         EnsurePlayerSpawned();
         EnsureHUDStateForScene(sceneName);
-
         if (IsGameplayLevelScene(sceneName))
         {
             SetupBossEntranceDoorSeal(sceneName);
         }
-
         if (IsBecoScene(sceneName))
         {
             SetupBecoEncounter();
         }
     }
-
     private static void EnsureLevel1Colliders()
     {
-        // level_1 relies on auto-generated colliders for its floor/walls.
         Scene activeScene = SceneManager.GetActiveScene();
         MeshFilter[] meshes = Object.FindObjectsByType<MeshFilter>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (MeshFilter mf in meshes)
@@ -92,27 +81,22 @@ public static class UserImportedPlayerBootstrap
             {
                 continue;
             }
-
             if (mf.gameObject.scene != activeScene)
             {
                 continue;
             }
-
             Collider existingCollider = mf.gameObject.GetComponent<Collider>();
             if (existingCollider != null)
             {
                 existingCollider.enabled = true;
                 continue;
             }
-
             MeshCollider meshCollider = mf.gameObject.AddComponent<MeshCollider>();
             meshCollider.sharedMesh = mf.sharedMesh;
             meshCollider.convex = false;
         }
-
         Physics.SyncTransforms();
     }
-
     private static void EnsureTrapBasesConfigured()
     {
         Transform[] allTransforms = Object.FindObjectsOfType<Transform>(true);
@@ -123,19 +107,16 @@ public static class UserImportedPlayerBootstrap
             {
                 continue;
             }
-
             if (!t.name.ToLowerInvariant().Contains("base_armadilha"))
             {
                 continue;
             }
-
             if (t.GetComponent<BaseArmadilhaFall>() == null)
             {
                 t.gameObject.AddComponent<BaseArmadilhaFall>();
             }
         }
     }
-
     public static void EnsurePlayerSpawned()
     {
         string currentScene = SceneManager.GetActiveScene().name;
@@ -143,17 +124,14 @@ public static class UserImportedPlayerBootstrap
         {
             return;
         }
-
         UserImportedPlayerController existing = Object.FindObjectOfType<UserImportedPlayerController>();
         if (existing != null)
         {
             EnsureRequiredPlayerComponents(existing.gameObject);
             return;
         }
-
         EnsureEventSystem();
         HideScenePreviewCharacter();
-
         bool useScavengerVisual = IsBecoScene(currentScene);
         GameObject modelPrefab = LoadPlayerVisualPrefab(useScavengerVisual);
         if (modelPrefab == null)
@@ -163,15 +141,12 @@ public static class UserImportedPlayerBootstrap
                 : "Could not load Paladin model from Resources/Runtime/PaladinPlayerVisual.");
             return;
         }
-
         Vector3 requested = GetRequestedSpawnPoint(out bool fromBase, out Quaternion spawnRot);
         Vector3 spawn = fromBase ? requested : ResolveSpawnPoint(requested);
         EnsureSafetyPlatform(spawn);
-
         GameObject playerRoot = new GameObject("UserImportedPlayer");
         playerRoot.transform.position = spawn;
         playerRoot.transform.rotation = spawnRot;
-
         CharacterController cc = playerRoot.AddComponent<CharacterController>();
         cc.height = 1.8f;
         cc.radius = 0.3f;
@@ -180,17 +155,14 @@ public static class UserImportedPlayerBootstrap
         cc.slopeLimit = 60f;
         cc.skinWidth = 0.03f;
         cc.minMoveDistance = 0f;
-
         GameObject visual = Object.Instantiate(modelPrefab, playerRoot.transform);
         visual.name = "Visual";
         visual.transform.localPosition = useScavengerVisual ? new Vector3(0f, -0.07f, 0f) : Vector3.zero;
         visual.transform.localRotation = Quaternion.identity;
         visual.transform.localScale = Vector3.one;
         DisableVisualColliders(visual);
-
         UserImportedPlayerController controller = playerRoot.AddComponent<UserImportedPlayerController>();
         controller.AssignVisualRoot(visual.transform);
-
         playerRoot.AddComponent<DoorInteractor>();
         playerRoot.AddComponent<PlayerInteractionDetector>();
         playerRoot.AddComponent<PlayerHealth>();
@@ -200,14 +172,11 @@ public static class UserImportedPlayerBootstrap
         int playerLayer = LayerMask.NameToLayer("Player");
         if (playerLayer >= 0) playerRoot.layer = playerLayer;
         visual.AddComponent<VisualAnimationEventReceiver>();
-
         if (!useScavengerVisual)
         {
             EnsureCharacterMaterialsVisible(visual);
         }
-
     }
-
     private static void EnsureRequiredPlayerComponents(GameObject playerGo)
     {
         if (playerGo.GetComponent<PlayerHealth>() == null)
@@ -225,27 +194,23 @@ public static class UserImportedPlayerBootstrap
         int playerLayer = LayerMask.NameToLayer("Player");
         if (playerLayer >= 0) playerGo.layer = playerLayer;
     }
-
     private static GameObject LoadPlayerVisualPrefab(bool useScavengerVisual)
     {
         if (!useScavengerVisual)
         {
             return Resources.Load<GameObject>(CharacterResourcePath);
         }
-
         GameObject scavengerPrefab = Resources.Load<GameObject>(RuntimeScavengerResourcePath);
         if (scavengerPrefab != null)
         {
             return scavengerPrefab;
         }
-
 #if UNITY_EDITOR
         return AssetDatabase.LoadAssetAtPath<GameObject>(ScavengerPrefabPath);
 #else
         return null;
 #endif
     }
-
     private static void DisableVisualColliders(GameObject visualRoot)
     {
         Collider[] colliders = visualRoot.GetComponentsInChildren<Collider>(true);
@@ -257,14 +222,12 @@ public static class UserImportedPlayerBootstrap
             }
         }
     }
-
     private static bool IsGameplayLevelScene(string sceneName)
     {
         return sceneName == SceneName
             || sceneName == Level2SceneName
             || sceneName == Level3SceneName;
     }
-
     private static void SetupBossEntranceDoorSeal(string sceneName)
     {
         BossController[] bosses = Object.FindObjectsByType<BossController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -273,16 +236,13 @@ public static class UserImportedPlayerBootstrap
         {
             return;
         }
-
         GameObject playerGo = GameObject.FindGameObjectWithTag("Player");
         Vector3 referencePosition = playerGo != null ? playerGo.transform.position : GetFallbackSpawnForScene(sceneName);
-
         DoorInteractable nearestDoorInteractable = null;
         Transform nearestLargeDoor = null;
         Transform sealAnchor = null;
         Transform proximityTarget = null;
         BossEntranceDoorSeal.TriggerMode triggerMode = BossEntranceDoorSeal.TriggerMode.CrossAnchor;
-
         if (sceneName == SceneName)
         {
             nearestDoorInteractable = FindLevel1BossDoor(referencePosition);
@@ -302,25 +262,20 @@ public static class UserImportedPlayerBootstrap
                 ? BossEntranceDoorSeal.TriggerMode.BossProximity
                 : BossEntranceDoorSeal.TriggerMode.CrossAnchor;
         }
-
         if (nearestDoorInteractable == null && nearestLargeDoor == null)
         {
             return;
         }
-
         GameObject trigger = new GameObject("BossEntranceDoorSeal");
         trigger.transform.position = sealAnchor != null ? sealAnchor.position : referencePosition;
-
         BossEntranceDoorSeal seal = trigger.AddComponent<BossEntranceDoorSeal>();
         seal.Initialize(bosses, nearestDoorInteractable, nearestLargeDoor, sealAnchor, triggerMode, proximityTarget, finalBoss);
     }
-
     private static DoorInteractable FindLevel1BossDoor(Vector3 position)
     {
         DoorInteractable[] doors = Object.FindObjectsOfType<DoorInteractable>(true);
         DoorInteractable best = null;
         float bestDistSq = float.MinValue;
-
         for (int i = 0; i < doors.Length; i++)
         {
             DoorInteractable door = doors[i];
@@ -328,7 +283,6 @@ public static class UserImportedPlayerBootstrap
             {
                 continue;
             }
-
             float distSq = (door.transform.position - position).sqrMagnitude;
             if (distSq > bestDistSq)
             {
@@ -336,14 +290,11 @@ public static class UserImportedPlayerBootstrap
                 best = door;
             }
         }
-
         return best;
     }
-
     private static Transform FindNamedLargeDoor(string exactName)
     {
         Transform[] transforms = Object.FindObjectsOfType<Transform>(true);
-
         for (int i = 0; i < transforms.Length; i++)
         {
             Transform t = transforms[i];
@@ -351,20 +302,16 @@ public static class UserImportedPlayerBootstrap
             {
                 continue;
             }
-
             return t;
         }
-
         return null;
     }
-
     private static Transform FindLevel3BossDoor()
     {
         Transform[] transforms = Object.FindObjectsOfType<Transform>(true);
         Transform best = null;
         float bestScore = float.MaxValue;
         Vector3 expectedPosition = new Vector3(2f, -1f, -28f);
-
         for (int i = 0; i < transforms.Length; i++)
         {
             Transform t = transforms[i];
@@ -372,7 +319,6 @@ public static class UserImportedPlayerBootstrap
             {
                 continue;
             }
-
             float score = (t.position - expectedPosition).sqrMagnitude;
             if (score < bestScore)
             {
@@ -380,10 +326,8 @@ public static class UserImportedPlayerBootstrap
                 best = t;
             }
         }
-
         return best;
     }
-
     private static PaladinFinalBossController FindLevel3FinalBoss()
     {
         PaladinFinalBossController[] bosses = Object.FindObjectsByType<PaladinFinalBossController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -391,25 +335,20 @@ public static class UserImportedPlayerBootstrap
         {
             return null;
         }
-
         return bosses[0];
     }
-
     private static Vector3 GetFallbackSpawnForScene(string sceneName)
     {
         if (sceneName == SceneName)
         {
             return FallbackSpawn;
         }
-
         if (sceneName == Level2SceneName || sceneName == Level3SceneName)
         {
             return TavernSpawnFallback;
         }
-
         return Vector3.zero;
     }
-
     private static bool IsPlayerSpawnScene(string sceneName)
     {
         return IsGameplayLevelScene(sceneName)
@@ -417,7 +356,6 @@ public static class UserImportedPlayerBootstrap
             || sceneName == DungeonSpawnSceneName
             || IsBecoScene(sceneName);
     }
-
     private static void HideScenePreviewCharacter()
     {
         GameObject preview = GameObject.Find("PaladinOnBase");
@@ -426,7 +364,6 @@ public static class UserImportedPlayerBootstrap
             preview.SetActive(false);
         }
     }
-
     private static void EnsureCharacterMaterialsVisible(GameObject visualRoot)
     {
 #if UNITY_EDITOR
@@ -435,18 +372,15 @@ public static class UserImportedPlayerBootstrap
             return;
         }
 #endif
-
         if (ApplyRuntimeTexturedMaterials(visualRoot))
         {
             return;
         }
-
         Shader urpLit = Shader.Find("Universal Render Pipeline/Lit");
         if (urpLit == null)
         {
             return;
         }
-
         Renderer[] renderers = visualRoot.GetComponentsInChildren<Renderer>(true);
         foreach (Renderer renderer in renderers)
         {
@@ -458,19 +392,15 @@ public static class UserImportedPlayerBootstrap
                 {
                     continue;
                 }
-
                 mat.shader = urpLit;
                 if (!mat.HasProperty("_BaseColor"))
                 {
                     continue;
                 }
-
                 if (mat.mainTexture == null)
                 {
-                    // Source pack has no albedo texture maps; use a neutral non-white tint.
                     mat.SetColor("_BaseColor", ResolveFallbackColor(renderer.name));
                 }
-
                 Color c = mat.GetColor("_BaseColor");
                 if (c.a <= 0f)
                 {
@@ -481,7 +411,6 @@ public static class UserImportedPlayerBootstrap
             renderer.materials = mats;
         }
     }
-
     private static bool ApplyRuntimeTexturedMaterials(GameObject visualRoot)
     {
         Material body = Resources.Load<Material>(RuntimeBodyMaterialResourcePath);
@@ -492,7 +421,6 @@ public static class UserImportedPlayerBootstrap
         {
             return false;
         }
-
         foreach (Renderer renderer in visualRoot.GetComponentsInChildren<Renderer>(true))
         {
             Material chosen = body;
@@ -509,7 +437,6 @@ public static class UserImportedPlayerBootstrap
             {
                 chosen = body;
             }
-
             Material[] mats = renderer.materials;
             for (int i = 0; i < mats.Length; i++)
             {
@@ -517,10 +444,8 @@ public static class UserImportedPlayerBootstrap
             }
             renderer.materials = mats;
         }
-
         return true;
     }
-
 #if UNITY_EDITOR
     private static bool ApplyTexturedProjectMaterials(GameObject visualRoot)
     {
@@ -532,7 +457,6 @@ public static class UserImportedPlayerBootstrap
         {
             return false;
         }
-
         foreach (Renderer renderer in visualRoot.GetComponentsInChildren<Renderer>(true))
         {
             Material chosen = body;
@@ -549,7 +473,6 @@ public static class UserImportedPlayerBootstrap
             {
                 chosen = body;
             }
-
             Material[] mats = renderer.materials;
             for (int i = 0; i < mats.Length; i++)
             {
@@ -557,11 +480,9 @@ public static class UserImportedPlayerBootstrap
             }
             renderer.materials = mats;
         }
-
         return true;
     }
 #endif
-
     private static Color ResolveFallbackColor(string rendererName)
     {
         string n = rendererName.ToLowerInvariant();
@@ -579,10 +500,8 @@ public static class UserImportedPlayerBootstrap
         }
         return new Color(0.33f, 0.35f, 0.39f, 1f);
     }
-
     private static Vector3 ResolveSpawnPoint(Vector3 desired)
     {
-        // Find real floor below desired spawn to prevent endless fall.
         Vector3 rayStart = desired + Vector3.up * 25f;
         if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, 80f))
         {
@@ -590,11 +509,9 @@ public static class UserImportedPlayerBootstrap
         }
         return desired;
     }
-
     private static Vector3 GetRequestedSpawnPoint(out bool fromBase, out Quaternion rot)
     {
         string sceneName = SceneManager.GetActiveScene().name;
-
         GameObject preview = FindInactiveObjectByName("PaladinOnBase");
         if (preview != null)
         {
@@ -602,52 +519,44 @@ public static class UserImportedPlayerBootstrap
         }
         else
         {
-            rot = Quaternion.Euler(0, 180, 0); // Default to 180 if requested
+            rot = Quaternion.Euler(0, 180, 0);
         }
-
         if (preview != null)
         {
             fromBase = true;
             return preview.transform.position;
         }
-
         if (sceneName == DungeonSpawnSceneName && TryGetTavernSpawnPoint(out Vector3 tavernSpawn, out Quaternion tavernRot))
         {
             fromBase = false;
             rot = tavernRot;
             return tavernSpawn;
         }
-
         GameObject baseObj = FindInactiveObjectByName("Base");
         if (baseObj != null)
         {
             fromBase = true;
             return baseObj.transform.position + Vector3.up * 0.1f;
         }
-
         if (sceneName == BecoDiaSceneName && TryGetBecoDiaSpawnPoint(out Vector3 becoDiaSpawn, out Quaternion becoDiaRotation))
         {
             fromBase = false;
             rot = becoDiaRotation;
             return becoDiaSpawn;
         }
-
         if (IsBecoScene(sceneName) && TryGetSpawnFromMainCamera(out Vector3 cameraSpawn, out Quaternion cameraRotation))
         {
             fromBase = false;
             rot = cameraRotation;
             return cameraSpawn;
         }
-
         fromBase = false;
         if (sceneName == DungeonSpawnSceneName)
         {
             return TavernSpawnFallback;
         }
-
         return IsBecoScene(sceneName) ? BecoFallbackSpawn : FallbackSpawn;
     }
-
     private static bool TryGetTavernSpawnPoint(out Vector3 spawn, out Quaternion rot)
     {
         GameObject spawnFloor = GameObject.Find(TavernSpawnFloorName);
@@ -657,7 +566,6 @@ public static class UserImportedPlayerBootstrap
             rot = Quaternion.Euler(0f, 180f, 0f);
             return true;
         }
-
         GameObject shop = GameObject.Find("Cylinder.155");
         if (shop == null)
         {
@@ -665,18 +573,15 @@ public static class UserImportedPlayerBootstrap
             rot = Quaternion.Euler(0f, 180f, 0f);
             return false;
         }
-
         Vector3 forward = Vector3.ProjectOnPlane(shop.transform.forward, Vector3.up).normalized;
         if (forward.sqrMagnitude < 0.001f)
         {
             forward = Vector3.forward;
         }
-
         spawn = shop.transform.position + forward * 2.2f + Vector3.up * 0.1f;
         rot = Quaternion.LookRotation(forward, Vector3.up);
         return true;
     }
-
     private static bool TryGetBecoDiaSpawnPoint(out Vector3 spawn, out Quaternion rot)
     {
         GameObject spawnFloor = GameObject.Find(BecoDiaSpawnFloorName);
@@ -686,12 +591,10 @@ public static class UserImportedPlayerBootstrap
             rot = Quaternion.identity;
             return true;
         }
-
         spawn = BecoFallbackSpawn;
         rot = Quaternion.identity;
         return false;
     }
-
     private static bool TryGetSpawnFromMainCamera(out Vector3 spawn, out Quaternion rot)
     {
         Camera cam = Camera.main;
@@ -699,31 +602,26 @@ public static class UserImportedPlayerBootstrap
         {
             cam = Object.FindObjectOfType<Camera>();
         }
-
         if (cam == null)
         {
             spawn = Vector3.zero;
             rot = Quaternion.Euler(0f, 180f, 0f);
             return false;
         }
-
         Vector3 forward = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
         if (forward.sqrMagnitude < 0.001f)
         {
             forward = Vector3.forward;
         }
-
         Vector3 candidate = cam.transform.position + forward * 2f;
         if (Physics.Raycast(candidate + Vector3.up * 10f, Vector3.down, out RaycastHit hit, 30f))
         {
             candidate = hit.point + Vector3.up * 0.08f;
         }
-
         spawn = candidate;
         rot = Quaternion.LookRotation(forward, Vector3.up);
         return true;
     }
-
     private static GameObject FindInactiveObjectByName(string name)
     {
         foreach (GameObject go in Resources.FindObjectsOfTypeAll<GameObject>())
@@ -735,12 +633,9 @@ public static class UserImportedPlayerBootstrap
         }
         return null;
     }
-
     private static void EnsureSafetyPlatform(Vector3 around)
     {
-        // If the level has no collider below spawn, create a hidden fallback floor.
         if (_levelCollidersEnsured) return;
-
         if (!Physics.Raycast(around + Vector3.up, Vector3.down, out RaycastHit _, 50f))
         {
             GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -751,17 +646,14 @@ public static class UserImportedPlayerBootstrap
         }
         _levelCollidersEnsured = true;
     }
-
     private static void EnsureEventSystem()
     {
         if (Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>() != null)
         {
             return;
         }
-
         GameObject eventSystemGo = new GameObject("EventSystem");
         eventSystemGo.AddComponent<UnityEngine.EventSystems.EventSystem>();
-
         System.Type inputModuleType = System.Type.GetType("UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem");
         if (inputModuleType != null)
         {
@@ -771,41 +663,34 @@ public static class UserImportedPlayerBootstrap
         {
             eventSystemGo.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
         }
-
         Debug.Log("[UserImportedPlayerBootstrap] Added EventSystem because none was found in the scene.");
     }
-
     private static void EnsureHUDStateForScene(string sceneName)
     {
         bool shouldShowHud = IsArmoredPlayableScene(sceneName);
-
         if (!shouldShowHud)
         {
             if (PlayerHUDController.Instance != null)
             {
                 Object.Destroy(PlayerHUDController.Instance.gameObject);
             }
-
             if (PlayerInventory.Instance != null)
             {
                 Object.Destroy(PlayerInventory.Instance.gameObject);
             }
             return;
         }
-
         if (PlayerHUDController.Instance == null)
         {
             var hudGo = new GameObject("PlayerHUD");
             hudGo.AddComponent<PlayerHUDController>();
         }
-
         if (PlayerInventory.Instance == null)
         {
             var invGo = new GameObject("PlayerInventory");
             invGo.AddComponent<PlayerInventory>();
         }
     }
-
     private static bool IsArmoredPlayableScene(string sceneName)
     {
         return sceneName == SceneName
@@ -814,12 +699,10 @@ public static class UserImportedPlayerBootstrap
             || sceneName == BossRoomSceneName
             || sceneName == DungeonSpawnSceneName;
     }
-
     private static void SetupTavernShop()
     {
         if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != DungeonSpawnSceneName)
             return;
-
         GameObject cylinder = GameObject.Find("Cylinder.155");
         if (cylinder != null)
         {
@@ -833,17 +716,13 @@ public static class UserImportedPlayerBootstrap
         {
             Debug.LogWarning("[UserImportedPlayerBootstrap] Cylinder.155 not found in masmorra_spawn!");
         }
-
-        // Portal is now authored directly in scene by level design.
     }
-
     private static bool IsBecoScene(string sceneName)
     {
         return sceneName == BecoSceneName
             || sceneName == BecoNoiteSceneName
             || sceneName == BecoDiaSceneName;
     }
-
     private static void SetupBecoEncounter()
     {
         string sceneName = SceneManager.GetActiveScene().name;
@@ -851,17 +730,14 @@ public static class UserImportedPlayerBootstrap
         {
             return;
         }
-
         if (sceneName == BecoNoiteSceneName || sceneName == BecoDiaSceneName)
         {
             return;
         }
-
         if (GameObject.Find("BottlePickup_Beco") != null)
         {
             return;
         }
-
         GameObject bottlePrefab = Resources.Load<GameObject>(RuntimeBottleResourcePath);
 #if UNITY_EDITOR
         if (bottlePrefab == null)
@@ -869,13 +745,11 @@ public static class UserImportedPlayerBootstrap
             bottlePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BottlePrefabPath);
         }
 #endif
-
         if (bottlePrefab == null)
         {
             Debug.LogWarning("[UserImportedPlayerBootstrap] Could not load beco bottle prefab.");
             return;
         }
-
         GameObject player = GameObject.FindWithTag("Player");
         Vector3 anchor = player != null ? player.transform.position : BecoFallbackSpawn;
         Vector3 forward = player != null ? player.transform.forward : Vector3.forward;
@@ -884,9 +758,7 @@ public static class UserImportedPlayerBootstrap
         {
             forward = Vector3.forward;
         }
-
         Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
-
         GameObject bottle;
 #if UNITY_EDITOR
         if (!Application.isPlaying)
@@ -906,24 +778,20 @@ public static class UserImportedPlayerBootstrap
             bottle.transform.position = anchor + forward * 2.7f + right * 0.35f;
             bottle.transform.rotation = Quaternion.Euler(0f, 18f, 84f);
             bottle.transform.localScale *= 1.08f;
-
             System.Type interactableType = FindTypeByName("BottleSceneTransitionInteractable");
             if (interactableType != null && bottle.GetComponent(interactableType) == null)
             {
                 bottle.AddComponent(interactableType);
             }
         }
-
         Debug.Log("[UserImportedPlayerBootstrap] Bottle pickup created in beco.");
     }
-
     private static System.Type FindTypeByName(string typeName)
     {
         if (string.IsNullOrWhiteSpace(typeName))
         {
             return null;
         }
-
         foreach (System.Reflection.Assembly assembly in System.AppDomain.CurrentDomain.GetAssemblies())
         {
             System.Type type = assembly.GetType(typeName) ?? System.Array.Find(assembly.GetTypes(), t => t.Name == typeName);
@@ -932,7 +800,6 @@ public static class UserImportedPlayerBootstrap
                 return type;
             }
         }
-
         return null;
     }
 }

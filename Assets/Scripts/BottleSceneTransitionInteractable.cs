@@ -5,7 +5,6 @@ using UnityEngine.InputSystem;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
 public class BottleSceneTransitionInteractable : MonoBehaviour
 {
     [SerializeField] private string targetSceneName = "masmorra_spawn";
@@ -16,42 +15,33 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
     [SerializeField] private AnimationClip drinkIntroClip;
     [SerializeField] private AnimationClip drinkLoopClip;
     [SerializeField] private AnimationClip collapseClip;
-
     private GameObject _player;
     private Camera _targetCamera;
     private GUIStyle _promptStyle;
     private bool _isPlayerNear;
     private bool _transitionStarted;
     private const float PromptMaxWidth = 360f;
-
 #if UNITY_EDITOR
-    // Drink intro: transição para beber do MoCap Central
     private const string DrinkIntroClipAssetPath = "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Stand_Trans_Moonshine.FBX";
-    // Drink loop: MoCap Central moonshine
     private const string DrinkLoopClipAssetPath  = "Assets/MoCapCentral/MC_Sample/Animations/Moonshine/MCU_am_Moonshine_01_Drink_Loop.FBX";
-    // Collapse: animação de cair do MoCap Central Injured
     private const string FallClipAssetPath       = "Assets/MoCapCentral/MC_Sample/Animations/Injured/MCU_am_InjuredBelly_DropToFloor.FBX";
 #endif
-
     private void Awake()
     {
         EnsureSequenceClips();
     }
-
 #if UNITY_EDITOR
     private void OnValidate()
     {
         EnsureSequenceClips();
     }
 #endif
-
     private void Update()
     {
         if (_transitionStarted || Time.timeScale <= 0f)
         {
             return;
         }
-
         if (_player == null)
         {
             _player = GameObject.FindWithTag("Player");
@@ -61,23 +51,19 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
                 return;
             }
         }
-
         float distSq = (transform.position - _player.transform.position).sqrMagnitude;
         _isPlayerNear = distSq <= interactionDistance * interactionDistance;
-
         if (_isPlayerNear && GetInteractPressed())
         {
             StartTransition();
         }
     }
-
     private void OnGUI()
     {
         if (Time.timeScale <= 0f || !_isPlayerNear || _transitionStarted)
         {
             return;
         }
-
         if (_targetCamera == null)
         {
             _targetCamera = Camera.main;
@@ -86,13 +72,11 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
                 return;
             }
         }
-
         Vector3 screen = _targetCamera.WorldToScreenPoint(transform.position + promptOffset);
         if (screen.z <= 0f)
         {
             return;
         }
-
         EnsureStyle();
         string fullPrompt = BuildPromptText();
         GUIContent content = new GUIContent(fullPrompt);
@@ -102,42 +86,35 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         Rect rect = new Rect(x, Screen.height - screen.y - height * 0.5f, width, height);
         GUI.Label(rect, fullPrompt, _promptStyle);
     }
-
     private void StartTransition()
     {
         _transitionStarted = true;
         DisableCollidersOnly();
         FacePlayerToBottle();
-
         if (GameMusicManager.Instance != null)
         {
-            GameMusicManager.Instance.StopAll(false, 5f); // Fade out over 5 seconds to match the animation length
+            GameMusicManager.Instance.StopAll(false, 5f);
         }
-
         UserImportedPlayerController controller = _player != null ? _player.GetComponent<UserImportedPlayerController>() : null;
         if (controller != null && (drinkIntroClip != null || drinkLoopClip != null))
         {
             controller.PlayBottleDrinkSequence(drinkIntroClip, drinkLoopClip, collapseClip, transform, BeginScreenTransition);
             return;
         }
-
         DisableVisualsAndColliders();
         BeginScreenTransition();
     }
-
     private void DisableVisualsAndColliders()
     {
         foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true))
         {
             renderer.enabled = false;
         }
-
         foreach (Collider col in GetComponentsInChildren<Collider>(true))
         {
             col.enabled = false;
         }
     }
-
     private void DisableCollidersOnly()
     {
         foreach (Collider col in GetComponentsInChildren<Collider>(true))
@@ -145,66 +122,50 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
             col.enabled = false;
         }
     }
-
     private void FacePlayerToBottle()
     {
         if (_player == null)
         {
             return;
         }
-
         Vector3 lookDir = transform.position - _player.transform.position;
         lookDir.y = 0f;
         if (lookDir.sqrMagnitude < 0.001f)
         {
             return;
         }
-
         _player.transform.rotation = Quaternion.LookRotation(lookDir.normalized, Vector3.up);
     }
-
     private void BeginScreenTransition()
     {
         DisableVisualsAndColliders();
-        
-        // Limpar a flag de morte para evitar que toque o diálogo de morte na próxima cena se o jogador tiver morrido no beco
         PlayerPrefs.SetInt("JustRespawned", 0);
         PlayerPrefs.Save();
-
         PlayerHealth.PreserveCurrentForSceneTransition(targetSceneName);
         SaveManager.SaveActiveSlotFromCurrentScene(targetSceneName);
         RuntimeSceneTransitionOverlay.BeginTransition(targetSceneName, blackScreenDuration);
     }
-
     private void EnsureSequenceClips()
     {
-        // Limpar clip de intro antigo (Unarmed-Stunned era o anterior, substituído por MCU_am_Stand_Trans_Moonshine)
         if (drinkIntroClip != null && drinkIntroClip.name == "Unarmed-Stunned")
             drinkIntroClip = null;
         if (collapseClip != null && (collapseClip.name == "Unarmed-Fall" || collapseClip.name == "Unarmed-Knockdown1"))
             collapseClip = null;
-
         if (drinkIntroClip == null)
             drinkIntroClip = FindRuntimeClip("MCU_am_Stand_Trans_Moonshine");
-
         if (drinkLoopClip == null)
             drinkLoopClip = FindRuntimeClip("MCU_am_Moonshine_01_Drink_Loop");
-
         if (collapseClip == null)
             collapseClip = FindRuntimeClip("MCU_am_InjuredBelly_DropToFloor");
-
 #if UNITY_EDITOR
         if (drinkIntroClip == null)
             drinkIntroClip = FindClipAtPath(DrinkIntroClipAssetPath, "MCU_am_Stand_Trans_Moonshine");
-
         if (drinkLoopClip == null)
             drinkLoopClip = FindClipAtPath(DrinkLoopClipAssetPath, "MCU_am_Moonshine_01_Drink_Loop");
-
         if (collapseClip == null)
             collapseClip = FindClipAtPath(FallClipAssetPath, "MCU_am_InjuredBelly_DropToFloor");
 #endif
     }
-
     private static AnimationClip FindRuntimeClip(string clipName)
     {
         AnimationClip[] clips = Resources.FindObjectsOfTypeAll<AnimationClip>();
@@ -216,17 +177,14 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
                 return clip;
             }
         }
-
         return null;
     }
-
     private void EnsureStyle()
     {
         if (_promptStyle != null)
         {
             return;
         }
-
         _promptStyle = new GUIStyle(GUI.skin.label);
         _promptStyle.fontSize = 24;
         _promptStyle.fontStyle = FontStyle.Bold;
@@ -234,7 +192,6 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         _promptStyle.alignment = TextAnchor.MiddleCenter;
         _promptStyle.wordWrap = true;
     }
-
     private string BuildPromptText()
     {
         string cleanPrompt = promptText ?? string.Empty;
@@ -242,7 +199,6 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         cleanPrompt = UiText.LocalizeKnownText(cleanPrompt);
         return MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - " + cleanPrompt;
     }
-
     private static bool GetInteractPressed()
     {
 #if ENABLE_INPUT_SYSTEM
@@ -252,7 +208,6 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
         return Input.GetKeyDown(KeyCode.F);
 #endif
     }
-
 #if UNITY_EDITOR
     private static AnimationClip FindClipAtPath(string assetPath, string preferredClipName)
     {
@@ -264,7 +219,6 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
                 return clip;
             }
         }
-
         for (int i = 0; i < assets.Length; i++)
         {
             if (assets[i] is AnimationClip clip && !clip.name.StartsWith("__preview__"))
@@ -272,7 +226,6 @@ public class BottleSceneTransitionInteractable : MonoBehaviour
                 return clip;
             }
         }
-
         return null;
     }
 #endif

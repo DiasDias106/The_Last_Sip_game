@@ -3,7 +3,6 @@ using UnityEngine.SceneManagement;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
-
 public class PortalSceneInteractable : MonoBehaviour
 {
     [SerializeField] private string targetSceneName = "level_1";
@@ -17,11 +16,9 @@ public class PortalSceneInteractable : MonoBehaviour
     [SerializeField] private string lockedPromptText = "Nivel concluido";
     [SerializeField] private Color completedPortalColor = new Color(0.15f, 0.95f, 0.35f, 1f);
     [SerializeField] private Color completedEmissionColor = new Color(0.1f, 1f, 0.25f, 1f);
-
     [Header("Audio")]
     [SerializeField] private AudioClip enterSound;
     [SerializeField] private float enterSoundVolume = 1.0f;
-
     private GameObject _player;
     private Camera _targetCamera;
     private GUIStyle _promptStyle;
@@ -30,19 +27,16 @@ public class PortalSceneInteractable : MonoBehaviour
     private bool _isLocked;
     private static readonly string[] PrimaryLevelScenes = { "level_1", "level_2", "level_3" };
     private const float PromptMaxWidth = 360f;
-
     private void Awake()
     {
         RefreshCompletionState();
     }
-
     private void Update()
     {
         if (_transitionStarted || Time.timeScale <= 0f)
         {
             return;
         }
-
         if (_player == null)
         {
             _player = FindPlayerObject();
@@ -52,14 +46,12 @@ public class PortalSceneInteractable : MonoBehaviour
                 return;
             }
         }
-
         Vector3 portalPos = transform.position;
         Vector3 playerPos = _player.transform.position;
         portalPos.y = 0f;
         playerPos.y = 0f;
         float distSq = (portalPos - playerPos).sqrMagnitude;
         _isPlayerNear = distSq <= interactionDistance * interactionDistance;
-
         if (_isPlayerNear && !_isLocked && GetInteractPressed())
         {
             _transitionStarted = true;
@@ -67,7 +59,6 @@ public class PortalSceneInteractable : MonoBehaviour
             StartSceneTransition();
         }
     }
-
     private void PlayEnterSound()
     {
         if (enterSound != null)
@@ -75,24 +66,20 @@ public class PortalSceneInteractable : MonoBehaviour
             GameObject soundObj = new GameObject("PortalEnterSound");
             soundObj.transform.position = transform.position;
             AudioSource source = soundObj.AddComponent<AudioSource>();
-            source.spatialBlend = 0f; // Som 2D para se ouvir perfeito durante a transição
+            source.spatialBlend = 0f;
             source.volume = enterSoundVolume;
             source.clip = enterSound;
             source.Play();
-            
-            // Garantir que o som não é cortado a meio quando a cena nova acaba de carregar!
             Object.DontDestroyOnLoad(soundObj);
             Object.Destroy(soundObj, enterSound.length + 0.1f);
         }
     }
-
     private void OnGUI()
     {
         if (Time.timeScale <= 0f || !_isPlayerNear || _transitionStarted || _isLocked)
         {
             return;
         }
-
         if (_targetCamera == null)
         {
             _targetCamera = Camera.main;
@@ -101,13 +88,11 @@ public class PortalSceneInteractable : MonoBehaviour
                 return;
             }
         }
-
         Vector3 screen = _targetCamera.WorldToScreenPoint(transform.position + promptOffset);
         if (screen.z <= 0f)
         {
             return;
         }
-
         EnsureStyle();
         string currentPrompt = _isLocked ? UiText.LocalizeKnownText(lockedPromptText) : BuildPromptText();
         GUIContent content = new GUIContent(currentPrompt);
@@ -117,14 +102,12 @@ public class PortalSceneInteractable : MonoBehaviour
         Rect rect = new Rect(x, Screen.height - screen.y - height * 0.5f, width, height);
         GUI.Label(rect, currentPrompt, _promptStyle);
     }
-
     private void EnsureStyle()
     {
         if (_promptStyle != null)
         {
             return;
         }
-
         _promptStyle = new GUIStyle(GUI.skin.label);
         _promptStyle.fontSize = 24;
         _promptStyle.fontStyle = FontStyle.Bold;
@@ -132,7 +115,6 @@ public class PortalSceneInteractable : MonoBehaviour
         _promptStyle.alignment = TextAnchor.MiddleCenter;
         _promptStyle.wordWrap = true;
     }
-
     private void StartSceneTransition()
     {
         if (string.IsNullOrWhiteSpace(targetSceneName))
@@ -140,18 +122,15 @@ public class PortalSceneInteractable : MonoBehaviour
             _transitionStarted = false;
             return;
         }
-
         if (Application.CanStreamedLevelBeLoaded(targetSceneName))
         {
             PlayerHealth.PreserveCurrentForSceneTransition(targetSceneName);
             RuntimeSceneTransitionOverlay.TransitionInstantlyToLoading(targetSceneName);
             return;
         }
-
         string candidatePath = targetSceneName.EndsWith(".unity")
             ? targetSceneName
             : $"Assets/Scenes/{targetSceneName}.unity";
-
         int buildIndex = SceneUtility.GetBuildIndexByScenePath(candidatePath);
         if (buildIndex >= 0)
         {
@@ -160,11 +139,9 @@ public class PortalSceneInteractable : MonoBehaviour
             RuntimeSceneTransitionOverlay.TransitionInstantlyToLoading(resolvedSceneName);
             return;
         }
-
         Debug.LogWarning($"PortalSceneInteractable could not resolve scene '{targetSceneName}'.");
         _transitionStarted = false;
     }
-
     private void RefreshCompletionState()
     {
         bool gateByAllLevels = requireAllPrimaryLevelsCompleted || IsFinalBossPortal();
@@ -184,13 +161,11 @@ public class PortalSceneInteractable : MonoBehaviour
             }
         }
     }
-
     private bool IsFinalBossPortal()
     {
         return !string.IsNullOrWhiteSpace(targetSceneName)
                && targetSceneName.Trim().ToLowerInvariant() == "boss_room";
     }
-
     private static bool ArePrimaryLevelsCompleted()
     {
         for (int i = 0; i < PrimaryLevelScenes.Length; i++)
@@ -200,23 +175,19 @@ public class PortalSceneInteractable : MonoBehaviour
                 return false;
             }
         }
-
         return true;
     }
-
     private void ApplyBossPortalLockVisual(bool locked)
     {
         if (!hideVortexWhenLocked)
         {
             return;
         }
-
         Transform portalCenter = transform.Find("Portal.obj.cleaner.materialmerger.gles/centro_vortice");
         if (portalCenter == null)
         {
             return;
         }
-
         Renderer[] renderers = portalCenter.GetComponentsInChildren<Renderer>(true);
         for (int i = 0; i < renderers.Length; i++)
         {
@@ -226,14 +197,12 @@ public class PortalSceneInteractable : MonoBehaviour
             }
         }
     }
-
     private void ApplyCompletedVisual()
     {
         Transform portalCenter = transform.Find("Portal.obj.cleaner.materialmerger.gles/centro_vortice");
         Renderer[] renderers = portalCenter != null
             ? portalCenter.GetComponentsInChildren<Renderer>(true)
             : GetComponentsInChildren<Renderer>(true);
-
         for (int i = 0; i < renderers.Length; i++)
         {
             Renderer renderer = renderers[i];
@@ -241,7 +210,6 @@ public class PortalSceneInteractable : MonoBehaviour
             {
                 continue;
             }
-
             Material[] materials = renderer.materials;
             for (int j = 0; j < materials.Length; j++)
             {
@@ -250,7 +218,6 @@ public class PortalSceneInteractable : MonoBehaviour
                 {
                     continue;
                 }
-
                 if (material.HasProperty("_BaseColor"))
                 {
                     material.SetColor("_BaseColor", completedPortalColor);
@@ -259,18 +226,15 @@ public class PortalSceneInteractable : MonoBehaviour
                 {
                     material.SetColor("_Color", completedPortalColor);
                 }
-
                 if (material.HasProperty("_EmissionColor"))
                 {
                     material.EnableKeyword("_EMISSION");
                     material.SetColor("_EmissionColor", completedEmissionColor);
                 }
             }
-
             renderer.materials = materials;
         }
     }
-
     private static GameObject FindPlayerObject()
     {
         GameObject taggedPlayer = GameObject.FindWithTag("Player");
@@ -278,22 +242,18 @@ public class PortalSceneInteractable : MonoBehaviour
         {
             return taggedPlayer;
         }
-
         UserImportedPlayerController importedPlayer = Object.FindFirstObjectByType<UserImportedPlayerController>();
         if (importedPlayer != null)
         {
             return importedPlayer.gameObject;
         }
-
         CharacterController controller = Object.FindFirstObjectByType<CharacterController>();
         if (controller != null)
         {
             return controller.gameObject;
         }
-
         return null;
     }
-
     private string BuildPromptText()
     {
         string cleanPrompt = promptText ?? string.Empty;
@@ -301,7 +261,6 @@ public class PortalSceneInteractable : MonoBehaviour
         cleanPrompt = UiText.LocalizeKnownText(cleanPrompt);
         return MovementKeyBindings.GetDisplayName(MovementKeyBindings.GameAction.Interact) + " - " + cleanPrompt;
     }
-
     private static bool GetInteractPressed()
     {
 #if ENABLE_INPUT_SYSTEM

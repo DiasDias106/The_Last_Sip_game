@@ -1,5 +1,4 @@
 using UnityEngine;
-
 public class DoorInteractable : MonoBehaviour
 {
     [SerializeField] private string doorGroupId = "level1_main_gate";
@@ -8,17 +7,14 @@ public class DoorInteractable : MonoBehaviour
     [SerializeField] private float openSpeed = 3.5f;
     [SerializeField] private Vector3 promptOffset = new Vector3(0f, 1.7f, 0f);
     [SerializeField] private bool disableCollidersWhenOpen = true;
-
     private bool _isOpen;
     private bool _lockedClosed;
     private Quaternion _closedRotation;
     private Quaternion _openRotation;
     private Collider[] _ownColliders;
-
     public float InteractionDistance => interactionDistance;
     public Vector3 PromptWorldPosition => transform.position + promptOffset;
     public string DoorGroupId => doorGroupId;
-
     private void Awake()
     {
         _closedRotation = transform.rotation;
@@ -26,34 +22,28 @@ public class DoorInteractable : MonoBehaviour
         _ownColliders = GetComponents<Collider>();
         SetColliderState(isOpen: false);
     }
-
     private void Update()
     {
         Quaternion target = _isOpen ? _openRotation : _closedRotation;
         transform.rotation = Quaternion.Slerp(transform.rotation, target, Time.deltaTime * openSpeed);
     }
-
     public void Interact()
     {
         if (_lockedClosed)
         {
             return;
         }
-
         ToggleGroup(doorGroupId);
     }
-
     public void ForceCloseAndLock()
     {
         SetGroupState(doorGroupId, open: false, lockClosed: true);
     }
-
     private static void ToggleGroup(string groupId)
     {
         DoorInteractable[] doors = Object.FindObjectsOfType<DoorInteractable>(true);
         bool hasDoorInGroup = false;
         bool anyOpen = false;
-
         for (int i = 0; i < doors.Length; i++)
         {
             DoorInteractable d = doors[i];
@@ -61,7 +51,6 @@ public class DoorInteractable : MonoBehaviour
             {
                 continue;
             }
-
             hasDoorInGroup = true;
             if (d._isOpen)
             {
@@ -69,16 +58,13 @@ public class DoorInteractable : MonoBehaviour
                 break;
             }
         }
-
         if (!hasDoorInGroup)
         {
             return;
         }
-
         bool targetOpen = !anyOpen;
         SetGroupState(groupId, targetOpen, lockClosed: false);
     }
-
     private static void SetGroupState(string groupId, bool open, bool lockClosed)
     {
         DoorInteractable[] doors = Object.FindObjectsOfType<DoorInteractable>(true);
@@ -89,25 +75,21 @@ public class DoorInteractable : MonoBehaviour
             {
                 continue;
             }
-
             d._lockedClosed = lockClosed;
             d.SetOpen(lockClosed ? false : open);
         }
     }
-
     private void SetOpen(bool open)
     {
         _isOpen = open;
         SetColliderState(_isOpen);
     }
-
     private void SetColliderState(bool isOpen)
     {
         if (!disableCollidersWhenOpen || _ownColliders == null)
         {
             return;
         }
-
         for (int i = 0; i < _ownColliders.Length; i++)
         {
             Collider c = _ownColliders[i];
@@ -115,7 +97,6 @@ public class DoorInteractable : MonoBehaviour
             {
                 continue;
             }
-
             c.enabled = !isOpen;
         }
     }

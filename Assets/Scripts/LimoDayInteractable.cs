@@ -2,34 +2,28 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
 [DisallowMultipleComponent]
 public class LimoDayInteractable : MonoBehaviour
 {
     private const string SkipSplashKey = "__SKIP_SPLASH__";
-
     [Header("Auto Caminhar")]
     [SerializeField] private Transform doorEnterPoint;
     [SerializeField] private float autoWalkSpeed = 2.5f;
     [SerializeField] private float doorStopDistance = 0.35f;
     [SerializeField] private float maxAutoWalkTime = 12f;
-
     [Header("Sequência")]
     [SerializeField] private float entryHoldTime = 1.0f;
     [SerializeField] private float driveSpeed = 9f;
     [SerializeField] private float cameraPitch = 8f;
     [SerializeField] private string mainMenuSceneName = "MainMenuScene";
-
     [Header("Credits — Logo")]
     [SerializeField] private Sprite logoSprite;
     [SerializeField] private float logoFadeIn = 1.2f;
     [SerializeField] private float logoHoldTime = 2.5f;
     [SerializeField] private float logoFadeOut = 1f;
-
     [Header("Credits — Música")]
     [SerializeField] private AudioClip creditsMusic;
     [SerializeField] private float creditsMusicVolume = 0.75f;
-
     [Header("Credits — Texto")]
     [SerializeField] private float creditsScrollSpeed = 55f;
     [SerializeField, TextArea(6, 20)] private string creditsText =
@@ -40,14 +34,11 @@ public class LimoDayInteractable : MonoBehaviour
         "Professor\n\n\n" +
         "Agradecimentos\n" +
         "...\n\n\n\n\n\n";
-
     [Header("Zona de Ativação")]
     [SerializeField] private float triggerZMin = 25f;
     [SerializeField] private float triggerZMax = 30f;
-
     private bool _sequenceStarted;
     private GameObject _player;
-
     private void Update()
     {
         if (_sequenceStarted) return;
@@ -57,7 +48,6 @@ public class LimoDayInteractable : MonoBehaviour
         if (pz >= triggerZMin && pz <= triggerZMax)
             TryBeginAutoWalk();
     }
-
     public void TryBeginAutoWalk()
     {
         if (_sequenceStarted) return;
@@ -66,21 +56,17 @@ public class LimoDayInteractable : MonoBehaviour
         _sequenceStarted = true;
         StartCoroutine(AutoWalkAndPlay(ctrl));
     }
-
     private UserImportedPlayerController GetController()
     {
         if (_player == null) _player = GameObject.FindGameObjectWithTag("Player");
         return _player != null ? _player.GetComponent<UserImportedPlayerController>() : null;
     }
-
-    // Player caminha para o ponto definido (porta de trás), ou como fallback para a face mais próxima
     private Vector3 GetEntryPoint(Vector3 playerPos)
     {
         if (doorEnterPoint != null)
         {
             return doorEnterPoint.position;
         }
-
         Renderer[] rends = GetComponentsInChildren<Renderer>();
         if (rends.Length > 0)
         {
@@ -91,114 +77,81 @@ public class LimoDayInteractable : MonoBehaviour
         }
         return new Vector3(playerPos.x, playerPos.y, transform.position.z);
     }
-
     private IEnumerator AutoWalkAndPlay(UserImportedPlayerController controller)
     {
         controller.SetExternalControlLocked(true);
         controller.PlayExternalAnimation("walk");
-
         Vector3 target = GetEntryPoint(controller.transform.position);
-
-        // Alinhar câmara atrás do player a olhar em direção à limo
         Vector3 toTarget = target - controller.transform.position;
         toTarget.y = 0f;
         if (toTarget.sqrMagnitude < 0.01f) toTarget = controller.transform.forward;
         else toTarget.Normalize();
-
         GameObject walkCamAnchor = new GameObject("LimoDayWalkAnchor");
         walkCamAnchor.transform.SetParent(controller.transform);
         walkCamAnchor.transform.localPosition = Vector3.zero;
         walkCamAnchor.transform.rotation = Quaternion.LookRotation(toTarget);
         controller.SetCameraFollowOverride(walkCamAnchor.transform, true, cameraPitch, snapImmediately: true);
-
         float walkSpeed = controller.CurrentWalkSpeed;
         float walkTimer = 0f;
-
         while (true)
         {
             Vector3 dir = target - controller.transform.position;
             dir.y = 0f;
-
-            // Usamos uma distância mínima de 0.5f para garantir que a cápsula de colisão do jogador não bate no carro antes de chegar ao alvo
             float safeStopDistance = Mathf.Max(0.5f, doorStopDistance);
-            
-            // Removemos a limitação de tempo ou aumentamos muito para garantir que ele chega
             if (dir.magnitude <= safeStopDistance || walkTimer >= 30f)
             {
                 break;
             }
-
             controller.FaceDirection(dir);
             controller.MoveExternally(dir.normalized * walkSpeed);
-            
-            // Forçar a rotação no mundo para garantir que não treme quando o player roda
             walkCamAnchor.transform.rotation = Quaternion.LookRotation(toTarget);
-            
             walkTimer += Time.deltaTime;
             yield return null;
         }
-
         yield return StartCoroutine(PlaySequence(controller));
     }
-
     private IEnumerator PlaySequence(UserImportedPlayerController controller)
     {
         CharacterController cc = controller.GetComponent<CharacterController>();
         if (cc != null) cc.enabled = false;
-
         controller.PlayExternalAnimation("idle");
-        
-        // Pequena pausa para o jogador perceber que chegou e parou em frente à porta
         yield return new WaitForSeconds(0.5f);
-
         controller.SetVisualVisible(false);
-
         yield return new WaitForSeconds(entryHoldTime);
-
-        // Destruir anchor de caminhada (se ainda existir) antes de criar o de condução
         GameObject oldWalkAnchor = GameObject.Find("LimoDayWalkAnchor");
         if (oldWalkAnchor != null) Destroy(oldWalkAnchor);
-
         GameObject anchor = new GameObject("LimoDayCameraAnchor");
         anchor.transform.position = transform.position + new Vector3(-8f, 3f, 0f);
         anchor.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
         controller.SetCameraFollowOverride(anchor.transform, true, cameraPitch);
-
         Canvas screenCanvas = new GameObject("LimoDayScreen").AddComponent<Canvas>();
         screenCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
         screenCanvas.sortingOrder = 999;
         screenCanvas.gameObject.AddComponent<CanvasScaler>();
         DontDestroyOnLoad(screenCanvas.gameObject);
-
         Image bg = new GameObject("Bg").AddComponent<Image>();
         bg.transform.SetParent(screenCanvas.transform, false);
         FillRect(bg.rectTransform);
         bg.color = Color.clear;
         bg.raycastTarget = false;
-
         float destX = transform.position.x + 50f;
         float driveTimer = 0f;
         float fadeAlpha = 0f;
-
         while (fadeAlpha < 1f)
         {
             if (Mathf.Abs(transform.position.x - destX) > 0.05f)
                 transform.position += Vector3.right * driveSpeed * Time.deltaTime;
-
             driveTimer += Time.deltaTime;
             if (driveTimer >= 2.5f)
             {
                 fadeAlpha = Mathf.Clamp01(fadeAlpha + Time.deltaTime / 2f);
                 bg.color = new Color(0f, 0f, 0f, fadeAlpha);
             }
-
             yield return null;
         }
-
         bg.color = Color.black;
         controller.ClearCameraFollowOverride();
         Destroy(anchor);
-
         RuntimeSceneTransitionOverlay.ShowBlackForSceneLoad();
         Destroy(screenCanvas.gameObject);
         PlayerPrefs.SetInt(SkipSplashKey, 1);
@@ -206,7 +159,6 @@ public class LimoDayInteractable : MonoBehaviour
         GlobalSceneTransitionRequest.PendingOpenCredits = true;
         SceneManager.LoadScene(mainMenuSceneName);
     }
-
     private static void FillRect(RectTransform rt)
     {
         rt.anchorMin = Vector2.zero;

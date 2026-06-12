@@ -4,23 +4,19 @@ using UnityEngine.UI;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
-
 public sealed class MainMenuController : MonoBehaviour
 {
     private const string PendingSceneKey = "__PENDING_LOAD_SCENE__";
     private const string DeathRetrySlotKey = "__DR_SLOT__";
-
     [Header("Audio")]
     [SerializeField] private MenuAudioManager menuAudioManager;
     [SerializeField] private AudioClip menuAmbientClip;
     [SerializeField] private AudioClip creditsAmbientClip;
-
     [Header("Scene Flow")]
     [SerializeField] private string defaultGameSceneName = "Beco";
     [SerializeField] private string newGameIntroSceneName = "new_game_controls";
     [SerializeField] private SceneFadeController sceneFadeController;
     [SerializeField] private LoadingScreenController loadingScreenController;
-
     [Header("Panels")]
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private MenuPanelController optionsPanel;
@@ -31,20 +27,17 @@ public sealed class MainMenuController : MonoBehaviour
     [SerializeField] private ConfirmOverwritePanel confirmOverwritePanel;
     [SerializeField] private Toggle fullscreenToggle;
     [SerializeField] private CanvasGroup mainMenuCanvasGroup;
-
     [Header("Buttons")]
     [SerializeField] private AnimatedMenuButton newGameButton;
     [SerializeField] private AnimatedMenuButton continueButton;
     [SerializeField] private AnimatedMenuButton optionsButton;
     [SerializeField] private AnimatedMenuButton creditsButton;
     [SerializeField] private AnimatedMenuButton exitButton;
-
     [Header("Version")]
     [SerializeField] private TMP_Text versionText;
     [SerializeField] private bool useApplicationVersion = false;
     [SerializeField] private string versionPrefix = "v";
     [SerializeField] private string fallbackVersion = "1.0.0";
-
     private const string FullscreenPrefsKey = "MainMenu.FullScreen";
     private bool isTransitioning;
     private bool isMainMenuInputBlocked;
@@ -61,26 +54,21 @@ public sealed class MainMenuController : MonoBehaviour
     private int pendingDeathRetrySlot = -1;
     private bool pendingReturnFromGameQueued;
     private bool consumeReturnFromGameFlagOnStart;
-
     private void Awake()
     {
         EnsureMenuInputState();
-
         if (menuAudioManager == null)
         {
             menuAudioManager = GetComponent<MenuAudioManager>();
         }
-
         if (loadingScreenController == null)
         {
             loadingScreenController = FindFirstObjectByType<LoadingScreenController>(FindObjectsInactive.Include);
         }
-
         if (optionsPanelView == null && optionsPanel != null)
         {
             optionsPanelView = optionsPanel.GetComponent<OptionsPanelView>();
         }
-
         if (creditsBackgroundImage == null && creditsPanel != null)
         {
             Transform backgroundTransform = creditsPanel.transform.Find("Background");
@@ -89,13 +77,11 @@ public sealed class MainMenuController : MonoBehaviour
                 creditsBackgroundImage = backgroundTransform.GetComponent<Image>();
             }
         }
-
         if (creditsBackgroundImage != null)
         {
             defaultCreditsBackgroundSprite = creditsBackgroundImage.sprite;
             defaultCreditsBackgroundColor = creditsBackgroundImage.color;
         }
-
         if (versionText != null)
         {
             string resolvedVersion = useApplicationVersion && !string.IsNullOrWhiteSpace(Application.version)
@@ -103,22 +89,16 @@ public sealed class MainMenuController : MonoBehaviour
                 : fallbackVersion;
             versionText.text = versionPrefix + resolvedVersion;
         }
-
-        // When arriving from a death-retry, ScreenFader is already black (sortingOrder=999).
-        // Don't touch any panels — LoadingScreenController.PlayLoadingIntro will hide
-        // mainMenuPanel once it's safe to do so (under its own SceneFadeController black).
         bool deathRetry = PlayerPrefs.GetInt("__DR__", 0) == 1;
         if (deathRetry)
         {
             consumeDeathRetryFlagOnStart = true;
         }
-
         pendingDeathRetrySlot = PlayerPrefs.GetInt(DeathRetrySlotKey, -1);
         if (pendingDeathRetrySlot > 0)
         {
             restoreDeathRetrySlotOnStart = true;
         }
-
         pendingSceneFromTransition = !string.IsNullOrWhiteSpace(GlobalSceneTransitionRequest.PendingSceneName)
             ? GlobalSceneTransitionRequest.PendingSceneName
             : PlayerPrefs.GetString(PendingSceneKey, string.Empty);
@@ -127,27 +107,22 @@ public sealed class MainMenuController : MonoBehaviour
             consumePendingSceneFlagOnStart = true;
             pendingSceneLaunchQueued = true;
         }
-
         if (GlobalSceneTransitionRequest.PendingOpenCredits)
         {
             consumePendingCreditsFlagOnStart = true;
             pendingCreditsLaunchQueued = true;
         }
-
         if (GlobalSceneTransitionRequest.PendingReturnFromGame)
         {
             consumeReturnFromGameFlagOnStart = true;
             pendingReturnFromGameQueued = true;
         }
-
         GameMusicManager.Instance?.StopAll(true);
         if (!pendingSceneLaunchQueued)
         {
             PlayerHealth.ClearPreservedState();
         }
-
         ApplyCreditsBackground(pendingCreditsLaunchQueued);
-
         optionsPanel?.HideImmediate();
         creditsPanel?.HideImmediate();
         slotSelectionController?.HideImmediate();
@@ -168,20 +143,16 @@ public sealed class MainMenuController : MonoBehaviour
         {
             sceneFadeController?.SetVisibleImmediate(false);
         }
-
         bool fullscreen = PlayerPrefs.GetInt(FullscreenPrefsKey, 1) == 1;
         Screen.fullScreen = fullscreen;
         if (fullscreenToggle != null)
         {
             fullscreenToggle.SetIsOnWithoutNotify(fullscreen);
         }
-
         RefreshContinueVisibility();
         ApplyLocalizedLabels();
         UpdateMainMenuPresentation();
-
     }
-
     private void OnEnable()
     {
         BindButton(newGameButton, OpenNewGameSlots);
@@ -189,58 +160,44 @@ public sealed class MainMenuController : MonoBehaviour
         BindButton(optionsButton, OpenOptions);
         BindButton(creditsButton, OnCreditsClicked);
         BindButton(exitButton, QuitGame);
-
         BindPanel(optionsPanel);
         BindPanel(creditsPanel);
-
         if (fullscreenToggle != null)
         {
             fullscreenToggle.onValueChanged.AddListener(SetFullscreen);
         }
-
         if (slotSelectionController != null)
         {
             slotSelectionController.SlotChosen += HandleSlotChosen;
             slotSelectionController.SlotDeleteRequested += HandleSlotDeleteRequested;
             slotSelectionController.BackRequested += ReturnFromSlotSelection;
         }
-
         if (loadingScreenController != null)
         {
             loadingScreenController.SequenceFinished += HandleLoadingSequenceFinished;
         }
-
         if (LanguageManager.Instance != null)
         {
             LanguageManager.Instance.OnLanguageChanged += HandleLanguageChanged;
         }
-
     }
-
     private void Start()
     {
         EnsureMenuInputState();
         ConsumeStartupTransitionFlags();
-
         if (pendingSceneLaunchQueued)
         {
             StartCoroutine(BeginPendingSceneTransition());
             return;
         }
-
         if (pendingCreditsLaunchQueued)
         {
             pendingCreditsLaunchQueued = false;
             StartCoroutine(OpenCreditsFromGameTransition());
             return;
         }
-
-        // Iniciar música após o primeiro frame renderizado (cobre arranque normal e retorno do jogo)
-        // Para retorno do jogo: MuteAudioForLoading() já foi chamado, música começa em silêncio
-        // e é revelada por RestoreAudioAfterLoading() no fim do loading screen
         if (!pendingSceneLaunchQueued && !pendingCreditsLaunchQueued)
             StartCoroutine(DelayedMenuMusicStart());
-
         if (pendingReturnFromGameQueued)
         {
             pendingReturnFromGameQueued = false;
@@ -256,18 +213,15 @@ public sealed class MainMenuController : MonoBehaviour
             });
         }
     }
-
     private System.Collections.IEnumerator DelayedMenuMusicStart()
     {
         yield return new WaitForEndOfFrame();
         if (menuAudioManager != null && menuAmbientClip != null)
             menuAudioManager.SetAmbientMusicClip(menuAmbientClip, false);
     }
-
     private void ConsumeStartupTransitionFlags()
     {
         bool prefsChanged = false;
-
         if (restoreDeathRetrySlotOnStart && pendingDeathRetrySlot > 0)
         {
             SaveManager.SetActiveSlot(pendingDeathRetrySlot);
@@ -276,14 +230,12 @@ public sealed class MainMenuController : MonoBehaviour
             pendingDeathRetrySlot = -1;
             prefsChanged = true;
         }
-
         if (consumeDeathRetryFlagOnStart)
         {
             PlayerPrefs.DeleteKey("__DR__");
             consumeDeathRetryFlagOnStart = false;
             prefsChanged = true;
         }
-
         if (consumePendingSceneFlagOnStart)
         {
             GlobalSceneTransitionRequest.PendingSceneName = null;
@@ -291,26 +243,21 @@ public sealed class MainMenuController : MonoBehaviour
             consumePendingSceneFlagOnStart = false;
             prefsChanged = true;
         }
-
         if (consumePendingCreditsFlagOnStart)
         {
             GlobalSceneTransitionRequest.PendingOpenCredits = false;
             consumePendingCreditsFlagOnStart = false;
         }
-
         if (consumeReturnFromGameFlagOnStart)
         {
             GlobalSceneTransitionRequest.PendingReturnFromGame = false;
             consumeReturnFromGameFlagOnStart = false;
         }
-
         if (prefsChanged)
         {
             PlayerPrefs.Save();
         }
     }
-
-    // Opens credits directly from a game-to-credits transition (no loading screen).
     private System.Collections.IEnumerator OpenCreditsFromGameTransition()
     {
         isTransitioning = true;
@@ -318,27 +265,20 @@ public sealed class MainMenuController : MonoBehaviour
         EnsureMenuInputState();
         mainMenuPanel?.SetActive(false);
         ApplyCreditsBackground(isBlackBackground: true);
-
         if (menuAudioManager != null && creditsAmbientClip != null)
             menuAudioManager.SetAmbientMusicClip(creditsAmbientClip, false);
-
         optionsPanel?.HideImmediate();
         slotSelectionController?.HideImmediate();
         confirmOverwritePanel?.HideImmediate();
-
         creditsPanel?.Show();
         activePanel = creditsPanel;
-
-        // Fade in from the black screen left by the limo sequence
         if (sceneFadeController != null)
             yield return sceneFadeController.FadeToAlpha(0f, 0.5f);
-
         EnsureMenuInputState();
         SetMainMenuInputBlocked(false);
         isTransitioning = false;
         UpdateMainMenuPresentation();
     }
-
     private void OnDisable()
     {
         UnbindButton(newGameButton, OpenNewGameSlots);
@@ -346,77 +286,64 @@ public sealed class MainMenuController : MonoBehaviour
         UnbindButton(optionsButton, OpenOptions);
         UnbindButton(creditsButton, OnCreditsClicked);
         UnbindButton(exitButton, QuitGame);
-
         UnbindPanel(optionsPanel);
         UnbindPanel(creditsPanel);
-
         if (fullscreenToggle != null)
         {
             fullscreenToggle.onValueChanged.RemoveListener(SetFullscreen);
         }
-
         if (slotSelectionController != null)
         {
             slotSelectionController.SlotChosen -= HandleSlotChosen;
             slotSelectionController.SlotDeleteRequested -= HandleSlotDeleteRequested;
             slotSelectionController.BackRequested -= ReturnFromSlotSelection;
         }
-
         if (loadingScreenController != null)
         {
             loadingScreenController.SequenceFinished -= HandleLoadingSequenceFinished;
         }
-
         if (LanguageManager.Instance != null)
         {
             LanguageManager.Instance.OnLanguageChanged -= HandleLanguageChanged;
         }
     }
-
     private void Update()
     {
         if (!IsEscapePressedThisFrame() || isTransitioning)
         {
             return;
         }
-
         if (confirmOverwritePanel != null && confirmOverwritePanel.IsVisible)
         {
             confirmOverwritePanel.HideImmediate();
             return;
         }
-
         if (slotSelectionController != null && slotSelectionController.IsVisible)
         {
             ReturnFromSlotSelection();
             return;
         }
-
         if (activePanel == creditsPanel)
         {
             ReturnFromCredits();
             return;
         }
-
         if (activePanel == optionsPanel)
         {
             RequestCloseOptionsPanel();
             return;
         }
-
         if (activePanel != null)
         {
             activePanel.Hide();
         }
     }
-
     public void OpenNewGameSlots()
     {
         if (isTransitioning || slotSelectionController == null)
         {
             return;
         }
-
         activePanel = null;
         optionsPanel?.HideImmediate();
         creditsPanel?.HideImmediate();
@@ -424,14 +351,12 @@ public sealed class MainMenuController : MonoBehaviour
         slotSelectionController.Open(SlotSelectionController.SlotSelectionMode.NewGame);
         UpdateMainMenuPresentation();
     }
-
     public void OpenContinueSlots()
     {
         if (isTransitioning || slotSelectionController == null || !SaveManager.HasAnySave())
         {
             return;
         }
-
         activePanel = null;
         optionsPanel?.HideImmediate();
         creditsPanel?.HideImmediate();
@@ -439,45 +364,37 @@ public sealed class MainMenuController : MonoBehaviour
         slotSelectionController.Open(SlotSelectionController.SlotSelectionMode.Continue);
         UpdateMainMenuPresentation();
     }
-
     public void OpenOptions()
     {
         if (isTransitioning || (slotSelectionController != null && slotSelectionController.IsVisible))
         {
             return;
         }
-
         if (creditsPanel != null && creditsPanel.IsVisible)
         {
             return;
         }
-
         mainMenuPanel?.SetActive(true);
         activePanel = optionsPanel;
         optionsPanel?.Show();
         UpdateMainMenuPresentation();
     }
-
     public void OnCreditsClicked()
     {
         if (isTransitioning || loadingScreenController == null)
         {
             return;
         }
-
         StartCoroutine(OpenCreditsWithLoading());
     }
-
     public void ReturnFromCredits()
     {
         if (isTransitioning || creditsPanel == null || !creditsPanel.IsVisible)
         {
             return;
         }
-
         StartCoroutine(ReturnFromCreditsRoutine());
     }
-
     public void ReturnFromSlotSelection()
     {
         confirmOverwritePanel?.HideImmediate();
@@ -486,14 +403,12 @@ public sealed class MainMenuController : MonoBehaviour
         activePanel = null;
         UpdateMainMenuPresentation();
     }
-
     public void RequestCloseOptionsPanel()
     {
         if (isTransitioning || optionsPanel == null || !optionsPanel.IsVisible)
         {
             return;
         }
-
         if (optionsPanelView != null && optionsPanelView.HasUnsavedChanges())
         {
             confirmOverwritePanel?.Show(
@@ -506,41 +421,34 @@ public sealed class MainMenuController : MonoBehaviour
                 () => { });
             return;
         }
-
         optionsPanel.Hide();
     }
-
     public void SetFullscreen(bool isFullscreen)
     {
         Screen.fullScreen = isFullscreen;
         PlayerPrefs.SetInt(FullscreenPrefsKey, isFullscreen ? 1 : 0);
         PlayerPrefs.Save();
     }
-
     public void QuitGame()
     {
         if (isTransitioning)
         {
             return;
         }
-
         #if UNITY_EDITOR
         Debug.Log("Quit Game");
         #endif
         Application.Quit();
     }
-
     private System.Collections.IEnumerator ReturnFromCreditsRoutine()
     {
         isTransitioning = true;
         SetMainMenuInputBlocked(true);
         EnsureMenuInputState();
-
         if (sceneFadeController != null)
         {
             yield return sceneFadeController.FadeToAlpha(1f, 0.22f);
         }
-
         creditsPanel.HideImmediate();
         activePanel = null;
         mainMenuPanel?.SetActive(true);
@@ -549,57 +457,46 @@ public sealed class MainMenuController : MonoBehaviour
             menuAudioManager.SetAmbientMusicClip(menuAmbientClip, false);
         }
         UpdateMainMenuPresentation();
-
         if (sceneFadeController != null)
         {
             yield return sceneFadeController.FadeToAlpha(0f, 0.22f);
         }
-
         EnsureMenuInputState();
         SetMainMenuInputBlocked(false);
         isTransitioning = false;
     }
-
     private System.Collections.IEnumerator OpenCreditsWithLoading()
     {
         isTransitioning = true;
         SetMainMenuInputBlocked(true);
         ApplyCreditsBackground(isBlackBackground: false);
-
         if (menuAudioManager != null && creditsAmbientClip != null)
         {
             menuAudioManager.SetAmbientMusicClip(creditsAmbientClip, false);
         }
-
         optionsPanel?.HideImmediate();
         slotSelectionController?.HideImmediate();
         confirmOverwritePanel?.HideImmediate();
-
         bool sequenceCompleted = false;
         void HandleFinished() { sequenceCompleted = true; }
-
         loadingScreenController.SequenceFinished += HandleFinished;
         loadingScreenController.ShowLoadingThenOpenCredits();
-
         while (!sequenceCompleted)
         {
             yield return null;
         }
-
         loadingScreenController.SequenceFinished -= HandleFinished;
         activePanel = creditsPanel;
         SetMainMenuInputBlocked(false);
         isTransitioning = false;
         UpdateMainMenuPresentation();
     }
-
     private void ApplyCreditsBackground(bool isBlackBackground)
     {
         if (creditsBackgroundImage == null)
         {
             return;
         }
-
         creditsBackgroundImage.enabled = true;
         if (isBlackBackground)
         {
@@ -607,18 +504,15 @@ public sealed class MainMenuController : MonoBehaviour
             creditsBackgroundImage.color = Color.black;
             return;
         }
-
         creditsBackgroundImage.sprite = defaultCreditsBackgroundSprite;
         creditsBackgroundImage.color = defaultCreditsBackgroundColor;
     }
-
     private void HandleSlotChosen(int slotIndex, SlotSelectionController.SlotSelectionMode mode, bool hasSave)
     {
         if (isTransitioning)
         {
             return;
         }
-
         if (mode == SlotSelectionController.SlotSelectionMode.NewGame)
         {
             if (!hasSave)
@@ -626,22 +520,18 @@ public sealed class MainMenuController : MonoBehaviour
                 StartNewGameInSlot(slotIndex);
                 return;
             }
-
             confirmOverwritePanel?.Show(
                 UiText.LocalizeKnownText("Este slot já tem um jogo guardado. Queres apagar este progresso e começar um novo jogo?"),
                 () => StartNewGameInSlot(slotIndex),
                 () => slotSelectionController?.Refresh());
             return;
         }
-
         if (!hasSave)
         {
             return;
         }
-
         ContinueFromSlot(slotIndex);
     }
-
     private void StartNewGameInSlot(int slotIndex)
     {
         SaveManager.DeleteSlot(slotIndex);
@@ -651,21 +541,18 @@ public sealed class MainMenuController : MonoBehaviour
         string introScene = string.IsNullOrWhiteSpace(newGameIntroSceneName) ? defaultGameSceneName : newGameIntroSceneName;
         StartLoadingToScene(introScene);
     }
-
     private void ContinueFromSlot(int slotIndex)
     {
         SaveManager.SetActiveSlot(slotIndex);
         string scene = SaveManager.GetNextSceneForSlot(slotIndex);
         StartLoadingToScene(string.IsNullOrWhiteSpace(scene) ? defaultGameSceneName : scene);
     }
-
     private void HandleSlotDeleteRequested(int slotIndex, SlotSelectionController.SlotSelectionMode mode, bool hasSave)
     {
         if (isTransitioning || mode != SlotSelectionController.SlotSelectionMode.NewGame || !hasSave)
         {
             return;
         }
-
         confirmOverwritePanel?.Show(
             UiText.LocalizeKnownText("Queres apagar este jogo guardado deste slot?"),
             () =>
@@ -676,85 +563,70 @@ public sealed class MainMenuController : MonoBehaviour
             },
             () => slotSelectionController?.Refresh());
     }
-
     private void StartLoadingToScene(string sceneName)
     {
         if (loadingScreenController == null)
         {
             loadingScreenController = FindFirstObjectByType<LoadingScreenController>(FindObjectsInactive.Include);
         }
-
         if (loadingScreenController == null)
         {
             Debug.LogWarning("LoadingScreenController not found. Falling back to direct scene load.");
             UnityEngine.SceneManagement.SceneManager.LoadScene(ResolveSceneName(sceneName));
             return;
         }
-
         isTransitioning = true;
         SetMainMenuInputBlocked(true);
         slotSelectionController?.HideImmediate();
         confirmOverwritePanel?.HideImmediate();
         loadingScreenController.ShowLoadingThenLoadScene(ResolveSceneName(sceneName));
     }
-
     private System.Collections.IEnumerator BeginPendingSceneTransition()
     {
         yield return null;
-
         if (string.IsNullOrWhiteSpace(pendingSceneFromTransition))
         {
             pendingSceneLaunchQueued = false;
             yield break;
         }
-
         mainMenuPanel?.SetActive(false);
         StartLoadingToScene(pendingSceneFromTransition);
         pendingSceneFromTransition = null;
         pendingSceneLaunchQueued = false;
     }
-
     private string ResolveSceneName(string sceneName)
     {
         if (string.IsNullOrWhiteSpace(sceneName))
         {
             sceneName = defaultGameSceneName;
         }
-
         if (Application.CanStreamedLevelBeLoaded(sceneName))
         {
             return sceneName;
         }
-
         string lower = sceneName.ToLowerInvariant();
         if (Application.CanStreamedLevelBeLoaded(lower))
         {
             return lower;
         }
-
         string upper = sceneName.ToUpperInvariant();
         if (Application.CanStreamedLevelBeLoaded(upper))
         {
             return upper;
         }
-
-        // Scene aliases after beco split/rename.
         if (lower == "beco")
         {
             if (Application.CanStreamedLevelBeLoaded("beco_noite"))
             {
                 return "beco_noite";
             }
-
             if (Application.CanStreamedLevelBeLoaded("beco_dia"))
             {
                 return "beco_dia";
             }
         }
-
         return sceneName;
     }
-
     private void HandlePanelVisibilityChanged(bool _visible)
     {
         activePanel = optionsPanel != null && optionsPanel.IsVisible
@@ -762,10 +634,8 @@ public sealed class MainMenuController : MonoBehaviour
             : creditsPanel != null && creditsPanel.IsVisible
                 ? creditsPanel
                 : null;
-
         UpdateMainMenuPresentation();
     }
-
     private void HandleLoadingSequenceFinished()
     {
         EnsureMenuInputState();
@@ -775,21 +645,18 @@ public sealed class MainMenuController : MonoBehaviour
         RefreshContinueVisibility();
         UpdateMainMenuPresentation();
     }
-
     private void UpdateMainMenuPresentation()
     {
         if (mainMenuCanvasGroup == null)
         {
             return;
         }
-
         bool showSlots = slotSelectionController != null && slotSelectionController.IsVisible;
         bool dimMainMenu = activePanel == optionsPanel || showSlots;
         mainMenuCanvasGroup.alpha = dimMainMenu ? 0f : 1f;
         mainMenuCanvasGroup.interactable = !dimMainMenu && !isMainMenuInputBlocked;
         mainMenuCanvasGroup.blocksRaycasts = !dimMainMenu && !isMainMenuInputBlocked;
     }
-
     private void RefreshContinueVisibility()
     {
         ApplyLocalizedLabels();
@@ -797,7 +664,6 @@ public sealed class MainMenuController : MonoBehaviour
         {
             return;
         }
-
         bool hasAnySave = SaveManager.HasAnySave();
         continueButton.gameObject.SetActive(hasAnySave);
         Button button = continueButton.GetComponent<Button>();
@@ -806,13 +672,11 @@ public sealed class MainMenuController : MonoBehaviour
             button.interactable = hasAnySave;
         }
     }
-
     private void SetMainMenuInputBlocked(bool blocked)
     {
         isMainMenuInputBlocked = blocked;
         UpdateMainMenuPresentation();
     }
-
     private static void EnsureMenuInputState()
     {
         Time.timeScale = 1f;
@@ -820,14 +684,12 @@ public sealed class MainMenuController : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
     }
-
     private void HandleLanguageChanged()
     {
         ApplyLocalizedLabels();
         slotSelectionController?.Refresh();
         RuntimeTextLocalizer.RequestRefresh();
     }
-
     private void ApplyLocalizedLabels()
     {
         newGameButton?.SetLabel(UiText.GetMainMenuButtonLabel("new"));
@@ -836,7 +698,6 @@ public sealed class MainMenuController : MonoBehaviour
         creditsButton?.SetLabel(UiText.GetMainMenuButtonLabel("credits"));
         exitButton?.SetLabel(UiText.GetMainMenuButtonLabel("exit"));
     }
-
     private static void BindButton(AnimatedMenuButton button, System.Action action)
     {
         if (button != null)
@@ -844,7 +705,6 @@ public sealed class MainMenuController : MonoBehaviour
             button.Clicked += action;
         }
     }
-
     private static void UnbindButton(AnimatedMenuButton button, System.Action action)
     {
         if (button != null)
@@ -852,7 +712,6 @@ public sealed class MainMenuController : MonoBehaviour
             button.Clicked -= action;
         }
     }
-
     private void BindPanel(MenuPanelController panel)
     {
         if (panel != null)
@@ -860,7 +719,6 @@ public sealed class MainMenuController : MonoBehaviour
             panel.VisibilityChanged += HandlePanelVisibilityChanged;
         }
     }
-
     private void UnbindPanel(MenuPanelController panel)
     {
         if (panel != null)
@@ -868,7 +726,6 @@ public sealed class MainMenuController : MonoBehaviour
             panel.VisibilityChanged -= HandlePanelVisibilityChanged;
         }
     }
-
     private static bool IsEscapePressedThisFrame()
     {
         #if ENABLE_INPUT_SYSTEM

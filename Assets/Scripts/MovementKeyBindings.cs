@@ -3,7 +3,6 @@ using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
-
 public static class MovementKeyBindings
 {
     public enum GameAction
@@ -20,7 +19,6 @@ public static class MovementKeyBindings
         Jump,
         Roll
     }
-
     private static readonly GameAction[] AllActions =
     {
         GameAction.Forward,
@@ -35,7 +33,6 @@ public static class MovementKeyBindings
         GameAction.Jump,
         GameAction.Roll
     };
-
 #if ENABLE_INPUT_SYSTEM
     private static readonly Dictionary<GameAction, string> PrefKeys = new()
     {
@@ -51,7 +48,6 @@ public static class MovementKeyBindings
         { GameAction.Jump, "Controls.Jump" },
         { GameAction.Roll, "Controls.Roll" }
     };
-
     private static readonly Dictionary<GameAction, Key> DefaultKeys = new()
     {
         { GameAction.Forward, Key.W },
@@ -66,27 +62,21 @@ public static class MovementKeyBindings
         { GameAction.Jump, Key.Space },
         { GameAction.Roll, Key.C }
     };
-
     private static readonly Dictionary<GameAction, Key> RuntimeKeys = new();
 #endif
-
     private static bool _loaded;
-
     public static void EnsureLoaded()
     {
         if (_loaded)
         {
             return;
         }
-
 #if ENABLE_INPUT_SYSTEM
         RuntimeKeys.Clear();
         foreach (GameAction action in AllActions)
         {
             RuntimeKeys[action] = LoadKey(PrefKeys[action], GetDefaultKey(action));
         }
-
-        // Migration: old heavy attack default used to be K. Move to X once.
         const string heavyAttackMigrationKey = "Controls.HeavyAttack.MigratedToX";
         if (!PlayerPrefs.HasKey(heavyAttackMigrationKey)
             && RuntimeKeys.TryGetValue(GameAction.HeavyAttack, out Key heavyKey)
@@ -96,7 +86,6 @@ public static class MovementKeyBindings
             PlayerPrefs.SetString(PrefKeys[GameAction.HeavyAttack], Key.X.ToString());
         }
         PlayerPrefs.SetInt(heavyAttackMigrationKey, 1);
-
         const string defendMigrationKey = "Controls.Defend.MigratedToR";
         if (!PlayerPrefs.HasKey(defendMigrationKey)
             && RuntimeKeys.TryGetValue(GameAction.Defend, out Key defendKey)
@@ -110,12 +99,10 @@ public static class MovementKeyBindings
 #endif
         _loaded = true;
     }
-
     public static IEnumerable<GameAction> EnumerateActions()
     {
         return AllActions;
     }
-
     public static void ResetToDefaults(bool save)
     {
 #if ENABLE_INPUT_SYSTEM
@@ -126,13 +113,11 @@ public static class MovementKeyBindings
         }
 #endif
         _loaded = true;
-
         if (save)
         {
             Save();
         }
     }
-
     public static Key GetDefaultKey(GameAction action)
     {
 #if ENABLE_INPUT_SYSTEM
@@ -141,7 +126,6 @@ public static class MovementKeyBindings
         return default;
 #endif
     }
-
     public static Key GetKey(GameAction action)
     {
 #if ENABLE_INPUT_SYSTEM
@@ -151,22 +135,18 @@ public static class MovementKeyBindings
         return default;
 #endif
     }
-
     public static void SetKey(GameAction action, Key key)
     {
 #if ENABLE_INPUT_SYSTEM
         EnsureLoaded();
-
         GameAction? existingAction = FindActionUsingKey(key);
         if (existingAction.HasValue && existingAction.Value != action)
         {
             RuntimeKeys[existingAction.Value] = GetKey(action);
         }
-
         RuntimeKeys[action] = key;
 #endif
     }
-
     public static bool IsPressed(GameAction action)
     {
 #if ENABLE_INPUT_SYSTEM
@@ -175,14 +155,12 @@ public static class MovementKeyBindings
         {
             return false;
         }
-
         Key key = GetKey(action);
         return key != Key.None && keyboard[key].isPressed;
 #else
         return false;
 #endif
     }
-
     public static bool WasPressedThisFrame(GameAction action)
     {
 #if ENABLE_INPUT_SYSTEM
@@ -191,14 +169,12 @@ public static class MovementKeyBindings
         {
             return false;
         }
-
         Key key = GetKey(action);
         return key != Key.None && keyboard[key].wasPressedThisFrame;
 #else
         return false;
 #endif
     }
-
     public static bool WasReleasedThisFrame(GameAction action)
     {
 #if ENABLE_INPUT_SYSTEM
@@ -207,14 +183,12 @@ public static class MovementKeyBindings
         {
             return false;
         }
-
         Key key = GetKey(action);
         return key != Key.None && keyboard[key].wasReleasedThisFrame;
 #else
         return false;
 #endif
     }
-
     public static string GetDisplayName(Key key)
     {
 #if ENABLE_INPUT_SYSTEM
@@ -238,7 +212,6 @@ public static class MovementKeyBindings
         return "-";
 #endif
     }
-
     public static void Save()
     {
 #if ENABLE_INPUT_SYSTEM
@@ -250,14 +223,12 @@ public static class MovementKeyBindings
         PlayerPrefs.Save();
 #endif
     }
-
 #if ENABLE_INPUT_SYSTEM
     private static Key LoadKey(string prefKey, Key fallback)
     {
         string raw = PlayerPrefs.GetString(prefKey, fallback.ToString());
         return System.Enum.TryParse(raw, out Key parsed) ? parsed : fallback;
     }
-
     private static GameAction? FindActionUsingKey(Key key)
     {
         foreach (KeyValuePair<GameAction, Key> pair in RuntimeKeys)
@@ -267,11 +238,9 @@ public static class MovementKeyBindings
                 return pair.Key;
             }
         }
-
         return null;
     }
 #endif
-
     public static string GetDisplayName(GameAction action)
     {
 #if ENABLE_INPUT_SYSTEM

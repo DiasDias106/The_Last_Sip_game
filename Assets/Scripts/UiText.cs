@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
 public static class UiText
 {
     private const string LegacyLanguageIndexKey = "MainMenu.Language";
     private const string SelectedLanguageKey = "SelectedLanguage";
-
     private static readonly Dictionary<string, string> PtToEn = new(StringComparer.Ordinal)
     {
         ["Este slot j\u00e1 tem um jogo guardado. Queres apagar este progresso e come\u00e7ar um novo jogo?"] = "This slot already has a saved game. Do you want to erase this progress and start a new game?",
@@ -161,9 +159,7 @@ public static class UiText
         ,["Alguns inimigos são melhor evitados do que confrontados directamente."] = "Some enemies are better avoided than confronted directly."
         ,["A masmorra tem memória — os teus actos têm consequências."] = "The dungeon has memory — your actions have consequences."
     };
-
     private static readonly Dictionary<string, string> EnToPt = BuildReverseMap(PtToEn);
-
     public static LanguageManager.Language CurrentLanguage
     {
         get
@@ -172,7 +168,6 @@ public static class UiText
             {
                 return LanguageManager.Instance.CurrentLanguage;
             }
-
             if (PlayerPrefs.HasKey(SelectedLanguageKey))
             {
                 string savedLanguage = PlayerPrefs.GetString(SelectedLanguageKey, "PT");
@@ -181,40 +176,32 @@ public static class UiText
                     return parsed;
                 }
             }
-
             int languageIndex = PlayerPrefs.GetInt(LegacyLanguageIndexKey, 0);
             return LanguageFromIndex(languageIndex);
         }
     }
-
     public static bool IsPortuguese => CurrentLanguage == LanguageManager.Language.PT;
-
     public static string Choose(string portuguese, string english)
     {
         return IsPortuguese ? portuguese : english;
     }
-
     public static LanguageManager.Language LanguageFromIndex(int index)
     {
         return index <= 0 ? LanguageManager.Language.PT : LanguageManager.Language.EN;
     }
-
     public static int IndexFromLanguage(LanguageManager.Language language)
     {
         return language == LanguageManager.Language.PT ? 0 : 1;
     }
-
     public static string LocalizeKnownText(string value)
     {
         if (string.IsNullOrEmpty(value))
         {
             return value;
         }
-
         Dictionary<string, string> map = IsPortuguese ? EnToPt : PtToEn;
         return map.TryGetValue(value, out string localized) ? localized : value;
     }
-
     public static string GetMainMenuButtonLabel(string buttonName)
     {
         return buttonName switch
@@ -233,7 +220,6 @@ public static class UiText
             _ => buttonName
         };
     }
-
     public static string GetOptionsSectionTitle(int index)
     {
         return index switch
@@ -246,7 +232,6 @@ public static class UiText
             _ => string.Empty
         };
     }
-
     public static string GetSelectorLabel(string selectorName, int index)
     {
         return selectorName switch
@@ -257,7 +242,6 @@ public static class UiText
             _ => string.Empty
         };
     }
-
     public static string GetBindingActionLabel(MovementKeyBindings.GameAction action)
     {
         return action switch
@@ -276,7 +260,6 @@ public static class UiText
             _ => string.Empty
         };
     }
-
     private static Dictionary<string, string> BuildReverseMap(Dictionary<string, string> source)
     {
         Dictionary<string, string> reverse = new(StringComparer.Ordinal);
@@ -287,7 +270,6 @@ public static class UiText
                 reverse.Add(pair.Value, pair.Key);
             }
         }
-
         return reverse;
     }
 }
