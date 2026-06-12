@@ -126,7 +126,7 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         var titleGo = new GameObject("Title");
         titleGo.transform.SetParent(panel.transform, false);
         var tt = titleGo.AddComponent<TextMeshProUGUI>();
-        tt.text      = "VOCÊ MORREU";
+        tt.text      = UiText.LocalizeKnownText("VOC\u00ca MORREU");
         tt.fontSize  = 52;
         tt.fontStyle = FontStyles.Bold;
         tt.alignment = TextAlignmentOptions.Center;
@@ -148,10 +148,10 @@ public class PlayerDeathSceneLoader : MonoBehaviour
         dRT.anchoredPosition = new Vector2(0f, -108f);
 
         // ── Buttons ───────────────────────────────────────────────────────────
-        var retry = MakeButton(panel.transform, bold, "Tentar Novamente", new Vector2(0f, 8f));
+        var retry = MakeButton(panel.transform, bold, UiText.LocalizeKnownText("Tentar Novamente"), new Vector2(0f, 8f));
         retry.GetComponent<Button>().onClick.AddListener(() => StartCoroutine(RetryLevel()));
 
-        var menuBtn = MakeButton(panel.transform, bold, "Menu Principal", new Vector2(0f, -58f));
+        var menuBtn = MakeButton(panel.transform, bold, UiText.LocalizeKnownText("Menu Principal"), new Vector2(0f, -58f));
         menuBtn.GetComponent<Button>().onClick.AddListener(() => StartCoroutine(ExitToMenu()));
     }
 

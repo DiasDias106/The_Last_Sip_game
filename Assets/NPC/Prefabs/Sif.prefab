@@ -5837,7 +5837,7 @@ MonoBehaviour:
   attackRange: 2.5
   patrolRadius: 7
   patrolWaitTime: 3
-  coinReward: 30
+  coinReward: 10
 --- !u!1 &4015814456416016744
 GameObject:
   m_ObjectHideFlags: 0

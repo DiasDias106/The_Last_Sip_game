@@ -142,7 +142,7 @@ public class MemoryVideoPlayer : MonoBehaviour
         onVideoFinishedCallback = onComplete;
         ClearRenderTexture();
 
-        string pathStr = System.IO.Path.Combine(Application.dataPath, "videos", videoFileName + ".mp4");
+        string pathStr = System.IO.Path.Combine(Application.streamingAssetsPath, "videos", videoFileName + ".mp4");
         videoPlayer.source = VideoSource.Url;
         videoPlayer.url = pathStr;
         videoDisplay.texture = renderTexture;

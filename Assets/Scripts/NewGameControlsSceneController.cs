@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -108,7 +109,7 @@ public sealed class NewGameControlsSceneController : MonoBehaviour
         PlayerPrefs.SetString(PendingSceneKey, targetScene);
         PlayerPrefs.Save();
         RuntimeSceneTransitionOverlay.HideOverlay();
-        SceneManager.LoadScene(LoadingSceneName);
+        SceneManager.LoadSceneAsync(LoadingSceneName);
     }
 
     private void RebuildSceneUi()

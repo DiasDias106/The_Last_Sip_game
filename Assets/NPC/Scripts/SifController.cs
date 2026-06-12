@@ -20,7 +20,7 @@ public class SifController : MonoBehaviour, IDamageable, IStaggerable
     public float patrolWaitTime = 3f;
 
     [Header("Rewards")]
-    public int coinReward = 30;
+    public int coinReward = 10;
 
     private static readonly int HashIsWalking  = Animator.StringToHash("IsWalking");
     private static readonly int HashIsRunning  = Animator.StringToHash("IsRunning");
