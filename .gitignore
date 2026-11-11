@@ -140,4 +140,23 @@ npm-debug.log*
 
 # Dotenv
 .env
-.env.local.mcp.json
+.env.local
+.env.*
+
+# Configuracao local de ferramentas de IA / MCP
+.mcp.json
+.codex/
+.claude/
+
+# Instaladores do Asset Store (o conteudo importado fica nas pastas do pack)
+/[Aa]ssets/FANTASTIC - Dungeon Pack/
+/[Aa]ssets/FANTASTIC - Dungeon Pack.meta
+
+# Outras pastas geradas pelo Unity
+[Mm]emoryCaptures/
+[Rr]ecordings/
+.utmp/
+*_BurstDebugInformation_DoNotShip/
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/[Ss]creenshots/
