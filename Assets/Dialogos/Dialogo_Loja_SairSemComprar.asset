@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68e19cf2c0a105c40a281f82d309ec86, type: 3}
+  m_Name: Dialogo_Loja_SairSemComprar
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - textEN: Walking into the lion's den and leaving empty-handed... You're stronger
+      than you look.
+    textPT: "Entrar na cova do le\xE3o e sair de m\xE3os vazias... Tens mais for\xE7a
+      do que pareces."
+    audioClip: {fileID: 8300000, guid: 4786030f7e21212439108dba2a388022, type: 3}
+  - textEN: Just came to stare at the bottles? Torturing yourself isn't part of the
+      cure.
+    textPT: "Vieste s\xF3 ver as garrafas? Torturares-te n\xE3o faz parte da cura."
+    audioClip: {fileID: 8300000, guid: ca63566ad7e100a48b988bb3d6454555, type: 3}
+  playRandomLine: 1

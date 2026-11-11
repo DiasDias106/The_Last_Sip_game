@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68e19cf2c0a105c40a281f82d309ec86, type: 3}
+  m_Name: Dialogo_IntroBeco
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - textEN: How did I end up here?... Wait, I think I see a bottle in the distance.
+    textPT: "Como \xE9 que eu vim parar aqui?... Espera, acho que vejo uma garrafa
+      ao longe."
+    audioClip: {fileID: 8300000, guid: aac2bc952b8d6fc45a1bce67789db766, type: 3}
+  playRandomLine: 0

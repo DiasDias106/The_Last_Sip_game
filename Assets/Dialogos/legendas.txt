@@ -1,0 +1,117 @@
+
+
+Loja: 
+1
+bem aventurados sejam os que encontram a felicidade fora da bebida meu amigo.
+Blessed are those who find happiness outside of alcohol, my friend.
+
+2
+É irónico, não é? Lutas contra eles lá fora, mas vens aqui procurar o que os alimenta.
+Ironic, isn't it? You fight them out there, yet you come here looking for what feeds them.
+
+3
+Só me restam garrafas. Tem cuidado para não te afogares na 'cura'.
+I've only got bottles left. Be careful not to drown in the 'cure'.
+
+
+
+
+
+luta:
+4
+Cuidado com o 'só mais um golpe'. É assim que eles te apanham.
+Beware of 'just one more hit'. That's how they get you.
+
+5
+Não deixes que te encurralem. A tentação vence sempre que ficas sem saídas.
+Don't let them corner you. Temptation always wins when you run out of exits.
+
+6
+Não tentes absorver todos os golpes. Desviar da tentação também é uma vitória.
+Don't try to absorb every hit. Dodging temptation is also a victory.
+
+
+
+
+
+Morreu
+
+7 
+Perdeste a batalha de ontem, mas hoje é um novo dia. Limpa a mente.
+You lost yesterday's battle, but today is a new day. Clear your mind.
+
+8
+O peso que sentes não é da tua armadura. É do passado. Larga-o.
+The weight you feel isn't your armor. It's the past. Let it go.
+
+9
+Lembra-te: tu és mais forte do que a sede.
+Remember: you are stronger than the thirst.
+
+
+interacoes loja:
+
+	inventario cheio:
+		10
+		Os teus bolsos estão cheios. Não deixes que o peso da 'cura' te afunde.
+		Your pockets are full. Don't let the weight of the 'cure' sink you.
+
+		11
+		Já carregas o teu limite. Mais do que isso não é sede, é desespero.
+		You're carrying your limit. Any more than that isn't thirst, it's desperation.
+
+		12
+		Não consegues levar mais nada. O fardo que carregas já é pesado que chegue.
+		You can't take anything else. The burden you carry is heavy enough.
+
+	sair sem comprar nada:
+
+		13
+		Entrar na cova do leão e sair de mãos vazias... Tens mais força do que pareces.
+		Walking into the lion's den and leaving empty-handed... You're stronger than you look.
+
+		14
+		Vieste só ver as garrafas? Torturares-te não faz parte da cura.
+		Just came to stare at the bottles? Torturing yourself isn't part of the cure.
+
+	Comprar:
+
+		15
+		Usa isto apenas em último caso. Prometes?
+		Use this only as a last resort. Promise?
+
+		16
+		Um brinde à tua fraqueza. Volta sempre.
+		A toast to your weakness. Come back anytime.
+
+		17
+		Um alívio rápido, mas sabes bem que o preço não se paga só em moedas.
+		Quick relief, but you know well the price isn't just paid in coin.
+
+inicio beco_noite
+
+	18
+	Como é que eu vim parar aqui?... Espera, acho que vejo uma garrafa ao longe.
+	How did I end up here?… Wait, I think I see a bottle in the distance.
+
+inicio masmorra
+
+	19
+	Não me lembro de como cheguei aqui. Mas aqueles portais na parede... parecem ser a minha única saída daqui.
+	I don't remember how I got here. But those portals on the wall... they look like my only way out.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		

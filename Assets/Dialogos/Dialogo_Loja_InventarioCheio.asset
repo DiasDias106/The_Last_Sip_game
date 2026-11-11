@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68e19cf2c0a105c40a281f82d309ec86, type: 3}
+  m_Name: Dialogo_Loja_InventarioCheio
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - textEN: Your pockets are full. Don't let the weight of the 'cure' sink you.
+    textPT: "Os teus bolsos est\xE3o cheios. N\xE3o deixes que o peso da 'cura' te
+      afunde."
+    audioClip: {fileID: 8300000, guid: bedaee94fa000b14695a9aba9f9796e2, type: 3}
+  - textEN: You're carrying your limit. Any more than that isn't thirst, it's desperation.
+    textPT: "J\xE1 carregas o teu limite. Mais do que isso n\xE3o \xE9 sede, \xE9
+      desespero."
+    audioClip: {fileID: 8300000, guid: 9a98428c76db1d84193b4b310f7a734c, type: 3}
+  - textEN: You can't take anything else. The burden you carry is heavy enough.
+    textPT: "N\xE3o consegues levar mais nada. O fardo que carregas j\xE1 \xE9 pesado
+      que chegue."
+    audioClip: {fileID: 8300000, guid: 18e6f3a03408f6d4e92eebae584f9aca, type: 3}
+  playRandomLine: 1

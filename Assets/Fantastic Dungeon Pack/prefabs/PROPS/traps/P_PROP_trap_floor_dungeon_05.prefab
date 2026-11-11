@@ -17,7 +17,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &6725203484525560173
 Transform:
@@ -105,12 +105,13 @@ GameObject:
   - component: {fileID: 748107037147762051}
   - component: {fileID: 6439380049763398010}
   - component: {fileID: 3378043826254993928}
+  - component: {fileID: 1144200000000000001}
   m_Layer: 0
   m_Name: P_PROP_trap_floor_dungeon_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &8591401194178918325
 Transform:
@@ -187,3 +188,28 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2.003702, y: 0.13, z: 2.0073628}
   m_Center: {x: 0.00083243847, y: 0.03, z: 0.0010550618}
+--- !u!114 &1144200000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4711205036396397990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb296bd73426ce641b2a0f6e97a24a4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArrowTrapController
+  firstShotDelay: 1
+  fireInterval: 3
+  fireDuration: 0.75
+  activeDamageDuration: 0.8
+  reloadDelay: 0.45
+  respawnDuration: 0.35
+  instantKill: 1
+  damage: 10
+  travelDistance: 8
+  respawnOffset: 0.5
+  localShootDirection: {x: 0, y: 1, z: 0}
+  respawnStartScaleMultiplier: 0.2
+  movingVisual: {fileID: 0}

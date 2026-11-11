@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68e19cf2c0a105c40a281f82d309ec86, type: 3}
+  m_Name: Dialogo_Luta
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  lines:
+  - textEN: Beware of 'just one more hit'. That's how they get you.
+    textPT: "Cuidado com o 's\xF3 mais um golpe'. \xC9 assim que eles te apanham."
+    audioClip: {fileID: 8300000, guid: 238ad71b7c5d7254084f88375f66b141, type: 3}
+  - textEN: Don't let them corner you. Temptation always wins when you run out of
+      exits.
+    textPT: "N\xE3o deixes que te encurralem. A tenta\xE7\xE3o vence sempre que ficas
+      sem sa\xEDdas."
+    audioClip: {fileID: 8300000, guid: 26585cd4c57ec5e4f950679792e3a2fb, type: 3}
+  - textEN: Don't try to absorb every hit. Dodging temptation is also a victory.
+    textPT: "N\xE3o tentes absorver todos os golpes. Desviar da tenta\xE7\xE3o tamb\xE9m
+      \xE9 uma vit\xF3ria."
+    audioClip: {fileID: 8300000, guid: 6b8011c04d38de3449bd0eb970a1c33f, type: 3}
+  playRandomLine: 1

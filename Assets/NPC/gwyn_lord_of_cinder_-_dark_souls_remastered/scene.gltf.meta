@@ -1,0 +1,83 @@
+fileFormatVersion: 2
+guid: 95990992bd811e64f9bf9e2d080bf156
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 715df9372183c47e389bb6e19fbc3b52, type: 3}
+  editorImportSettings:
+    generateSecondaryUVSet: 0
+  importSettings:
+    nodeNameMethod: 1
+    animationMethod: 2
+    generateMipMaps: 1
+    texturesReadable: 0
+    defaultMinFilterMode: 9729
+    defaultMagFilterMode: 9729
+    anisotropicFilterLevel: 1
+  instantiationSettings:
+    mask: -1
+    layer: 0
+    skinUpdateWhenOffscreen: 1
+    lightIntensityFactor: 1
+    sceneObjectCreation: 2
+  assetDependencies:
+  - type: 0
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\scene.bin
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\scene.bin
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_0_baseColor.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_0_baseColor.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_0_normal.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_0_normal.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_2_baseColor.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_2_baseColor.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_2_normal.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_2_normal.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_3_baseColor.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_3_baseColor.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_3_normal.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_3_normal.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_7_baseColor.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_7_baseColor.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_7_normal.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_7_normal.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_8_baseColor.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_8_baseColor.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_8_normal.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_8_normal.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_9_baseColor.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_9_baseColor.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_9_normal.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_9_normal.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_13_baseColor.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_13_baseColor.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_13_normal.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_13_normal.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_14_baseColor.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_14_baseColor.png
+  - type: 1
+    originalUri: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_14_normal.png
+    assetPath: Assets\NPC\gwyn_lord_of_cinder_-_dark_souls_remastered\textures\c5370_Material_14_normal.png
+  reportItems:
+  - type: 2
+    code: 20
+    messages:
+    - KHR_materials_specular

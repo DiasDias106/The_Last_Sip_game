@@ -1,0 +1,11 @@
+Model Information:
+* title:	Dark Knight Greatsword - Dark Souls Remastered
+* source:	https://sketchfab.com/3d-models/dark-knight-greatsword-dark-souls-remastered-ee2bd4528b744d94bbf2b98c1eeb7d2c
+* author:	Catholomew (https://sketchfab.com/Catholomew)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Dark Knight Greatsword - Dark Souls Remastered" (https://sketchfab.com/3d-models/dark-knight-greatsword-dark-souls-remastered-ee2bd4528b744d94bbf2b98c1eeb7d2c) by Catholomew (https://sketchfab.com/Catholomew) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)

@@ -140,4 +140,4 @@ npm-debug.log*
 
 # Dotenv
 .env
-.env.local
+.env.local.mcp.json
